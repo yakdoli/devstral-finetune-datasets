@@ -290,7 +290,7 @@ class OpenAIFormatter:
         # 토큰 수 검증
         total_tokens = self._calculate_total_tokens(messages)
         if total_tokens > 8192:
-            self.logger.warning(f"최대 토큰 수 초과: {total_tokens} > 4096")
+            self.logger.warning(f"최대 토큰 수 초과: {total_tokens} > 8192")
         
         return True
     
@@ -362,7 +362,7 @@ class OpenAIFormatter:
                 "메시지 순서 검증"
             ],
             "max_message_length": self.config.max_message_length,
-            "max_total_tokens": 4096,
+            "max_total_tokens": 8192,
             "supported_roles": [self.config.system_role, self.config.user_role, self.config.assistant_role]
         }
 

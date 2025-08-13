@@ -104,7 +104,7 @@ class QdrantConnector:
     
     def __init__(
         self,
-        host: str = "localhost",
+        host: str = "100.100.88.88",
         port: int = 6333,
         api_key: Optional[str] = None,
         collection_name: str = "ws-7491d651ae044c78",
@@ -407,7 +407,7 @@ class QdrantConnector:
 
 
 def create_qdrant_connector(
-    host: str = "localhost",
+    host: str = "100.100.88.88",
     port: int = 6333,
     api_key: Optional[str] = None,
     collection_name: str = "ws-7491d651ae044c78"

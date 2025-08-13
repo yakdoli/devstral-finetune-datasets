@@ -479,7 +479,7 @@ class IntegratedDocumentProcessor:
 
 
 def create_integrated_processor(
-    qdrant_host: str = "localhost",
+    qdrant_host: str = "100.100.88.88",
     qdrant_port: int = 6333,
     qdrant_api_key: Optional[str] = None,
     qdrant_collection: str = "ws-7491d651ae044c78",

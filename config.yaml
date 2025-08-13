@@ -13,7 +13,7 @@ openai_max_tokens: 128000
 openai_temperature: 0.3
 
 # Qdrant 설정
-qdrant_host: "localhost"
+qdrant_host: "100.100.88.88"
 qdrant_port: 6333
 qdrant_collection: "ws-7491d651ae044c78"
 
@@ -29,7 +29,7 @@ train_test_split: 0.9
 # 품질 검증 설정
 min_quality_score: 0.7
 max_similarity_threshold: 0.9
-safety_threshold: 0.8
+safety_threshold: 0.1
 enable_auto_correction: true
 
 # 실행 설정

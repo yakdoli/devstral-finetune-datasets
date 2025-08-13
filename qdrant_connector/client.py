@@ -23,7 +23,7 @@ class QdrantClientConfig:
     
     def __init__(
         self,
-        host: str = "localhost",
+        host: str = "100.100.88.88",
         port: int = 6333,
         api_key: Optional[str] = None,
         timeout: int = 30,
@@ -367,7 +367,7 @@ def set_global_client_manager(manager: QdrantConnectionManager):
 
 
 def create_qdrant_client(
-    host: str = "localhost",
+    host: str = "100.100.88.88",
     port: int = 6333,
     api_key: Optional[str] = None,
     collection_name: str = "ws-7491d651ae044c78"

@@ -51,7 +51,7 @@ class DatasetConfig:
     remove_duplicates: bool = True
     quality_threshold: float = 0.7
     batch_size: int = 100
-    max_workers: int = 4
+    max_workers: int = 8
     seed: Optional[int] = 42
     output_dir: str = "output"
     include_metadata: bool = True

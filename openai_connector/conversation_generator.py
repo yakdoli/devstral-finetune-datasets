@@ -33,7 +33,7 @@ class ConversationConfig:
     """대화 생성 설정"""
     generation_mode: GenerationMode = GenerationMode.LLM_ASSISTED
     target_count: int = 1000
-    max_turns: int = 4
+    max_turns: int = 6
     batch_size: int = 16
     max_concurrent: int = 8
     temperature: float = 0.3
@@ -370,9 +370,9 @@ async def test_conversation_generator():
         endpoint="http://123.37.28.120:9997/v1",
         model="qwen2.5-vl-instruct",
         api_key="test-key",
-        max_tokens=4096,
+        max_tokens=8192,
         temperature=0.3,
-        max_concurrent=8
+        max_concurrent=12
     )
     
     prompt_config = PromptConfig(
@@ -386,9 +386,9 @@ async def test_conversation_generator():
     conversation_config = ConversationConfig(
         generation_mode=GenerationMode.LLM_ASSISTED,
         target_count=5,
-        max_turns=3,
-        batch_size=2,
-        max_concurrent=2
+        max_turns=5,
+        batch_size=12,
+        max_concurrent=8
     )
     
     # 컴포넌트 생성

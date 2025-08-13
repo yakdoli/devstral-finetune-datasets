@@ -483,7 +483,7 @@ def get_environment_config() -> Dict[str, Any]:
         환경변수 설정 딕셔너리
     """
     config = {
-        "host": os.getenv("QDRANT_HOST", "localhost"),
+        "host": os.getenv("QDRANT_HOST", "100.100.88.88"),
         "port": int(os.getenv("QDRANT_PORT", "6333")),
         "api_key": os.getenv("QDRANT_API_KEY"),
         "collection_name": os.getenv("QDRANT_COLLECTION", "ws-7491d651ae044c78"),

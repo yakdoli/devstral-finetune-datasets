@@ -573,8 +573,8 @@ def test_token_manager():
     config = TokenConfig(
         max_context_length=128000,
         max_request_tokens=32000,
-        rate_limit_rpm=60,
-        rate_limit_tpm=100000,
+        rate_limit_rpm=600,
+        rate_limit_tpm=1000000,
         token_buffer=0.9,
         enable_optimization=True,
         track_usage_history=True,

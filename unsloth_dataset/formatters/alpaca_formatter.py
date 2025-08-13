@@ -325,7 +325,7 @@ class AlpacaFormatter:
             "max_instruction_length": self.config.max_instruction_length,
             "max_input_length": self.config.max_input_length,
             "max_output_length": self.config.max_output_length,
-            "max_total_tokens": 4096
+            "max_total_tokens": 8192
         }
 
 

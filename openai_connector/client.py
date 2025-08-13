@@ -26,7 +26,7 @@ class GenerationMode(Enum):
 @dataclass
 class OpenAIAPIClientConfig:
     """OpenAI API 클라이언트 설정"""
-    endpoint: str = "http://localhost:9997/v1"
+    endpoint: str = "http://123.37.28.120:9997/v1"
     model: str = "qwen2.5-vl-instruct"
     api_key: str = "your-api-key"
     max_tokens: int = 128000
@@ -36,8 +36,8 @@ class OpenAIAPIClientConfig:
     timeout: int = 300
     retry_attempts: int = 3
     retry_delay: float = 1.0
-    rate_limit_rpm: int = 60  # requests per minute
-    rate_limit_tpm: int = 100000  # tokens per minute
+    rate_limit_rpm: int = 600 # requests per minute
+    rate_limit_tpm: int = 1000000  # tokens per minute
 
 
 @dataclass
@@ -59,7 +59,7 @@ class APIResponse:
 class RateLimiter:
     """레이트 리미터 클래스"""
     
-    def __init__(self, rpm: int = 60, tpm: int = 100000):
+    def __init__(self, rpm: int = 600, tpm: int = 1000000):
         self.rpm = rpm
         self.tpm = tpm
         self.request_times = []
