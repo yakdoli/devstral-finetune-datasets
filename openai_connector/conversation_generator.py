@@ -146,7 +146,11 @@ class ConversationGenerator:
         self._update_stats(final_conversations)
         
         logger.info(f"대화 생성 완료: {len(final_conversations)}개 생성")
-        logger.info(f"성공률: {(len(final_conversations) / (len(final_conversations) + self.failed_count) * 100):.1f}%")
+        total_attempts = len(final_conversations) + self.failed_count
+        if total_attempts > 0:
+            logger.info(f"성공률: {(len(final_conversations) / total_attempts * 100):.1f}%")
+        else:
+            logger.info("성공률: 0.0%")
         
         return final_conversations
     
@@ -196,33 +200,41 @@ class ConversationGenerator:
                 {"role": "user", "content": user_question}
             ]
             
-            logger.debug(f"문서 {document.get('id', 'unknown')} 프롬프트: {messages}")
+            logger.info(f"문서 {document.get('id', 'unknown')} 대화 생성 시작")
+            logger.debug(f"프롬프트: {messages}")
             
             # 토큰 관리
             estimated_tokens = self.token_manager.estimate_tokens(messages)
+            logger.debug(f"예상 토큰 수: {estimated_tokens}")
+            
             if not self.token_manager.check_token_limit(estimated_tokens):
                 logger.warning("토큰 한도 초과")
                 return None
             
             # API 호출
+            logger.debug("API 호출 시작")
             response = await self.client.chat_completion(
                 messages=messages,
-                max_tokens=4096,  # 임시 고정값
+                max_tokens=200,  # 데모용 작은 값
                 temperature=self.config.temperature
             )
+            logger.debug(f"API 응답 받음: {response.content[:100]}...")
             
             # 응답 토큰 수 업데이트
             tokens_used = response.tokens_used
             self.total_tokens_used += tokens_used
-            self.token_manager.update_token_usage(0, tokens_used)  # prompt_tokens=0, completion_tokens=tokens_used
+            self.token_manager.update_token_usage(estimated_tokens, tokens_used)
             
             # 대화 구조화
             conversation = self._structure_conversation(document, messages, response)
+            logger.info(f"문서 {document.get('id', 'unknown')} 대화 생성 완료")
             
             return conversation
             
         except Exception as e:
-            logger.error(f"단일 대화 생성 실패: {e}")
+            logger.error(f"단일 대화 생성 실패 (문서: {document.get('id', 'unknown')}): {e}")
+            import traceback
+            logger.error(traceback.format_exc())
             return None
     
     def _structure_conversation(

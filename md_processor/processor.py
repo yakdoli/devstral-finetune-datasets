@@ -337,21 +337,44 @@ class MDProcessor:
         self.stats.processed_files += 1
         
         try:
+            # 파일 존재 확인
+            if not md_path.exists():
+                raise FileNotFoundError(f"MD file not found: {md_path}")
+            
+            # 파일 크기 확인
+            file_size = md_path.stat().st_size
+            if file_size == 0:
+                logger.warning(f"Empty file skipped: {md_path}")
+                return None
+            
+            if file_size > self.config.max_content_length * 10:  # 대략적인 크기 제한
+                logger.warning(f"File too large, skipped: {md_path} ({file_size} bytes)")
+                return None
+            
             # 파싱
+            logger.debug(f"Parsing file: {md_path}")
             document = self.parser.parse_file(md_path, json_metadata.file_path if json_metadata else None)
+            
+            # 파싱 결과 검증
+            if not document or not document.get('content'):
+                logger.warning(f"No content extracted from: {md_path}")
+                return None
             
             # 품질 필터링
             if not self.quality_filter.filter_document(document):
                 reason = self.quality_filter.get_filter_reason(document)
-                logger.debug(f"Filtered {md_path.name}: {reason}")
+                logger.debug(f"Quality filter failed for {md_path.name}: {reason}")
                 return None
             
             # 중복 제거
             if self.duplicate_remover.is_duplicate(document):
                 reason = self.duplicate_remover.get_duplicate_reason(document)
-                logger.debug(f"Duplicate {md_path.name}: {reason}")
+                logger.debug(f"Duplicate detected for {md_path.name}: {reason}")
                 self.stats.duplicate_files += 1
                 return None
+            
+            # 메타데이터 보강
+            document = self._enrich_document_metadata(document, md_path, json_metadata)
             
             # 통계 업데이트
             self.stats.successful_files += 1
@@ -359,18 +382,70 @@ class MDProcessor:
             self.stats.total_content_length += content_length
             
             # 진행률 로깅
-            if self.stats.processed_files % self.config.progress_interval == 0:
+            if self.stats.processed_files % self.config.progress_interval == 0 and self.stats.total_files > 0:
                 progress = (self.stats.processed_files / self.stats.total_files) * 100
                 logger.info(f"Progress: {progress:.1f}% ({self.stats.processed_files}/{self.stats.total_files})")
             
+            logger.debug(f"Successfully processed: {md_path.name}")
             return document
             
-        except Exception as e:
-            error_msg = f"Error processing {md_path}: {e}"
+        except FileNotFoundError as e:
+            error_msg = f"File not found: {md_path} - {e}"
             logger.error(error_msg)
             self.stats.errors.append(error_msg)
             self.stats.failed_files += 1
             return None
+            
+        except PermissionError as e:
+            error_msg = f"Permission denied: {md_path} - {e}"
+            logger.error(error_msg)
+            self.stats.errors.append(error_msg)
+            self.stats.failed_files += 1
+            return None
+            
+        except UnicodeDecodeError as e:
+            error_msg = f"Encoding error: {md_path} - {e}"
+            logger.error(error_msg)
+            self.stats.errors.append(error_msg)
+            self.stats.failed_files += 1
+            return None
+            
+        except Exception as e:
+            error_msg = f"Unexpected error processing {md_path}: {type(e).__name__}: {e}"
+            logger.error(error_msg, exc_info=True)
+            self.stats.errors.append(error_msg)
+            self.stats.failed_files += 1
+            return None
+    
+    def _enrich_document_metadata(self, document: Dict[str, Any], md_path: Path, json_metadata=None) -> Dict[str, Any]:
+        """문서 메타데이터 보강"""
+        try:
+            # 처리 시간 추가
+            document['processing_timestamp'] = datetime.now().isoformat()
+            
+            # 파일 경로 정보 추가
+            document['source_file'] = str(md_path)
+            document['file_size'] = md_path.stat().st_size
+            
+            # JSON 메타데이터 정보 추가
+            if json_metadata:
+                document['has_json_metadata'] = True
+                document['json_file'] = str(json_metadata.file_path)
+            else:
+                document['has_json_metadata'] = False
+            
+            # 처리 설정 정보 추가
+            document['processing_config'] = {
+                'min_quality_score': self.config.min_quality_score,
+                'max_content_length': self.config.max_content_length,
+                'remove_duplicates': self.config.remove_duplicates
+            }
+            
+            return document
+            
+        except Exception as e:
+            logger.warning(f"Failed to enrich metadata for {md_path}: {e}")
+            return document
     
     def process_document(self, md_path: Path, md_metadata, json_metadata=None) -> Optional[Dict[str, Any]]:
         """
@@ -391,6 +466,7 @@ class MDProcessor:
         try:
             output_path.parent.mkdir(parents=True, exist_ok=True)
             
+            # 메인 결과 파일 저장
             if self.config.output_format == "json":
                 with open(output_path, 'w', encoding='utf-8') as f:
                     json.dump(documents, f, indent=2, ensure_ascii=False)
@@ -399,10 +475,115 @@ class MDProcessor:
                     for doc in documents:
                         f.write(json.dumps(doc, ensure_ascii=False) + '\n')
             
-            logger.info(f"Results saved to: {output_path}")
+            logger.info(f"Results saved to: {output_path} ({len(documents)} documents)")
+            
+            # 구조화된 메타데이터 파일 저장
+            metadata_path = output_path.with_suffix('.metadata.json')
+            self._save_structured_metadata(documents, metadata_path)
             
             # 통계 파일 저장
             stats_path = output_path.with_suffix('.stats.json')
+            self._save_processing_statistics(stats_path)
+            
+            # 요약 리포트 저장
+            summary_path = output_path.with_suffix('.summary.json')
+            self._save_processing_summary(documents, summary_path)
+            
+        except Exception as e:
+            logger.error(f"Failed to save results: {e}", exc_info=True)
+    
+    def _save_structured_metadata(self, documents: List[Dict[str, Any]], metadata_path: Path):
+        """구조화된 메타데이터 저장"""
+        try:
+            metadata_summary = {
+                "document_count": len(documents),
+                "components": {},
+                "api_signatures": {},
+                "content_statistics": {
+                    "total_words": 0,
+                    "total_characters": 0,
+                    "total_code_blocks": 0,
+                    "total_api_signatures": 0
+                },
+                "quality_distribution": {
+                    "high_quality": 0,  # > 0.8
+                    "medium_quality": 0,  # 0.5 - 0.8
+                    "low_quality": 0  # < 0.5
+                },
+                "generation_timestamp": datetime.now().isoformat()
+            }
+            
+            # 문서별 메타데이터 분석
+            for doc in documents:
+                component = doc.get('component')
+                if component:
+                    if component not in metadata_summary["components"]:
+                        metadata_summary["components"][component] = {
+                            "document_count": 0,
+                            "pages": [],
+                            "total_api_signatures": 0,
+                            "avg_quality_score": 0.0
+                        }
+                    
+                    comp_info = metadata_summary["components"][component]
+                    comp_info["document_count"] += 1
+                    
+                    if doc.get('page'):
+                        comp_info["pages"].append(doc['page'])
+                    
+                    # API 시그니처 통계
+                    api_sigs = doc.get('api_signatures', [])
+                    comp_info["total_api_signatures"] += len(api_sigs)
+                    
+                    # 컴포넌트별 API 시그니처 수집
+                    for sig in api_sigs:
+                        sig_name = sig.get('name', 'unknown')
+                        if sig_name not in metadata_summary["api_signatures"]:
+                            metadata_summary["api_signatures"][sig_name] = {
+                                "components": [],
+                                "signature": sig.get('signature', ''),
+                                "type": sig.get('type', 'unknown'),
+                                "language": sig.get('language', 'unknown')
+                            }
+                        
+                        if component not in metadata_summary["api_signatures"][sig_name]["components"]:
+                            metadata_summary["api_signatures"][sig_name]["components"].append(component)
+                
+                # 콘텐츠 통계
+                content_structure = doc.get('content_structure', {})
+                metadata_summary["content_statistics"]["total_words"] += content_structure.get('word_count', 0)
+                metadata_summary["content_statistics"]["total_characters"] += content_structure.get('character_count', 0)
+                metadata_summary["content_statistics"]["total_code_blocks"] += content_structure.get('code_block_count', 0)
+                metadata_summary["content_statistics"]["total_api_signatures"] += len(doc.get('api_signatures', []))
+                
+                # 품질 분포
+                quality_score = doc.get('quality_score', 0.0)
+                if quality_score > 0.8:
+                    metadata_summary["quality_distribution"]["high_quality"] += 1
+                elif quality_score > 0.5:
+                    metadata_summary["quality_distribution"]["medium_quality"] += 1
+                else:
+                    metadata_summary["quality_distribution"]["low_quality"] += 1
+            
+            # 컴포넌트별 평균 품질 점수 계산
+            for component, comp_info in metadata_summary["components"].items():
+                component_docs = [doc for doc in documents if doc.get('component') == component]
+                if component_docs:
+                    avg_quality = sum(doc.get('quality_score', 0.0) for doc in component_docs) / len(component_docs)
+                    comp_info["avg_quality_score"] = round(avg_quality, 3)
+                    comp_info["pages"] = sorted(list(set(comp_info["pages"])))
+            
+            with open(metadata_path, 'w', encoding='utf-8') as f:
+                json.dump(metadata_summary, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Structured metadata saved to: {metadata_path}")
+            
+        except Exception as e:
+            logger.error(f"Failed to save structured metadata: {e}", exc_info=True)
+    
+    def _save_processing_statistics(self, stats_path: Path):
+        """처리 통계 저장"""
+        try:
             stats_data = {
                 "processing_stats": {
                     "total_files": self.stats.total_files,
@@ -410,27 +591,86 @@ class MDProcessor:
                     "successful_files": self.stats.successful_files,
                     "failed_files": self.stats.failed_files,
                     "duplicate_files": self.stats.duplicate_files,
-                    "success_rate": self.stats.success_rate,
-                    "processing_time": self.stats.processing_time,
-                    "total_content_length": self.stats.total_content_length
+                    "success_rate": round(self.stats.success_rate, 2),
+                    "processing_time": round(self.stats.processing_time, 2),
+                    "total_content_length": self.stats.total_content_length,
+                    "avg_content_length": round(self.stats.total_content_length / max(self.stats.successful_files, 1), 2)
                 },
                 "config": {
                     "batch_size": self.config.batch_size,
                     "min_quality_score": self.config.min_quality_score,
                     "max_content_length": self.config.max_content_length,
                     "remove_duplicates": self.config.remove_duplicates,
-                    "output_format": self.config.output_format
+                    "output_format": self.config.output_format,
+                    "include_metadata": self.config.include_metadata,
+                    "progress_interval": self.config.progress_interval
                 },
-                "errors": self.stats.errors[:10]  # 최대 10개 오류 저장
+                "errors": self.stats.errors[:20],  # 최대 20개 오류 저장
+                "timestamp": datetime.now().isoformat()
             }
             
             with open(stats_path, 'w', encoding='utf-8') as f:
                 json.dump(stats_data, f, indent=2, ensure_ascii=False)
             
-            logger.info(f"Statistics saved to: {stats_path}")
+            logger.info(f"Processing statistics saved to: {stats_path}")
             
         except Exception as e:
-            logger.error(f"Failed to save results: {e}")
+            logger.error(f"Failed to save processing statistics: {e}", exc_info=True)
+    
+    def _save_processing_summary(self, documents: List[Dict[str, Any]], summary_path: Path):
+        """처리 요약 저장"""
+        try:
+            # 품질 점수 분석
+            quality_scores = [doc.get('quality_score', 0.0) for doc in documents]
+            avg_quality = sum(quality_scores) / len(quality_scores) if quality_scores else 0.0
+            
+            # 컴포넌트 분석
+            components = {}
+            for doc in documents:
+                component = doc.get('component')
+                if component:
+                    if component not in components:
+                        components[component] = 0
+                    components[component] += 1
+            
+            # API 시그니처 분석
+            total_api_signatures = sum(len(doc.get('api_signatures', [])) for doc in documents)
+            
+            summary = {
+                "processing_summary": {
+                    "total_documents": len(documents),
+                    "success_rate": round(self.stats.success_rate, 2),
+                    "processing_time": round(self.stats.processing_time, 2),
+                    "avg_quality_score": round(avg_quality, 3),
+                    "total_api_signatures": total_api_signatures,
+                    "components_found": len(components),
+                    "component_distribution": dict(sorted(components.items(), key=lambda x: x[1], reverse=True))
+                },
+                "quality_analysis": {
+                    "min_quality": round(min(quality_scores) if quality_scores else 0.0, 3),
+                    "max_quality": round(max(quality_scores) if quality_scores else 0.0, 3),
+                    "avg_quality": round(avg_quality, 3),
+                    "high_quality_docs": len([q for q in quality_scores if q > 0.8]),
+                    "medium_quality_docs": len([q for q in quality_scores if 0.5 <= q <= 0.8]),
+                    "low_quality_docs": len([q for q in quality_scores if q < 0.5])
+                },
+                "content_analysis": {
+                    "total_content_length": self.stats.total_content_length,
+                    "avg_content_length": round(self.stats.total_content_length / max(len(documents), 1), 2),
+                    "documents_with_code": len([doc for doc in documents if doc.get('content_structure', {}).get('code_block_count', 0) > 0]),
+                    "documents_with_tables": len([doc for doc in documents if doc.get('content_structure', {}).get('table_count', 0) > 0]),
+                    "documents_with_images": len([doc for doc in documents if doc.get('content_structure', {}).get('image_count', 0) > 0])
+                },
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            with open(summary_path, 'w', encoding='utf-8') as f:
+                json.dump(summary, f, indent=2, ensure_ascii=False)
+            
+            logger.info(f"Processing summary saved to: {summary_path}")
+            
+        except Exception as e:
+            logger.error(f"Failed to save processing summary: {e}", exc_info=True)
 
 
 def create_processor(config: ProcessingConfig = None) -> MDProcessor:
@@ -455,7 +695,7 @@ if __name__ == "__main__":
         batch_size=50,
         min_quality_score=0.1,
         max_content_length=20000,
-        remove_duplicates=False
+        remove_duplicates=False,
         output_format="json"
     )
     

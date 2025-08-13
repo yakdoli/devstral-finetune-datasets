@@ -69,7 +69,7 @@ class QdrantDocumentSearcher:
         self,
         query: str,
         limit: int = 10,
-        score_threshold: float = 0.5,
+        score_threshold: float = 0.7,  # 요구사항에 따라 기본값을 0.7로 변경
         metadata_filter: Optional[Dict[str, Any]] = None,
         search_type: str = "semantic",
         vector: Optional[List[float]] = None,
@@ -133,67 +133,40 @@ class QdrantDocumentSearcher:
             
             # 검색 방식에 따라 다른 쿼리 생성
             if query.search_type == "semantic" and query.vector:
-                # 벡터 기반 검색
-                search_request = models.SearchRequest(
-                    vector=query.vector,
+                # 벡터 기반 의미적 검색
+                search_result = self.client.search(
+                    collection_name=self.collection_name,
+                    query_vector=query.vector,
                     limit=query.limit,
                     score_threshold=query.score_threshold,
-                    filter=filter_condition,
+                    query_filter=filter_condition,
                     with_payload=True,
-                    with_vector=False
+                    with_vectors=False
                 )
-            elif query.search_type == "keyword":
-                # 키워드 기반 검색
-                search_request = models.SearchRequest(
-                    query=models.Query(
-                        must=[
-                            models.FieldCondition(
-                                key="content",
-                                match=models.MatchText(
-                                    text=query.text
-                                )
-                            )
-                        ]
-                    ),
-                    limit=query.limit,
-                    filter=filter_condition,
-                    with_payload=True,
-                    with_vector=False
-                )
+            elif query.search_type == "semantic" and query.text:
+                # 텍스트 기반 의미적 검색 (임베딩 생성 후 검색)
+                try:
+                    # 실제 구현에서는 sentence-transformers를 사용하여 임베딩 생성
+                    # 여기서는 간단한 텍스트 검색으로 대체
+                    search_result = self._search_by_text_similarity(query)
+                except Exception as e:
+                    logger.warning(f"의미적 검색 실패, 키워드 검색으로 대체: {e}")
+                    search_result = self._search_by_keywords(query, filter_condition)
+            elif query.search_type == "metadata":
+                # 메타데이터 기반 검색
+                search_result = self._search_by_metadata_only(query, filter_condition)
             else:
-                # 하이브리드 검색 (기본적으로 시맨틱 검색)
-                search_request = models.SearchRequest(
-                    query=models.Query(
-                        must=[
-                            models.FieldCondition(
-                                key="content",
-                                match=models.MatchText(
-                                    text=query.text
-                                )
-                            )
-                        ]
-                    ),
-                    limit=query.limit,
-                    score_threshold=query.score_threshold,
-                    filter=filter_condition,
-                    with_payload=True,
-                    with_vector=False
-                )
-            
-            # 검색 실행
-            search_result = self.client.search(
-                collection_name=self.collection_name,
-                search_request=search_request
-            )
+                # 키워드 기반 검색
+                search_result = self._search_by_keywords(query, filter_condition)
             
             # 결과 변환
             results = []
             for hit in search_result:
                 result = SearchResult(
                     id=str(hit.id),
-                    score=hit.score,
+                    score=getattr(hit, 'score', 1.0),  # scroll 결과에는 score가 없을 수 있음
                     payload=hit.payload,
-                    vector=hit.vector if hasattr(hit, 'vector') else None,
+                    vector=getattr(hit, 'vector', None),
                     shard_id=getattr(hit, 'shard_id', None),
                     version=getattr(hit, 'version', None)
                 )
@@ -335,7 +308,8 @@ class QdrantDocumentSearcher:
     def search_by_metadata(
         self,
         metadata_filter: Dict[str, Any],
-        limit: int = 10
+        limit: int = 10,
+        score_threshold: float = 0.0  # 메타데이터 검색에서는 낮은 임계값 사용
     ) -> List[Dict[str, Any]]:
         """
         메타데이터 기반으로 문서를 검색합니다.
@@ -343,6 +317,7 @@ class QdrantDocumentSearcher:
         Args:
             metadata_filter: 메타데이터 필터
             limit: 반환할 결과 수
+            score_threshold: 점수 임계값
             
         Returns:
             검색된 문서 목록
@@ -350,15 +325,70 @@ class QdrantDocumentSearcher:
         return self.search_documents(
             query="",
             limit=limit,
+            score_threshold=score_threshold,
             metadata_filter=metadata_filter,
-            search_type="keyword"
+            search_type="metadata"
         )
+    
+    def search_by_component(
+        self,
+        component_name: str,
+        limit: int = 10,
+        additional_filters: Optional[Dict[str, Any]] = None
+    ) -> List[Dict[str, Any]]:
+        """
+        컴포넌트 이름으로 문서를 검색합니다.
+        
+        Args:
+            component_name: 컴포넌트 이름
+            limit: 반환할 결과 수
+            additional_filters: 추가 필터
+            
+        Returns:
+            검색된 문서 목록
+        """
+        metadata_filter = {"component": component_name}
+        if additional_filters:
+            metadata_filter.update(additional_filters)
+        
+        return self.search_by_metadata(metadata_filter, limit)
+    
+    def search_by_page_range(
+        self,
+        start_page: int,
+        end_page: int,
+        component_name: Optional[str] = None,
+        limit: int = 10
+    ) -> List[Dict[str, Any]]:
+        """
+        페이지 범위로 문서를 검색합니다.
+        
+        Args:
+            start_page: 시작 페이지
+            end_page: 끝 페이지
+            component_name: 컴포넌트 이름 (선택적)
+            limit: 반환할 결과 수
+            
+        Returns:
+            검색된 문서 목록
+        """
+        metadata_filter = {
+            "page": {
+                "gte": start_page,
+                "lte": end_page
+            }
+        }
+        
+        if component_name:
+            metadata_filter["component"] = component_name
+        
+        return self.search_by_metadata(metadata_filter, limit)
     
     def search_similar_documents(
         self,
         document_id: str,
         limit: int = 10,
-        score_threshold: float = 0.5
+        score_threshold: float = 0.7  # 요구사항에 따라 기본값을 0.7로 변경
     ) -> List[Dict[str, Any]]:
         """
         특정 문서와 유사한 문서를 검색합니다.
@@ -408,7 +438,7 @@ class QdrantDocumentSearcher:
         self,
         queries: List[str],
         limit: int = 10,
-        score_threshold: float = 0.5,
+        score_threshold: float = 0.7,  # 요구사항에 따라 기본값을 0.7로 변경
         metadata_filter: Optional[Dict[str, Any]] = None,
         batch_size: int = 10
     ) -> List[BatchSearchResult]:
@@ -438,25 +468,137 @@ class QdrantDocumentSearcher:
                 execution_time=0.0
             )
             
-            for query in batch_queries:
-                try:
-                    results = self.search_documents(
-                        query=query,
-                        limit=limit,
-                        score_threshold=score_threshold,
-                        metadata_filter=metadata_filter
-                    )
-                    batch_result.results.extend(results)
-                    batch_result.total_count += len(results)
+            # 병렬 처리를 위한 배치 검색 최적화
+            try:
+                batch_search_results = self._execute_batch_search(
+                    batch_queries, limit, score_threshold, metadata_filter
+                )
+                
+                for query_results in batch_search_results:
+                    batch_result.results.extend(query_results)
+                    batch_result.total_count += len(query_results)
                     
-                except Exception as e:
-                    logger.error(f"쿼리 '{query}' 검색 실패: {e}")
-                    continue
+            except Exception as e:
+                logger.error(f"배치 검색 실패: {e}")
+                # 개별 검색으로 대체
+                for query in batch_queries:
+                    try:
+                        results = self.search_documents(
+                            query=query,
+                            limit=limit,
+                            score_threshold=score_threshold,
+                            metadata_filter=metadata_filter
+                        )
+                        batch_result.results.extend(results)
+                        batch_result.total_count += len(results)
+                        
+                    except Exception as e:
+                        logger.error(f"쿼리 '{query}' 검색 실패: {e}")
+                        continue
             
             batch_result.execution_time = (datetime.now() - batch_start_time).total_seconds()
             batch_results.append(batch_result)
         
         return batch_results
+    
+    def _execute_batch_search(
+        self,
+        queries: List[str],
+        limit: int,
+        score_threshold: float,
+        metadata_filter: Optional[Dict[str, Any]]
+    ) -> List[List[Dict[str, Any]]]:
+        """
+        배치 검색을 실행합니다.
+        
+        Args:
+            queries: 검색 쿼리 목록
+            limit: 각 쿼리당 반환할 결과 수
+            score_threshold: 점수 임계값
+            metadata_filter: 메타데이터 필터
+            
+        Returns:
+            각 쿼리별 검색 결과 목록
+        """
+        batch_results = []
+        
+        try:
+            # 의미적 검색을 위한 벡터 생성 (가능한 경우)
+            if hasattr(self, '_embedding_model') or self._try_load_embedding_model():
+                query_vectors = self._embedding_model.encode(queries).tolist()
+                
+                # 벡터 기반 배치 검색
+                for i, (query, vector) in enumerate(zip(queries, query_vectors)):
+                    try:
+                        search_result = self.client.search(
+                            collection_name=self.collection_name,
+                            query_vector=vector,
+                            limit=limit,
+                            score_threshold=score_threshold,
+                            query_filter=self._build_filter(None, metadata_filter),
+                            with_payload=True,
+                            with_vectors=False
+                        )
+                        
+                        # 결과 변환
+                        results = []
+                        for hit in search_result:
+                            result = SearchResult(
+                                id=str(hit.id),
+                                score=getattr(hit, 'score', 1.0),
+                                payload=hit.payload,
+                                vector=getattr(hit, 'vector', None),
+                                shard_id=getattr(hit, 'shard_id', None),
+                                version=getattr(hit, 'version', None)
+                            )
+                            results.append(result)
+                        
+                        transformed_results = self._transform_search_results(results)
+                        batch_results.append(transformed_results)
+                        
+                    except Exception as e:
+                        logger.error(f"배치 검색 중 쿼리 '{query}' 실패: {e}")
+                        batch_results.append([])
+            else:
+                # 키워드 기반 배치 검색
+                for query in queries:
+                    try:
+                        results = self.search_documents(
+                            query=query,
+                            limit=limit,
+                            score_threshold=score_threshold,
+                            metadata_filter=metadata_filter,
+                            search_type="keyword"
+                        )
+                        batch_results.append(results)
+                        
+                    except Exception as e:
+                        logger.error(f"배치 검색 중 쿼리 '{query}' 실패: {e}")
+                        batch_results.append([])
+                        
+        except Exception as e:
+            logger.error(f"배치 검색 실행 실패: {e}")
+            raise
+        
+        return batch_results
+    
+    def _try_load_embedding_model(self) -> bool:
+        """
+        임베딩 모델 로드를 시도합니다.
+        
+        Returns:
+            로드 성공 여부
+        """
+        try:
+            from sentence_transformers import SentenceTransformer
+            self._embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            return True
+        except ImportError:
+            logger.warning("sentence-transformers가 설치되지 않음")
+            return False
+        except Exception as e:
+            logger.error(f"임베딩 모델 로드 실패: {e}")
+            return False
     
     def get_document_count(self) -> int:
         """
@@ -507,6 +649,154 @@ class QdrantDocumentSearcher:
         except Exception as e:
             logger.error(f"메타데이터 필드 조회 실패: {e}")
             return []
+    
+    def _search_by_text_similarity(self, query: SearchQuery) -> List:
+        """
+        텍스트 유사도 기반 의미적 검색을 수행합니다.
+        
+        Args:
+            query: 검색 쿼리
+            
+        Returns:
+            검색 결과 목록
+        """
+        try:
+            # 실제 구현에서는 sentence-transformers를 사용하여 임베딩 생성
+            # 여기서는 간단한 구현으로 대체
+            from sentence_transformers import SentenceTransformer
+            
+            # 모델 로드 (캐시됨)
+            if not hasattr(self, '_embedding_model'):
+                self._embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
+            
+            # 쿼리 텍스트를 벡터로 변환
+            query_vector = self._embedding_model.encode(query.text).tolist()
+            
+            # 벡터 검색 수행
+            search_result = self.client.search(
+                collection_name=self.collection_name,
+                query_vector=query_vector,
+                limit=query.limit,
+                score_threshold=query.score_threshold,
+                query_filter=query.filter,
+                with_payload=True,
+                with_vectors=False
+            )
+            
+            return search_result
+            
+        except ImportError:
+            logger.warning("sentence-transformers가 설치되지 않음. 키워드 검색으로 대체")
+            return self._search_by_keywords(query, query.filter)
+        except Exception as e:
+            logger.error(f"의미적 검색 실패: {e}")
+            return self._search_by_keywords(query, query.filter)
+    
+    def _search_by_keywords(self, query: SearchQuery, filter_condition) -> List:
+        """
+        키워드 기반 검색을 수행합니다.
+        
+        Args:
+            query: 검색 쿼리
+            filter_condition: 필터 조건
+            
+        Returns:
+            검색 결과 목록
+        """
+        try:
+            # 스크롤을 사용한 키워드 검색
+            search_result, _ = self.client.scroll(
+                collection_name=self.collection_name,
+                limit=query.limit,
+                scroll_filter=filter_condition,
+                with_payload=True,
+                with_vectors=False
+            )
+            
+            # 텍스트 매칭 점수 계산 (간단한 구현)
+            if query.text:
+                scored_results = []
+                for hit in search_result:
+                    content = hit.payload.get('content', '') if hit.payload else ''
+                    title = hit.payload.get('title', '') if hit.payload else ''
+                    
+                    # 간단한 텍스트 매칭 점수 계산
+                    score = self._calculate_text_similarity(query.text, content + ' ' + title)
+                    
+                    if score >= query.score_threshold:
+                        # score 속성 추가
+                        hit.score = score
+                        scored_results.append(hit)
+                
+                # 점수 기준으로 정렬
+                scored_results.sort(key=lambda x: x.score, reverse=True)
+                return scored_results[:query.limit]
+            
+            return search_result
+            
+        except Exception as e:
+            logger.error(f"키워드 검색 실패: {e}")
+            return []
+    
+    def _search_by_metadata_only(self, query: SearchQuery, filter_condition) -> List:
+        """
+        메타데이터만을 기반으로 검색을 수행합니다.
+        
+        Args:
+            query: 검색 쿼리
+            filter_condition: 필터 조건
+            
+        Returns:
+            검색 결과 목록
+        """
+        try:
+            search_result, _ = self.client.scroll(
+                collection_name=self.collection_name,
+                limit=query.limit,
+                scroll_filter=filter_condition,
+                with_payload=True,
+                with_vectors=False
+            )
+            
+            # 메타데이터 검색에서는 모든 결과에 동일한 점수 부여
+            for hit in search_result:
+                hit.score = 1.0
+            
+            return search_result
+            
+        except Exception as e:
+            logger.error(f"메타데이터 검색 실패: {e}")
+            return []
+    
+    def _calculate_text_similarity(self, query_text: str, content: str) -> float:
+        """
+        간단한 텍스트 유사도를 계산합니다.
+        
+        Args:
+            query_text: 쿼리 텍스트
+            content: 비교할 콘텐츠
+            
+        Returns:
+            유사도 점수 (0.0-1.0)
+        """
+        if not query_text or not content:
+            return 0.0
+        
+        # 간단한 키워드 매칭 기반 점수 계산
+        query_words = set(query_text.lower().split())
+        content_words = set(content.lower().split())
+        
+        if not query_words:
+            return 0.0
+        
+        # Jaccard 유사도 계산
+        intersection = len(query_words.intersection(content_words))
+        union = len(query_words.union(content_words))
+        
+        if union == 0:
+            return 0.0
+        
+        return intersection / union
 
 
 if __name__ == "__main__":

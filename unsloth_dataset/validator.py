@@ -45,9 +45,10 @@ class ValidationResult:
 class UnslothValidator:
     """Unsloth 호환성 검증기"""
     
-    def __init__(self):
+    def __init__(self, enable_auto_correction: bool = True):
         """검증기를 초기화합니다."""
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
+        self.enable_auto_correction = enable_auto_correction
         
         # 지원하는 포맷별 검증 규칙
         self.format_rules = {
@@ -541,6 +542,243 @@ class UnslothValidator:
                 summary["invalid_formats"] += 1
         
         return summary
+    
+    def auto_correct_dataset(
+        self, 
+        format_type: str, 
+        data: List[Dict[str, Any]]
+    ) -> Tuple[List[Dict[str, Any]], ValidationResult]:
+        """
+        데이터셋을 자동으로 수정합니다.
+        
+        Args:
+            format_type: 포맷 타입
+            data: 수정할 데이터 목록
+            
+        Returns:
+            수정된 데이터와 수정 결과
+        """
+        if not self.enable_auto_correction:
+            return data, ValidationResult()
+        
+        corrected_data = []
+        correction_result = ValidationResult()
+        
+        for i, item in enumerate(data):
+            try:
+                corrected_item = self._auto_correct_item(format_type, item, i, correction_result)
+                if corrected_item:
+                    corrected_data.append(corrected_item)
+                else:
+                    correction_result.add_issue(f"Item {i}: 수정 불가능하여 제거됨")
+            except Exception as e:
+                correction_result.add_issue(f"Item {i} 자동 수정 중 오류: {str(e)}")
+        
+        return corrected_data, correction_result
+    
+    def _auto_correct_item(
+        self, 
+        format_type: str, 
+        item: Dict[str, Any], 
+        index: int, 
+        result: ValidationResult
+    ) -> Optional[Dict[str, Any]]:
+        """개별 아이템을 자동 수정합니다."""
+        corrected_item = item.copy()
+        
+        if format_type == "sharegpt":
+            return self._auto_correct_sharegpt_item(corrected_item, index, result)
+        elif format_type == "alpaca":
+            return self._auto_correct_alpaca_item(corrected_item, index, result)
+        elif format_type == "openai":
+            return self._auto_correct_openai_item(corrected_item, index, result)
+        
+        return corrected_item
+    
+    def _auto_correct_sharegpt_item(
+        self, 
+        item: Dict[str, Any], 
+        index: int, 
+        result: ValidationResult
+    ) -> Optional[Dict[str, Any]]:
+        """ShareGPT 아이템을 자동 수정합니다."""
+        if "conversations" not in item:
+            result.add_issue(f"Item {index}: conversations 필드 누락으로 수정 불가")
+            return None
+        
+        conversations = item["conversations"]
+        if not isinstance(conversations, list):
+            result.add_issue(f"Item {index}: conversations가 리스트가 아님")
+            return None
+        
+        corrected_conversations = []
+        valid_roles = {"system", "human", "gpt"}
+        
+        for i, conv in enumerate(conversations):
+            if not isinstance(conv, dict):
+                result.add_warning(f"Item {index} Conversation {i}: dict가 아닌 대화 제거")
+                continue
+            
+            if "from" not in conv or "value" not in conv:
+                result.add_warning(f"Item {index} Conversation {i}: 필수 필드 누락으로 제거")
+                continue
+            
+            # 역할 수정
+            if conv["from"] not in valid_roles:
+                if conv["from"] in ["user", "assistant"]:
+                    conv["from"] = "human" if conv["from"] == "user" else "gpt"
+                    result.add_warning(f"Item {index} Conversation {i}: 역할 수정 {conv['from']}")
+                else:
+                    result.add_warning(f"Item {index} Conversation {i}: 유효하지 않은 역할로 제거")
+                    continue
+            
+            # 빈 값 처리
+            if not isinstance(conv["value"], str) or not conv["value"].strip():
+                result.add_warning(f"Item {index} Conversation {i}: 빈 값으로 제거")
+                continue
+            
+            # EOS 토큰 추가
+            if conv["from"] in ["human", "gpt"]:
+                if not conv["value"].endswith("</s>"):
+                    conv["value"] += "</s>"
+                    result.add_warning(f"Item {index} Conversation {i}: EOS 토큰 추가")
+            
+            corrected_conversations.append(conv)
+        
+        if len(corrected_conversations) < 2:  # 최소 대화 수
+            result.add_issue(f"Item {index}: 유효한 대화가 부족함")
+            return None
+        
+        item["conversations"] = corrected_conversations
+        return item
+    
+    def _auto_correct_alpaca_item(
+        self, 
+        item: Dict[str, Any], 
+        index: int, 
+        result: ValidationResult
+    ) -> Optional[Dict[str, Any]]:
+        """Alpaca 아이템을 자동 수정합니다."""
+        # 필수 필드 확인
+        if "instruction" not in item or "output" not in item:
+            result.add_issue(f"Item {index}: 필수 필드 누락으로 수정 불가")
+            return None
+        
+        # 빈 필드 확인
+        if not item.get("instruction", "").strip() or not item.get("output", "").strip():
+            result.add_issue(f"Item {index}: 필수 필드가 비어있음")
+            return None
+        
+        # EOS 토큰 추가
+        for field in ["instruction", "output", "input"]:
+            if field in item and item[field]:
+                if not item[field].endswith("</s>"):
+                    item[field] += "</s>"
+                    result.add_warning(f"Item {index}: {field}에 EOS 토큰 추가")
+        
+        # 길이 제한 적용
+        max_lengths = {
+            "instruction": 512 * 4,  # 토큰을 문자로 추정
+            "input": 1024 * 4,
+            "output": 8192 * 4
+        }
+        
+        for field, max_length in max_lengths.items():
+            if field in item and len(item[field]) > max_length:
+                item[field] = item[field][:max_length-4] + "</s>"  # EOS 토큰 공간 확보
+                result.add_warning(f"Item {index}: {field} 길이 제한으로 잘림")
+        
+        return item
+    
+    def _auto_correct_openai_item(
+        self, 
+        item: Dict[str, Any], 
+        index: int, 
+        result: ValidationResult
+    ) -> Optional[Dict[str, Any]]:
+        """OpenAI 아이템을 자동 수정합니다."""
+        if "messages" not in item:
+            result.add_issue(f"Item {index}: messages 필드 누락으로 수정 불가")
+            return None
+        
+        messages = item["messages"]
+        if not isinstance(messages, list):
+            result.add_issue(f"Item {index}: messages가 리스트가 아님")
+            return None
+        
+        corrected_messages = []
+        valid_roles = {"system", "user", "assistant"}
+        role_mapping = {"human": "user", "gpt": "assistant"}
+        
+        for i, msg in enumerate(messages):
+            if not isinstance(msg, dict):
+                result.add_warning(f"Item {index} Message {i}: dict가 아닌 메시지 제거")
+                continue
+            
+            if "role" not in msg or "content" not in msg:
+                result.add_warning(f"Item {index} Message {i}: 필수 필드 누락으로 제거")
+                continue
+            
+            # 역할 수정
+            if msg["role"] not in valid_roles:
+                if msg["role"] in role_mapping:
+                    msg["role"] = role_mapping[msg["role"]]
+                    result.add_warning(f"Item {index} Message {i}: 역할 수정 {msg['role']}")
+                else:
+                    result.add_warning(f"Item {index} Message {i}: 유효하지 않은 역할로 제거")
+                    continue
+            
+            # 빈 내용 처리
+            if not isinstance(msg["content"], str) or not msg["content"].strip():
+                result.add_warning(f"Item {index} Message {i}: 빈 내용으로 제거")
+                continue
+            
+            # EOS 토큰 추가
+            if msg["role"] in ["user", "assistant"]:
+                if not msg["content"].endswith("</s>"):
+                    msg["content"] += "</s>"
+                    result.add_warning(f"Item {index} Message {i}: EOS 토큰 추가")
+            
+            # 길이 제한
+            max_length = 8192 * 4  # 토큰을 문자로 추정
+            if len(msg["content"]) > max_length:
+                msg["content"] = msg["content"][:max_length-4] + "</s>"
+                result.add_warning(f"Item {index} Message {i}: 길이 제한으로 잘림")
+            
+            corrected_messages.append(msg)
+        
+        if len(corrected_messages) < 2:  # 최소 메시지 수
+            result.add_issue(f"Item {index}: 유효한 메시지가 부족함")
+            return None
+        
+        item["messages"] = corrected_messages
+        return item
+    
+    def validate_and_correct_dataset(
+        self, 
+        format_type: str, 
+        data: List[Dict[str, Any]]
+    ) -> Tuple[List[Dict[str, Any]], ValidationResult]:
+        """
+        데이터셋을 검증하고 자동 수정합니다.
+        
+        Args:
+            format_type: 포맷 타입
+            data: 처리할 데이터 목록
+            
+        Returns:
+            수정된 데이터와 통합 검증 결과
+        """
+        # 1단계: 자동 수정
+        corrected_data, correction_result = self.auto_correct_dataset(format_type, data)
+        
+        # 2단계: 수정된 데이터 검증
+        validation_result = self.validate_dataset_format(format_type, corrected_data)
+        
+        # 결과 병합
+        combined_result = self._merge_validation_results(correction_result, validation_result)
+        
+        return corrected_data, combined_result
 
 
 if __name__ == "__main__":

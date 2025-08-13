@@ -305,34 +305,47 @@ class QdrantDataTransformer:
         # 간단한 키워드 기반 추론
         content_lower = content.lower()
         
-        # Syncfusion 컴포넌트 키워드 매핑
+        # Syncfusion 컴포넌트 키워드 매핑 (우선순위 순서)
         component_keywords = {
-            "grid": ["grid", "datatable", "table", "spreadsheet"],
-            "chart": ["chart", "graph", "plot", "visualization"],
-            "diagram": ["diagram", "flowchart", "workflow"],
-            "pdf": ["pdf", "document", "report"],
-            "excel": ["excel", "xls", "spreadsheet", "workbook"],
-            "word": ["word", "doc", "document", "text"],
-            "powerpoint": ["powerpoint", "ppt", "presentation"],
-            "schedule": ["schedule", "calendar", "appointment"],
-            "gauge": ["gauge", "meter", "indicator"],
-            "pivot": ["pivot", "olap", "cube"],
-            "edit": ["edit", "editor", "rich text"],
-            "html": ["html", "web", "browser"],
-            "qtp": ["qtp", "test", "automation"],
-            "tools": ["tools", "utility", "helper"],
-            "calculate": ["calculate", "formula", "calculation"],
-            "common": ["common", "shared", "base"],
-            "dicom": ["dicom", "medical", "image"],
-            "docio": ["docio", "document", "report"],
-            "olap": ["olap", "cube", "analysis"],
-            "projio": ["projio", "project", "management"],
-            "viewer": ["viewer", "preview", "display"]
+            "grid": ["grid", "data table", "datatable", "table", "spreadsheet", "data grid"],
+            "chart": ["chart", "graph", "plot", "visualization", "series"],
+            "diagram": ["diagram", "flowchart", "workflow", "node", "connector"],
+            "pdf": ["pdf", "document viewer", "pdf viewer"],
+            "excel": ["excel", "xls", "xlsx", "spreadsheet", "workbook"],
+            "word": ["word", "doc", "docx", "document", "text editor"],
+            "powerpoint": ["powerpoint", "ppt", "pptx", "presentation"],
+            "schedule": ["schedule", "calendar", "appointment", "scheduler"],
+            "gauge": ["gauge", "meter", "indicator", "circular gauge"],
+            "pivot": ["pivot", "olap", "cube", "pivot grid"],
+            "edit": ["edit", "editor", "rich text", "text editor"],
+            "html": ["html", "web", "browser", "html viewer"],
+            "qtp": ["qtp", "test", "automation", "testing"],
+            "tools": ["tools", "utility", "helper", "common tools"],
+            "calculate": ["calculate", "formula", "calculation", "math"],
+            "common": ["common", "shared", "base", "utility"],
+            "dicom": ["dicom", "medical", "image", "medical imaging"],
+            "docio": ["docio", "document io", "document processing"],
+            "olap": ["olap", "cube", "analysis", "multidimensional"],
+            "projio": ["projio", "project", "management", "project io"],
+            "viewer": ["viewer", "preview", "display", "document viewer"]
         }
         
+        # 점수 기반 매칭 (더 정확한 추론)
+        component_scores = {}
+        
         for component, keywords in component_keywords.items():
-            if any(keyword in content_lower for keyword in keywords):
-                return component
+            score = 0
+            for keyword in keywords:
+                if keyword in content_lower:
+                    # 키워드 길이에 따른 가중치 (긴 키워드가 더 정확)
+                    score += len(keyword.split())
+            
+            if score > 0:
+                component_scores[component] = score
+        
+        # 가장 높은 점수의 컴포넌트 반환
+        if component_scores:
+            return max(component_scores, key=component_scores.get)
         
         return None
     
@@ -460,6 +473,274 @@ class QdrantDataTransformer:
         
         logger.info(f"문서 병합 완료: {len(merged_docs)}개 문서")
         return merged_docs
+    
+    def format_context_for_generation(
+        self,
+        documents: List[Dict[str, Any]],
+        max_context_length: int = 8000,
+        include_metadata: bool = True,
+        context_template: Optional[str] = None
+    ) -> str:
+        """
+        문서들을 대화 생성용 컨텍스트로 포맷팅합니다.
+        
+        Args:
+            documents: 포맷팅할 문서 목록
+            max_context_length: 최대 컨텍스트 길이
+            include_metadata: 메타데이터 포함 여부
+            context_template: 커스텀 컨텍스트 템플릿
+            
+        Returns:
+            포맷팅된 컨텍스트 문자열
+        """
+        if not documents:
+            return ""
+        
+        # 기본 템플릿
+        if context_template is None:
+            context_template = """
+## {title}
+**Component:** {component} | **Page:** {page} | **Quality:** {quality_score:.2f}
+
+{content}
+
+---
+"""
+        
+        formatted_contexts = []
+        current_length = 0
+        
+        for doc in documents:
+            # 문서 정보 추출
+            title = doc.get("title", "Untitled")
+            component = doc.get("component", "unknown")
+            page = doc.get("page", "unknown")
+            content = doc.get("content", "")
+            quality_score = doc.get("quality_score", 0.0)
+            
+            # 메타데이터 추가
+            metadata_str = ""
+            if include_metadata and doc.get("metadata"):
+                metadata = doc["metadata"]
+                vector_score = metadata.get("vector_score", 0.0)
+                source = metadata.get("source", "unknown")
+                metadata_str = f" | **Source:** {source} | **Vector Score:** {vector_score:.2f}"
+            
+            # 컨텍스트 포맷팅
+            formatted_context = context_template.format(
+                title=title,
+                component=component,
+                page=page,
+                content=content,
+                quality_score=quality_score,
+                metadata=metadata_str
+            )
+            
+            # 길이 확인
+            if current_length + len(formatted_context) > max_context_length:
+                if not formatted_contexts:
+                    # 첫 번째 문서가 너무 긴 경우 잘라서 포함
+                    truncated_content = content[:max_context_length - 500] + "..."
+                    formatted_context = context_template.format(
+                        title=title,
+                        component=component,
+                        page=page,
+                        content=truncated_content,
+                        quality_score=quality_score,
+                        metadata=metadata_str
+                    )
+                    formatted_contexts.append(formatted_context)
+                break
+            
+            formatted_contexts.append(formatted_context)
+            current_length += len(formatted_context)
+        
+        return "\n".join(formatted_contexts)
+    
+    def create_conversation_context(
+        self,
+        documents: List[Dict[str, Any]],
+        query: Optional[str] = None,
+        context_type: str = "general"
+    ) -> Dict[str, Any]:
+        """
+        대화 생성을 위한 컨텍스트를 생성합니다.
+        
+        Args:
+            documents: 컨텍스트로 사용할 문서 목록
+            query: 사용자 쿼리 (선택적)
+            context_type: 컨텍스트 유형 ("general", "api", "tutorial", "troubleshooting")
+            
+        Returns:
+            컨텍스트 딕셔너리
+        """
+        # 컨텍스트 유형별 템플릿
+        templates = {
+            "general": """
+## {title}
+**Component:** {component} | **Page:** {page}
+
+{content}
+
+---
+""",
+            "api": """
+## API Reference: {title}
+**Component:** {component} | **Page:** {page}
+
+{content}
+
+**Usage Examples and Parameters:**
+{api_examples}
+
+---
+""",
+            "tutorial": """
+## Tutorial: {title}
+**Component:** {component} | **Step:** {page}
+
+{content}
+
+**Key Points:**
+{key_points}
+
+---
+""",
+            "troubleshooting": """
+## Issue: {title}
+**Component:** {component} | **Reference:** {page}
+
+**Problem Description:**
+{content}
+
+**Solution Steps:**
+{solution_steps}
+
+---
+"""
+        }
+        
+        template = templates.get(context_type, templates["general"])
+        
+        # 문서별 추가 정보 추출
+        enhanced_docs = []
+        for doc in documents:
+            enhanced_doc = doc.copy()
+            
+            # API 예제 추출
+            if context_type == "api":
+                enhanced_doc["api_examples"] = self._extract_api_examples(doc.get("content", ""))
+            else:
+                enhanced_doc["api_examples"] = ""
+            
+            # 핵심 포인트 추출
+            if context_type == "tutorial":
+                enhanced_doc["key_points"] = self._extract_key_points(doc.get("content", ""))
+            else:
+                enhanced_doc["key_points"] = ""
+            
+            # 해결 단계 추출
+            if context_type == "troubleshooting":
+                enhanced_doc["solution_steps"] = self._extract_solution_steps(doc.get("content", ""))
+            else:
+                enhanced_doc["solution_steps"] = ""
+            
+            enhanced_docs.append(enhanced_doc)
+        
+        # 컨텍스트 포맷팅
+        formatted_context = self.format_context_for_generation(
+            enhanced_docs,
+            context_template=template
+        )
+        
+        # 컨텍스트 메타데이터 생성
+        context_metadata = {
+            "document_count": len(documents),
+            "context_type": context_type,
+            "query": query,
+            "components": list(set(doc.get("component", "unknown") for doc in documents)),
+            "pages": list(set(doc.get("page", "unknown") for doc in documents)),
+            "avg_quality_score": sum(doc.get("quality_score", 0.0) for doc in documents) / len(documents) if documents else 0.0,
+            "total_content_length": sum(len(doc.get("content", "")) for doc in documents),
+            "context_length": len(formatted_context)
+        }
+        
+        return {
+            "formatted_context": formatted_context,
+            "metadata": context_metadata,
+            "source_documents": documents
+        }
+    
+    def _extract_api_examples(self, content: str) -> str:
+        """콘텐츠에서 API 예제를 추출합니다."""
+        import re
+        
+        # 코드 블록 패턴 (더 유연하게)
+        code_blocks = re.findall(r'```[^`]*?```', content, re.DOTALL)
+        
+        # 메서드 호출 패턴
+        method_calls = re.findall(r'(\w+\.\w+\([^)]*\))', content)
+        
+        examples = []
+        
+        # 코드 블록에서 라인별로 추출
+        for block in code_blocks[:2]:  # 최대 2개 코드 블록
+            # 코드 블록 내용만 추출 (``` 제거)
+            block_content = re.sub(r'```[\w]*\n?', '', block)
+            block_content = re.sub(r'\n?```', '', block_content)
+            
+            # 각 라인을 개별 예제로 처리
+            lines = [line.strip() for line in block_content.split('\n') if line.strip()]
+            examples.extend(lines[:3])  # 블록당 최대 3라인
+        
+        # 메서드 호출 추가
+        if method_calls:
+            examples.extend(method_calls[:3])  # 최대 3개 메서드 호출
+        
+        return "\n".join(f"- {example.strip()}" for example in examples[:5] if example.strip())
+    
+    def _extract_key_points(self, content: str) -> str:
+        """콘텐츠에서 핵심 포인트를 추출합니다."""
+        import re
+        
+        # 불릿 포인트 패턴
+        bullet_points = re.findall(r'[•\-\*]\s*(.+)', content)
+        
+        # 번호 목록 패턴
+        numbered_points = re.findall(r'\d+\.\s*(.+)', content)
+        
+        # 중요 표시 패턴
+        important_points = re.findall(r'\*\*(.*?)\*\*', content)
+        
+        points = []
+        if bullet_points:
+            points.extend(bullet_points[:3])
+        if numbered_points:
+            points.extend(numbered_points[:3])
+        if important_points:
+            points.extend(important_points[:3])
+        
+        return "\n".join(f"- {point.strip()}" for point in points[:5])
+    
+    def _extract_solution_steps(self, content: str) -> str:
+        """콘텐츠에서 해결 단계를 추출합니다."""
+        import re
+        
+        # 단계별 패턴
+        step_patterns = [
+            r'Step\s*\d+[:\.]?\s*(.+)',
+            r'\d+\.\s*(.+)',
+            r'First[,\s]+(.+)',
+            r'Then[,\s]+(.+)',
+            r'Finally[,\s]+(.+)'
+        ]
+        
+        steps = []
+        for pattern in step_patterns:
+            matches = re.findall(pattern, content, re.IGNORECASE)
+            steps.extend(matches)
+        
+        return "\n".join(f"{i+1}. {step.strip()}" for i, step in enumerate(steps[:5]))
 
 
 # 유틸리티 함수

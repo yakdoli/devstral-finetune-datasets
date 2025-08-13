@@ -24,6 +24,11 @@ class FileMetadata:
         self.last_modified = datetime.fromtimestamp(file_path.stat().st_mtime)
         self.file_hash = self._calculate_hash()
         
+        # 경로에서 컴포넌트명과 페이지 번호 추출
+        self.component_name = self._extract_component_name()
+        self.page_number = self._extract_page_number()
+        self.content_structure = self._analyze_content_structure()
+        
     def _calculate_hash(self) -> str:
         """파일 해시 계산"""
         hash_sha256 = hashlib.sha256()
@@ -36,13 +41,101 @@ class FileMetadata:
             logger.warning(f"Failed to calculate hash for {self.file_path}: {e}")
             return ""
     
+    def _extract_component_name(self) -> Optional[str]:
+        """파일 경로에서 컴포넌트명 추출"""
+        path_parts = self.file_path.parts
+        
+        # md_staging/{컴포넌트}/{페이지}.md 패턴
+        if 'md_staging' in path_parts:
+            try:
+                staging_idx = path_parts.index('md_staging')
+                if staging_idx + 1 < len(path_parts):
+                    return path_parts[staging_idx + 1]
+            except ValueError:
+                pass
+        
+        # output/{컴포넌트}.md 패턴
+        elif 'output' in path_parts:
+            return self.file_path.stem
+        
+        # 기타 경우 파일명에서 추출
+        return self.file_path.stem
+    
+    def _extract_page_number(self) -> Optional[int]:
+        """파일명에서 페이지 번호 추출"""
+        filename = self.file_path.stem
+        
+        # page_XXX 패턴
+        import re
+        page_match = re.search(r'page_(\d+)', filename)
+        if page_match:
+            try:
+                return int(page_match.group(1))
+            except ValueError:
+                pass
+        
+        # 숫자만 있는 경우
+        if filename.isdigit():
+            try:
+                return int(filename)
+            except ValueError:
+                pass
+        
+        return None
+    
+    def _analyze_content_structure(self) -> Dict[str, Any]:
+        """콘텐츠 구조 분석"""
+        structure = {
+            "has_headers": False,
+            "has_code_blocks": False,
+            "has_tables": False,
+            "has_images": False,
+            "has_links": False,
+            "estimated_sections": 0
+        }
+        
+        try:
+            with open(self.file_path, 'r', encoding='utf-8') as f:
+                content = f.read()
+            
+            import re
+            
+            # 헤더 확인
+            if re.search(r'^#+\s+', content, re.MULTILINE):
+                structure["has_headers"] = True
+                structure["estimated_sections"] = len(re.findall(r'^#+\s+', content, re.MULTILINE))
+            
+            # 코드 블록 확인
+            if '```' in content:
+                structure["has_code_blocks"] = True
+            
+            # 테이블 확인
+            if '|' in content and re.search(r'\|.*\|', content):
+                structure["has_tables"] = True
+            
+            # 이미지 확인
+            if re.search(r'!\[.*?\]\(.*?\)', content):
+                structure["has_images"] = True
+            
+            # 링크 확인
+            if re.search(r'\[.*?\]\(.*?\)', content):
+                structure["has_links"] = True
+                
+        except Exception as e:
+            logger.warning(f"Failed to analyze content structure for {self.file_path}: {e}")
+        
+        return structure
+    
     def to_dict(self) -> Dict[str, Any]:
         """메타데이터를 딕셔너리로 변환"""
         return {
             "file_path": str(self.file_path),
             "file_size": self.file_size,
             "last_modified": self.last_modified.isoformat(),
-            "file_hash": self.file_hash
+            "file_hash": self.file_hash,
+            "component_name": self.component_name,
+            "page_number": self.page_number,
+            "content_structure": self.content_structure
         }
 
 
@@ -201,6 +294,73 @@ class MDFileScanner:
                 
                 yield file_path, json_path, FileMetadata(file_path), json_metadata
     
+    def extract_metadata_from_files(self) -> List[Dict[str, Any]]:
+        """
+        모든 파일에서 메타데이터를 추출합니다.
+        
+        Returns:
+            메타데이터 목록
+        """
+        metadata_list = []
+        
+        for file_path, file_metadata in self.scan_files():
+            metadata_dict = file_metadata.to_dict()
+            metadata_dict["file_type"] = "component" if "output" in str(file_path) else "page"
+            metadata_list.append(metadata_dict)
+        
+        return metadata_list
+    
+    def get_components_summary(self) -> Dict[str, Dict[str, Any]]:
+        """
+        컴포넌트별 요약 정보를 반환합니다.
+        
+        Returns:
+            컴포넌트별 요약 딕셔너리
+        """
+        components = {}
+        
+        # 컴포넌트 파일 처리
+        for file_path, metadata in self.get_component_files():
+            component_name = metadata.component_name
+            if component_name:
+                components[component_name] = {
+                    "type": "component",
+                    "file_path": str(file_path),
+                    "file_size": metadata.file_size,
+                    "last_modified": metadata.last_modified.isoformat(),
+                    "content_structure": metadata.content_structure,
+                    "pages": []
+                }
+        
+        # 페이지 파일 처리
+        for md_path, json_path, md_metadata, json_metadata in self.get_page_files():
+            component_name = md_metadata.component_name
+            if component_name:
+                if component_name not in components:
+                    components[component_name] = {
+                        "type": "pages_only",
+                        "file_path": None,
+                        "file_size": 0,
+                        "last_modified": None,
+                        "content_structure": {},
+                        "pages": []
+                    }
+                
+                page_info = {
+                    "page_number": md_metadata.page_number,
+                    "file_path": str(md_path),
+                    "file_size": md_metadata.file_size,
+                    "has_json": json_path.exists(),
+                    "content_structure": md_metadata.content_structure
+                }
+                components[component_name]["pages"].append(page_info)
+        
+        # 페이지 정렬
+        for component_info in components.values():
+            component_info["pages"].sort(key=lambda x: x.get("page_number", 0) or 0)
+        
+        return components
+    
     def get_scan_statistics(self) -> Dict[str, Any]:
         """
         스캔 통계 정보를 반환합니다.
@@ -214,7 +374,16 @@ class MDFileScanner:
             "component_files": 0,
             "page_files": 0,
             "directories_scanned": 0,
-            "scan_time": datetime.now().isoformat()
+            "scan_time": datetime.now().isoformat(),
+            "components_found": set(),
+            "file_size_total": 0,
+            "content_structure_summary": {
+                "files_with_headers": 0,
+                "files_with_code": 0,
+                "files_with_tables": 0,
+                "files_with_images": 0,
+                "files_with_links": 0
+            }
         }
         
         # 기본 경로 통계
@@ -230,9 +399,49 @@ class MDFileScanner:
         component_files = list(self.get_component_files())
         stats["component_files"] = len(component_files)
         
+        for file_path, metadata in component_files:
+            if metadata.component_name:
+                stats["components_found"].add(metadata.component_name)
+            stats["file_size_total"] += metadata.file_size
+            
+            # 콘텐츠 구조 통계
+            structure = metadata.content_structure
+            if structure.get("has_headers"):
+                stats["content_structure_summary"]["files_with_headers"] += 1
+            if structure.get("has_code_blocks"):
+                stats["content_structure_summary"]["files_with_code"] += 1
+            if structure.get("has_tables"):
+                stats["content_structure_summary"]["files_with_tables"] += 1
+            if structure.get("has_images"):
+                stats["content_structure_summary"]["files_with_images"] += 1
+            if structure.get("has_links"):
+                stats["content_structure_summary"]["files_with_links"] += 1
+        
         # 페이지 파일 통계
         page_files = list(self.get_page_files())
         stats["page_files"] = len([item for item in page_files if item[0].exists()])
+        
+        for md_path, json_path, md_metadata, json_metadata in page_files:
+            if md_metadata.component_name:
+                stats["components_found"].add(md_metadata.component_name)
+            stats["file_size_total"] += md_metadata.file_size
+            
+            # 콘텐츠 구조 통계
+            structure = md_metadata.content_structure
+            if structure.get("has_headers"):
+                stats["content_structure_summary"]["files_with_headers"] += 1
+            if structure.get("has_code_blocks"):
+                stats["content_structure_summary"]["files_with_code"] += 1
+            if structure.get("has_tables"):
+                stats["content_structure_summary"]["files_with_tables"] += 1
+            if structure.get("has_images"):
+                stats["content_structure_summary"]["files_with_images"] += 1
+            if structure.get("has_links"):
+                stats["content_structure_summary"]["files_with_links"] += 1
+        
+        # set을 list로 변환
+        stats["components_found"] = list(stats["components_found"])
+        stats["components_count"] = len(stats["components_found"])
         
         return stats
 

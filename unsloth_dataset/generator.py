@@ -282,21 +282,48 @@ class UnslothDatasetGenerator:
     
     def _serialize_statistics(self, statistics: Any) -> Dict[str, Any]:
         """통계 객체를 직렬화 가능한 형태로 변환합니다."""
-        if hasattr(statistics, 'asdict'):
-            # dataclass 객체인 경우
-            return statistics.asdict()
-        elif hasattr(statistics, '__dict__'):
-            # 일반 객체인 경우
-            return asdict(statistics)
-        elif isinstance(statistics, dict):
-            # 딕셔너리인 경우 재귀적으로 처리
-            serializable_stats = {}
-            for key, value in statistics.items():
-                serializable_stats[key] = self._serialize_statistics(value)
-            return serializable_stats
-        else:
-            # 기본 타입인 경우 그대로 사용
-            return statistics
+        import json
+        from collections import defaultdict
+        
+        def convert_defaultdict(obj):
+            """defaultdict를 일반 dict로 변환합니다."""
+            if isinstance(obj, defaultdict):
+                return dict(obj)
+            elif isinstance(obj, dict):
+                return {k: convert_defaultdict(v) for k, v in obj.items()}
+            elif isinstance(obj, (list, tuple)):
+                return [convert_defaultdict(item) for item in obj]
+            else:
+                return obj
+        
+        try:
+            if hasattr(statistics, 'asdict'):
+                # dataclass 객체인 경우
+                result = statistics.asdict()
+            elif hasattr(statistics, '__dict__'):
+                # 일반 객체인 경우
+                result = statistics.__dict__.copy()
+            elif isinstance(statistics, dict):
+                result = statistics.copy()
+            else:
+                # 기본 타입인 경우 그대로 사용
+                return statistics
+            
+            # defaultdict를 일반 dict로 변환
+            result = convert_defaultdict(result)
+            
+            # JSON 직렬화 가능한지 테스트
+            json.dumps(result)
+            return result
+            
+        except Exception as e:
+            self.logger.warning(f"Failed to serialize statistics: {e}")
+            # 실패한 경우 기본 정보만 반환
+            return {
+                "serialization_error": str(e),
+                "type": str(type(statistics)),
+                "timestamp": datetime.now().isoformat()
+            }
     
     def save_datasets(self, result: DatasetGenerationResult, base_name: str = "dataset") -> Dict[str, str]:
         """

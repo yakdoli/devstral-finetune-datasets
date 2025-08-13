@@ -333,6 +333,8 @@ class OpenAIFormatter:
     
     def _add_eos_token(self, text: str) -> str:
         """EOS 토큰을 추가합니다."""
+        if not text:
+            return text  # 빈 문자열에는 EOS 토큰 추가하지 않음
         if not text.endswith(self.config.eos_token):
             return text + self.config.eos_token
         return text

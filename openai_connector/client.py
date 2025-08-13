@@ -26,7 +26,7 @@ class GenerationMode(Enum):
 @dataclass
 class OpenAIAPIClientConfig:
     """OpenAI API 클라이언트 설정"""
-    endpoint: str = "http://123.37.28.120:9997/v1"
+    endpoint: str = "http://localhost:9997/v1"
     model: str = "qwen2.5-vl-instruct"
     api_key: str = "your-api-key"
     max_tokens: int = 128000
@@ -259,7 +259,7 @@ class OpenAIClient:
                         continue
                         
                     else:
-                        # 클라이언트 오류
+                        # 클라이언트 오류 - 재시도하지 
                         error_text = await response.text()
                         logger.error(f"Client error {response.status}: {error_text}")
                         self.failed_requests += 1
@@ -369,7 +369,7 @@ def create_openai_client(config: OpenAIAPIClientConfig) -> OpenAIClient:
 async def test_client():
     """클라이언트 테스트"""
     config = OpenAIAPIClientConfig(
-        endpoint="http://123.37.28.120:9997/v1",
+        endpoint="http://localhost:9997/v1",
         model="qwen2.5-vl-instruct",
         api_key="test-key",
         max_tokens=1000,

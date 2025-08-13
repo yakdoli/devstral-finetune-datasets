@@ -1,0 +1,122 @@
+{
+  "test_info": {
+    "timestamp": "2025-08-13T14:03:15.704202",
+    "test_type": "final_integration_test",
+    "total_documents": 3,
+    "target_conversations": 3,
+    "processing_time_seconds": 7.433671
+  },
+  "conversations": [
+    {
+      "id": "15bdc98b-5a1b-478e-8895-7155b58a7aed",
+      "conversations": [
+        {
+          "from": "human",
+          "value": "GridControl 데이터 바인딩에 대해 자세히 알고 싶습니다."
+        },
+        {
+          "from": "gpt",
+          "value": "GridControl은 데이터를 표시하고 관리하기 위한 강력한 UI 컨트롤로, 데이터를 시각적으로 표시하고 편집할 수 있도록 설계되었습니다. 데이터 바인딩은 GridControl에 데이터를 연결하는 과정으로, 데이터 소스(예: 데이터베이스, XML, 객체 컬렉션 등)에서 GridControl에 데이터를 표시하고, 필요에 따라 데이터를 수정하거나 추가할 수 있도록 합니다. 데이터 바인딩은 GridControl의 핵심 기능 중 하나이며, 효율적이고 유연한 데이터 관리를 가능하게 합니다.\n\n### **GridControl 데이터 바인딩의 기본 개념**\n1. **데이터 소스(Data Source)**:\n   - GridControl에 표시할 데이터를 제공하는 원본입니다. 데이터 소스는 일반적으로 다음과 같은 형태로 제공됩니다:\n     - **SQL 데이터베이스**: 데이터베이스 테이"
+        }
+      ],
+      "metadata": {
+        "source_documents": [
+          "sf_grid_001"
+        ],
+        "model": "qwen2.5-vl-instruct",
+        "tokens_used": 235,
+        "generation_mode": "llm_assisted",
+        "document_info": {
+          "component": "GridControl",
+          "title": "GridControl 데이터 바인딩",
+          "quality_score": 0.85
+        },
+        "created_at": "2025-08-13T14:03:11.972580",
+        "generator_version": "1.0.0",
+        "prompt_tokens": 16,
+        "completion_tokens": 235,
+        "total_tokens": 251
+      },
+      "created_at": "2025-08-13T14:03:11.972589"
+    },
+    {
+      "id": "e5163395-f7f8-48fc-9dab-9a648a296308",
+      "conversations": [
+        {
+          "from": "human",
+          "value": "ChartControl 실시간 차트에 대해 자세히 알고 싶습니다."
+        },
+        {
+          "from": "gpt",
+          "value": "### **ChartControl 실시간 차트에 대한 자세한 설명**\n\n실시간 차트는 데이터가 지속적으로 업데이트되는 환경에서 사용되는 차트로, 주로 금융, IoT, 모니터링 시스템, 데이터 분석 등에서 많이 사용됩니다. 실시간 차트는 데이터가 즉시 반영되도록 구현되어 있어 사용자가 현재의 데이터 상태를 실시간으로 파악할 수 있도록 도와줍니다.\n\n---\n\n#### **1. ChartControl의 개념**\n- **ChartControl**: 차트를 시각적으로 표현하기 위한 UI 컨트롤입니다. 다양한 데이터 시각화 라이브러리에서 제공되며, 실시간 데이터를 표시하는 기능을 포함하고 있습니다.\n- **실시간 차트**: 데이터가 지속적으로 업데이트되며, 차트가 실시간으로 반응하여 데이터를 시각화하는 차트입니다"
+        }
+      ],
+      "metadata": {
+        "source_documents": [
+          "sf_chart_001"
+        ],
+        "model": "qwen2.5-vl-instruct",
+        "tokens_used": 235,
+        "generation_mode": "llm_assisted",
+        "document_info": {
+          "component": "ChartControl",
+          "title": "ChartControl 실시간 차트",
+          "quality_score": 0.9
+        },
+        "created_at": "2025-08-13T14:03:12.000846",
+        "generator_version": "1.0.0",
+        "prompt_tokens": 32,
+        "completion_tokens": 235,
+        "total_tokens": 502
+      },
+      "created_at": "2025-08-13T14:03:12.000854"
+    },
+    {
+      "id": "148d2725-e597-4c65-9e2e-7092efe8a97e",
+      "conversations": [
+        {
+          "from": "human",
+          "value": "TreeViewAdv 노드 관리에 대해 자세히 알고 싶습니다."
+        },
+        {
+          "from": "gpt",
+          "value": "`TreeViewAdv`는 Syncfusion의 라이브러리에서 제공하는 고급 트리 뷰 컨트롤로, 일반적인 트리 뷰 컨트롤보다 더 많은 기능과 유연성을 제공합니다. 이 컨트롤은 노드를 관리하는 데 있어 다양한 방법을 제공하며, 사용자 인터페이스(UI)에서 트리 구조를 효율적으로 표현하고 관리할 수 있도록 설계되었습니다.\n\n### **1. TreeViewAdv의 주요 개념**\n- **노드(Node)**: 트리 구조의 기본 단위로, 각 노드는 데이터를 포함하고 자식 노드를 가질 수 있습니다.\n- **루트 노드(Root Node)**: 트리의 최상위 노드로, 다른 노드를 포함할 수 있습니다.\n- **자식 노드(Child Node)**: 특정 노드의"
+        }
+      ],
+      "metadata": {
+        "source_documents": [
+          "sf_tree_001"
+        ],
+        "model": "qwen2.5-vl-instruct",
+        "tokens_used": 235,
+        "generation_mode": "llm_assisted",
+        "document_info": {
+          "component": "TreeViewAdv",
+          "title": "TreeViewAdv 노드 관리",
+          "quality_score": 0.88
+        },
+        "created_at": "2025-08-13T14:03:15.703436",
+        "generator_version": "1.0.0",
+        "prompt_tokens": 47,
+        "completion_tokens": 235,
+        "total_tokens": 752
+      },
+      "created_at": "2025-08-13T14:03:15.703446"
+    }
+  ],
+  "statistics": {
+    "prompt_engine": {
+      "avg_quality_score": 65.0,
+      "high_quality_count": 0
+    },
+    "token_manager": {
+      "total_estimated_tokens": 232,
+      "processable_documents": 3
+    },
+    "conversation_generator": {
+      "generated_count": 3,
+      "failed_count": 0,
+      "total_tokens_used": 705,
+      "success_rate": 100.0,
+      "config": {
+        "generation_mode": 

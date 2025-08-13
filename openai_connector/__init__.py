@@ -14,17 +14,20 @@ from .client import (
 from .prompt_engine import (
     PromptEngine,
     PromptConfig,
+    PromptEngineConfig,
     create_prompt_engine
 )
 from .conversation_generator import (
     ConversationGenerator,
     ConversationConfig,
     GenerationMode,
+    Conversation,
     create_conversation_generator
 )
 from .token_manager import (
     TokenManager,
     TokenConfig,
+    TokenLimitType,
     create_token_manager
 )
 from .utils import (
@@ -54,17 +57,20 @@ __all__ = [
     # Prompt Engine
     'PromptEngine',
     'PromptConfig',
+    'PromptEngineConfig',
     'create_prompt_engine',
     
     # Conversation Generator
     'ConversationGenerator',
     'ConversationConfig',
     'GenerationMode',
+    'Conversation',
     'create_conversation_generator',
     
     # Token Manager
     'TokenManager',
     'TokenConfig',
+    'TokenLimitType',
     'create_token_manager',
     
     # Utils
@@ -92,7 +98,7 @@ class OpenAIConnector:
     
     def __init__(
         self,
-        endpoint: str = "http://123.37.28.120:9997/v1",
+        endpoint: str = "http://localhost:9997/v1",
         model: str = "qwen2.5-vl-instruct",
         api_key: str = "your-api-key",
         max_tokens: int = 128000,
@@ -203,7 +209,7 @@ class OpenAIConnector:
 
 
 def create_openai_connector(
-    endpoint: str = "http://123.37.28.120:9997/v1",
+    endpoint: str = "http://localhost:9997/v1",
     model: str = "qwen2.5-vl-instruct",
     api_key: str = "your-api-key",
     max_tokens: int = 128000,
@@ -246,7 +252,7 @@ def create_openai_connector_from_env() -> OpenAIConnector:
     """
     import os
     
-    endpoint = os.getenv("OPENAI_ENDPOINT", "http://123.37.28.120:9997/v1")
+    endpoint = os.getenv("OPENAI_ENDPOINT", "http://localhost:9997/v1")
     model = os.getenv("OPENAI_MODEL", "qwen2.5-vl-instruct")
     api_key = os.getenv("OPENAI_API_KEY", "your-api-key")
     max_tokens = int(os.getenv("OPENAI_MAX_TOKENS", "128000"))

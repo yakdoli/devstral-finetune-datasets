@@ -1,82 +1,87 @@
 #!/usr/bin/env python3
 """
-품질 점수 계산 모듈
-다양한 지표를 통한 데이터셋 품질 평가 기능을 제공합니다.
+품질 점수 계산기 모듈
+ROUGE, BERT-score 기반 품질 점수를 계산하고 커스텀 메트릭을 제공합니다.
 """
 
-import re
 import logging
-import math
-from typing import List, Dict, Any, Optional, Set, Tuple, Union
+import re
+from typing import List, Dict, Any, Optional, Tuple
 from dataclasses import dataclass, field
 from datetime import datetime
+import json
 from pathlib import Path
-from collections import Counter, defaultdict
+import math
 
-logger = logging.getLogger(__name__)
+# 선택적 임포트 (성능 향상을 위해)
+try:
+    from rouge_score import rouge_scorer
+    ROUGE_AVAILABLE = True
+except ImportError:
+    ROUGE_AVAILABLE = False
+
+try:
+    from bert_score import score as bert_score
+    BERT_SCORE_AVAILABLE = True
+except ImportError:
+    BERT_SCORE_AVAILABLE = False
+
+try:
+    import nltk
+    from nltk.tokenize import word_tokenize, sent_tokenize
+    from nltk.corpus import stopwords
+    NLTK_AVAILABLE = True
+except ImportError:
+    NLTK_AVAILABLE = False
+
+__version__ = "1.0.0"
+__author__ = "Quality Scorer Team"
 
 
 @dataclass
 class QualityScorerConfig:
     """품질 점수 계산기 설정"""
-    # 내용 품질 설정
-    content_quality_enabled: bool = True
-    min_content_length: int = 10
-    max_content_length: int = 50000
-    min_sentence_count: int = 1
-    min_word_count: int = 5
+    # 품질 점수 임계값
+    min_quality_score: float = 0.6
     
-    # 구조 품질 설정
-    structural_quality_enabled: bool = True
-    required_conversation_turns: int = 2
-    min_turn_length: int = 5
-    max_turn_length: int = 1000
+    # 사용할 메트릭
+    enable_rouge_score: bool = ROUGE_AVAILABLE
+    enable_bert_score: bool = False  # 기본적으로 비활성화 (무거움)
+    enable_custom_metrics: bool = True
     
-    # 언어 품질 설정
-    language_quality_enabled: bool = True
-    grammar_check_enabled: bool = True
-    spelling_check_enabled: bool = True
-    fluency_check_enabled: bool = True
+    # ROUGE 설정
+    rouge_types: List[str] = field(default_factory=lambda: ['rouge1', 'rouge2', 'rougeL'])
+    rouge_use_stemmer: bool = True
     
-    # 기술 품질 설정
-    technical_quality_enabled: bool = True
-    code_quality_enabled: bool = True
-    technical_accuracy_enabled: bool = True
+    # BERT Score 설정
+    bert_model: str = "bert-base-multilingual-cased"
+    bert_lang: str = "ko"
     
-    # 가중치 설정
-    content_weight: float = 0.3
-    structural_weight: float = 0.25
-    language_weight: float = 0.25
-    technical_weight: float = 0.2
+    # 커스텀 메트릭 가중치
+    technical_accuracy_weight: float = 0.3
+    coherence_weight: float = 0.25
+    completeness_weight: float = 0.2
+    readability_weight: float = 0.15
+    relevance_weight: float = 0.1
     
-    # 임계값 설정
-    min_quality_threshold: float = 0.6
-    excellent_quality_threshold: float = 0.8
+    # 언어 설정
+    language: str = "ko"
+    
+    # 로깅 레벨
+    log_level: str = "INFO"
 
 
 @dataclass
 class QualityResult:
-    """품질 검증 결과"""
-    quality_score: float = 0.0
+    """품질 점수 결과"""
+    quality_score: float
+    is_high_quality: bool
     details: Dict[str, Any] = field(default_factory=dict)
+    metrics: Dict[str, float] = field(default_factory=dict)
     issues: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
-    is_valid: bool = True
-
-
-@dataclass
-class QualityScoreResult:
-    """품질 점수 계산 결과"""
-    total_score: float = 0.0
-    content_score: float = 0.0
-    structural_score: float = 0.0
-    language_score: float = 0.0
-    technical_score: float = 0.0
-    issues: List[str] = field(default_factory=list)
-    warnings: List[str] = field(default_factory=list)
     suggestions: List[str] = field(default_factory=list)
-    detailed_metrics: Dict[str, Any] = field(default_factory=dict)
-    scoring_timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
+    confidence_score: float = 0.0
+    timestamp: str = field(default_factory=lambda: datetime.now().isoformat())
 
 
 class QualityScorer:
@@ -92,900 +97,791 @@ class QualityScorer:
         self.config = config or QualityScorerConfig()
         self.logger = logging.getLogger(f"{__name__}.{self.__class__.__name__}")
         
-        # 텍스트 분석 설정
-        self._setup_text_analysis()
+        # 로깅 설정
+        self._setup_logging()
         
-        # 기술 용어 사전
-        self._setup_technical_dictionaries()
+        # 메트릭 도구 초기화
+        self._initialize_metrics()
+        
+        # 기술적 키워드 및 패턴 초기화
+        self._initialize_technical_patterns()
+        
+        self.logger.info("QualityScorer initialized successfully")
     
-    def _setup_text_analysis(self):
-        """텍스트 분석 설정을 초기화합니다."""
-        # 문장 분리 패턴
-        self.sentence_patterns = {
-            'basic': re.compile(r'[.!?]+'),
-            'code': re.compile(r'[.!?;]+'),
-            'question': re.compile(r'[?！？]+')
+    def _setup_logging(self):
+        """로깅을 설정합니다."""
+        level = getattr(logging, self.config.log_level.upper(), logging.INFO)
+        self.logger.setLevel(level)
+    
+    def _initialize_metrics(self):
+        """메트릭 도구를 초기화합니다."""
+        # ROUGE 스코어러 초기화
+        if self.config.enable_rouge_score and ROUGE_AVAILABLE:
+            try:
+                self.rouge_scorer = rouge_scorer.RougeScorer(
+                    self.config.rouge_types,
+                    use_stemmer=self.config.rouge_use_stemmer
+                )
+                self.logger.info("ROUGE scorer initialized")
+            except Exception as e:
+                self.logger.error(f"Error initializing ROUGE scorer: {e}")
+                self.config.enable_rouge_score = False
+        
+        # NLTK 데이터 다운로드 (필요한 경우)
+        if NLTK_AVAILABLE:
+            try:
+                nltk.data.find('tokenizers/punkt')
+                nltk.data.find('corpora/stopwords')
+            except LookupError:
+                try:
+                    nltk.download('punkt', quiet=True)
+                    nltk.download('stopwords', quiet=True)
+                except Exception as e:
+                    self.logger.warning(f"Could not download NLTK data: {e}")
+    
+    def _initialize_technical_patterns(self):
+        """기술적 패턴을 초기화합니다."""
+        # Syncfusion WinForms 관련 기술 키워드
+        self.technical_keywords = {
+            "components": [
+                "DataGrid", "Chart", "Gauge", "TreeView", "ListView", "ComboBox",
+                "Button", "TextBox", "Label", "Panel", "Form", "Dialog",
+                "Menu", "Toolbar", "StatusBar", "TabControl", "SplitContainer"
+            ],
+            "properties": [
+                "DataSource", "Columns", "Rows", "Text", "Value", "Enabled",
+                "Visible", "Size", "Location", "Anchor", "Dock", "Font",
+                "ForeColor", "BackColor", "BorderStyle"
+            ],
+            "methods": [
+                "Add", "Remove", "Clear", "Update", "Refresh", "Load", "Save",
+                "Show", "Hide", "Focus", "Click", "DoubleClick", "KeyPress",
+                "MouseClick", "Paint", "Resize"
+            ],
+            "events": [
+                "Click", "DoubleClick", "KeyPress", "KeyDown", "KeyUp",
+                "MouseClick", "MouseDown", "MouseUp", "MouseMove",
+                "Paint", "Resize", "Load", "FormClosing"
+            ],
+            "namespaces": [
+                "Syncfusion", "System.Windows.Forms", "System.Drawing",
+                "System.ComponentModel", "System.Data", "System.Collections"
+            ]
         }
         
-        # 단어 분리 패턴
-        self.word_pattern = re.compile(r'\b\w+\b')
-        
-        # 문법 오류 패턴 (간소화된 버전)
-        self.grammar_patterns = [
-            (r'\s+,\s+', ', '),  # 쉼표 주변 공백
-            (r'\s+\.+', '.'),   # 마침표 주변 공백
-            (r'\s+!+', '!'),    # 느낌표 주변 공백
-            (r'\s+\?+', '?'),   # 물음표 주변 공백
-            (r'\s+:+', ':'),    # 콜론 주변 공백
-            (r'\s+;+', ';'),    # 세미콜론 주변 공백
+        # 코드 패턴
+        self.code_patterns = [
+            re.compile(r'\b(class|public|private|protected|static|void|int|string|bool)\b', re.IGNORECASE),
+            re.compile(r'\b(if|else|for|while|foreach|switch|case|try|catch|finally)\b', re.IGNORECASE),
+            re.compile(r'\b(new|this|base|using|namespace|return)\b', re.IGNORECASE),
+            re.compile(r'[A-Za-z_][A-Za-z0-9_]*\s*\(.*?\)', re.IGNORECASE),  # 메서드 호출
+            re.compile(r'[A-Za-z_][A-Za-z0-9_]*\.[A-Za-z_][A-Za-z0-9_]*', re.IGNORECASE),  # 속성 접근
+            re.compile(r'//.*$|/\*.*?\*/', re.MULTILINE | re.DOTALL),  # 주석
         ]
         
-        # 반복되는 문자 패턴
-        self.repeated_char_pattern = re.compile(r'(.)\1{2,}')
-    
-    def _setup_technical_dictionaries(self):
-        """기술 용어 사전을 설정합니다."""
-        # Syncfusion 관련 기술 용어
-        self.syncfusion_terms = {
-            'winforms', 'wpf', 'blazor', 'maui', 'xamarin', 'asp.net', 'mvc',
-            'datagrid', 'grid', 'chart', 'gauge', 'spreadsheet', 'report',
-            'pdf', 'docio', 'xlsio', 'presentation', 'diagram', 'schedule',
-            'edit', 'tools', 'calculate', 'pivotgrid', 'olap', 'qtp',
-            'htmlui', 'projio', 'pdfviewer', 'pivotgrid', 'grouping',
-            'olap-common', 'chart', 'gauge', 'grid', 'edit', 'tools',
-            'calculate', 'pdf', 'docio', 'xlsio', 'presentation', 'diagram',
-            'schedule', 'htmlui', 'projio', 'pdfviewer', 'pivotgrid'
+        # 품질 지표 키워드
+        self.quality_indicators = {
+            "positive": [
+                "예제", "샘플", "단계별", "방법", "설명", "가이드", "튜토리얼",
+                "구현", "사용법", "활용", "적용", "설정", "구성", "초기화",
+                "최적화", "성능", "효율", "안정", "보안", "테스트"
+            ],
+            "negative": [
+                "모름", "잘못", "오류", "에러", "실패", "불가능", "안됨",
+                "문제", "버그", "이상", "비정상", "작동안함"
+            ]
         }
-        
-        # 프로그래밍 관련 용어
-        self.programming_terms = {
-            'class', 'method', 'function', 'variable', 'parameter', 'argument',
-            'return', 'if', 'else', 'for', 'while', 'do', 'switch', 'case',
-            'try', 'catch', 'finally', 'throw', 'import', 'from', 'as',
-            'public', 'private', 'protected', 'static', 'virtual', 'override',
-            'abstract', 'interface', 'namespace', 'using', 'include', 'require',
-            'def', 'lambda', 'yield', 'async', 'await', 'try', 'except',
-            'finally', 'raise', 'with', 'pass', 'break', 'continue'
-        }
-        
-        # 코드 블록 패턴
-        self.code_block_patterns = [
-            r'```[\s\S]*?```',  # 백틱 코드 블록
-            r'`[^`]+`',        # 인라인 코드
-            r'<code[^>]*>.*?</code>',  # HTML 코드 태그
-            r'<pre[^>]*>.*?</pre>',    # HTML pre 태그
-        ]
     
-    def calculate_quality_score(self, item: Dict[str, Any], item_type: str = "text") -> QualityScoreResult:
+    def calculate_quality_score(self, item: Dict[str, Any], format_type: str = "sharegpt") -> QualityResult:
         """
         아이템의 품질 점수를 계산합니다.
         
         Args:
-            item: 품질 평가할 아이템
-            item_type: 아이템 타입 (text, conversation, code)
+            item: 품질을 평가할 아이템
+            format_type: 데이터 포맷 타입
             
         Returns:
-            품질 점수 계산 결과
+            품질 점수 결과
         """
-        result = QualityScoreResult()
-        
-        if not item:
-            result.total_score = 0.0
-            result.issues.append("빈 아이템")
+        try:
+            # 텍스트 콘텐츠 추출
+            text_content = self._extract_text_content(item, format_type)
+            conversation_pairs = self._extract_conversation_pairs(item, format_type)
+            
+            if not text_content:
+                return QualityResult(
+                    quality_score=0.0,
+                    is_high_quality=False,
+                    issues=["No text content found for quality assessment"]
+                )
+            
+            # 품질 메트릭 계산
+            quality_metrics = {}
+            
+            # 1. 커스텀 메트릭 계산
+            if self.config.enable_custom_metrics:
+                custom_metrics = self._calculate_custom_metrics(text_content, conversation_pairs)
+                quality_metrics.update(custom_metrics)
+            
+            # 2. ROUGE 점수 계산 (대화 쌍이 있는 경우)
+            if self.config.enable_rouge_score and conversation_pairs:
+                rouge_metrics = self._calculate_rouge_scores(conversation_pairs)
+                quality_metrics.update(rouge_metrics)
+            
+            # 3. BERT Score 계산 (활성화된 경우)
+            if self.config.enable_bert_score and conversation_pairs:
+                bert_metrics = self._calculate_bert_scores(conversation_pairs)
+                quality_metrics.update(bert_metrics)
+            
+            # 최종 품질 점수 계산
+            final_score = self._calculate_final_score(quality_metrics)
+            
+            # 품질 이슈 및 제안사항 생성
+            issues, suggestions = self._analyze_quality_issues(text_content, quality_metrics)
+            
+            # 신뢰도 점수 계산
+            confidence_score = self._calculate_confidence_score(quality_metrics)
+            
+            result = QualityResult(
+                quality_score=final_score,
+                is_high_quality=final_score >= self.config.min_quality_score,
+                details={
+                    "text_length": len(text_content),
+                    "conversation_pairs": len(conversation_pairs),
+                    "format_type": format_type
+                },
+                metrics=quality_metrics,
+                issues=issues,
+                suggestions=suggestions,
+                confidence_score=confidence_score
+            )
+            
+            self.logger.debug(f"Quality score calculated: {final_score:.3f}")
+            
             return result
-        
-        # 각 품질 요소별 점수 계산
-        scores = {}
-        
-        # 1. 내용 품질 점수
-        if self.config.content_quality_enabled:
-            content_score, content_metrics = self._calculate_content_quality(item, item_type)
-            scores['content'] = content_score
-            result.content_score = content_score
-            result.detailed_metrics['content'] = content_metrics
-        
-        # 2. 구조 품질 점수
-        if self.config.structural_quality_enabled:
-            structural_score, structural_metrics = self._calculate_structural_quality(item, item_type)
-            scores['structural'] = structural_score
-            result.structural_score = structural_score
-            result.detailed_metrics['structural'] = structural_metrics
-        
-        # 3. 언어 품질 점수
-        if self.config.language_quality_enabled:
-            language_score, language_metrics = self._calculate_language_quality(item, item_type)
-            scores['language'] = language_score
-            result.language_score = language_score
-            result.detailed_metrics['language'] = language_metrics
-        
-        # 4. 기술 품질 점수
-        if self.config.technical_quality_enabled:
-            technical_score, technical_metrics = self._calculate_technical_quality(item, item_type)
-            scores['technical'] = technical_score
-            result.technical_score = technical_score
-            result.detailed_metrics['technical'] = technical_metrics
-        
-        # 가중치 적용하여 최종 점수 계산
-        result.total_score = self._calculate_weighted_score(scores)
-        
-        # 이슈 및 경고 생성
-        self._generate_quality_issues(result, scores)
-        
-        return result
-    
-    def _calculate_content_quality(self, item: Dict[str, Any], item_type: str) -> Tuple[float, Dict[str, Any]]:
-        """내용 품질 점수를 계산합니다."""
-        metrics = {}
-        score = 1.0
-        
-        # 텍스트 추출
-        text = self._extract_text_for_analysis(item, item_type)
-        
-        if not text:
-            return 0.0, {"error": "텍스트 추출 실패"}
-        
-        # 길이 점수
-        text_length = len(text)
-        length_score = self._calculate_length_score(text_length)
-        score *= length_score
-        metrics['length'] = text_length
-        metrics['length_score'] = length_score
-        
-        # 문장 구조 점수
-        sentence_count = self._count_sentences(text)
-        sentence_score = self._calculate_sentence_score(sentence_count, text_length)
-        score *= sentence_score
-        metrics['sentence_count'] = sentence_count
-        metrics['sentence_score'] = sentence_score
-        
-        # 단어 다양성 점수
-        word_diversity = self._calculate_word_diversity(text)
-        score *= word_diversity
-        metrics['word_diversity'] = word_diversity
-        
-        # 정보성 점수
-        informativeness = self._calculate_informativeness(text)
-        score *= informativeness
-        metrics['informativeness'] = informativeness
-        
-        # 일관성 점수
-        consistency = self._calculate_consistency(text)
-        score *= consistency
-        metrics['consistency'] = consistency
-        
-        return max(0.0, min(1.0, score)), metrics
-    
-    def _calculate_structural_quality(self, item: Dict[str, Any], item_type: str) -> Tuple[float, Dict[str, Any]]:
-        """구조 품질 점수를 계산합니다."""
-        metrics = {}
-        score = 1.0
-        
-        if item_type == "conversation":
-            # 대화 구조 품질
-            conversations = item.get("conversations", [])
-            metrics['turn_count'] = len(conversations)
             
-            # 최소 턴 수 확인
-            if len(conversations) < self.config.required_conversation_turns:
-                score *= 0.5
-                metrics['turn_score'] = 0.5
-            else:
-                metrics['turn_score'] = 1.0
-            
-            # 각 턴의 길이 점수
-            turn_scores = []
-            for i, conv in enumerate(conversations):
-                turn_length = len(conv.get("value", ""))
-                turn_score = self._calculate_turn_length_score(turn_length)
-                turn_scores.append(turn_score)
-            
-            avg_turn_score = sum(turn_scores) / len(turn_scores) if turn_scores else 0
-            score *= avg_turn_score
-            metrics['average_turn_score'] = avg_turn_score
-            
-            # 역할 순서 점수
-            role_score = self._calculate_role_sequence_score(conversations)
-            score *= role_score
-            metrics['role_sequence_score'] = role_score
-            
-        elif item_type in ["text", "instruction"]:
-            # 텍스트 구조 품질
-            structure_score = self._calculate_text_structure_score(item)
-            score *= structure_score
-            metrics['structure_score'] = structure_score
-        
-        return max(0.0, min(1.0, score)), metrics
+        except Exception as e:
+            self.logger.error(f"Error calculating quality score: {e}")
+            return QualityResult(
+                quality_score=0.0,
+                is_high_quality=False,
+                issues=[f"Quality calculation error: {str(e)}"]
+            )
     
-    def _calculate_language_quality(self, item: Dict[str, Any], item_type: str) -> Tuple[float, Dict[str, Any]]:
-        """언어 품질 점수를 계산합니다."""
-        metrics = {}
-        score = 1.0
-        
-        # 텍스트 추출
-        text = self._extract_text_for_analysis(item, item_type)
-        
-        if not text:
-            return 0.0, {"error": "텍스트 추출 실패"}
-        
-        # 문법 점수
-        if self.config.grammar_check_enabled:
-            grammar_score = self._calculate_grammar_score(text)
-            score *= grammar_score
-            metrics['grammar_score'] = grammar_score
-        
-        # 맞춤법 점수
-        if self.config.spelling_check_enabled:
-            spelling_score = self._calculate_spelling_score(text)
-            score *= spelling_score
-            metrics['spelling_score'] = spelling_score
-        
-        # 유창성 점수
-        if self.config.fluency_check_enabled:
-            fluency_score = self._calculate_fluency_score(text)
-            score *= fluency_score
-            metrics['fluency_score'] = fluency_score
-        
-        # 자연스러움 점수
-        naturalness_score = self._calculate_naturalness_score(text)
-        score *= naturalness_score
-        metrics['naturalness_score'] = naturalness_score
-        
-        return max(0.0, min(1.0, score)), metrics
-    
-    def _calculate_technical_quality(self, item: Dict[str, Any], item_type: str) -> Tuple[float, Dict[str, Any]]:
-        """기술 품질 점수를 계산합니다."""
-        metrics = {}
-        score = 1.0
-        
-        # 텍스트 추출
-        text = self._extract_text_for_analysis(item, item_type)
-        
-        if not text:
-            return 0.0, {"error": "텍스트 추출 실패"}
-        
-        # 코드 품질 점수
-        if self.config.code_quality_enabled:
-            code_score, code_metrics = self._calculate_code_quality(text)
-            score *= code_score
-            metrics['code_quality'] = code_metrics
-        
-        # 기술적 정확성 점수
-        if self.config.technical_accuracy_enabled:
-            accuracy_score = self._calculate_technical_accuracy(text, item_type)
-            score *= accuracy_score
-            metrics['technical_accuracy'] = accuracy_score
-        
-        # 실용성 점수
-        practicality_score = self._calculate_practicality_score(text)
-        score *= practicality_score
-        metrics['practicality_score'] = practicality_score
-        
-        return max(0.0, min(1.0, score)), metrics
-    
-    def _extract_text_for_analysis(self, item: Dict[str, Any], item_type: str) -> str:
-        """분석을 위한 텍스트를 추출합니다."""
+    def _extract_text_content(self, item: Dict[str, Any], format_type: str) -> str:
+        """아이템에서 텍스트 콘텐츠를 추출합니다."""
         text_parts = []
         
-        if item_type == "conversation":
-            for conv in item.get("conversations", []):
-                text_parts.append(conv.get("value", ""))
-        elif item_type == "instruction":
-            text_parts.append(item.get("instruction", ""))
-            text_parts.append(item.get("response", ""))
-            text_parts.append(item.get("output", ""))
-        elif item_type == "code":
-            text_parts.append(item.get("code", ""))
-            text_parts.append(item.get("explanation", ""))
-        else:
-            # 일반 텍스트
-            for field in ["instruction", "response", "input", "output", "content", "text"]:
-                if field in item:
-                    text_parts.append(str(item[field]))
-        
-        return " ".join(text_parts)
-    
-    def _calculate_length_score(self, length: int) -> float:
-        """길이 점수를 계산합니다."""
-        if length < self.config.min_content_length:
-            return 0.3
-        elif length > self.config.max_content_length:
-            return 0.7
-        else:
-            # 선형 보간
-            normalized = (length - self.config.min_content_length) / (self.config.max_content_length - self.config.min_content_length)
-            return 0.3 + 0.7 * normalized
-    
-    def _count_sentences(self, text: str) -> int:
-        """문장 수를 계산합니다."""
-        # 여러 패턴으로 문장 분리
-        sentences = []
-        for pattern_name, pattern in self.sentence_patterns.items():
-            matches = pattern.findall(text)
-            sentences.extend(matches)
-        
-        return len(sentences)
-    
-    def _calculate_sentence_score(self, sentence_count: int, text_length: int) -> float:
-        """문장 점수를 계산합니다."""
-        if sentence_count < self.config.min_sentence_count:
-            return 0.5
-        
-        # 평균 문장 길이 계산
-        avg_sentence_length = text_length / sentence_count if sentence_count > 0 else 0
-        
-        # 적절한 문장 길이 범위 확인
-        if avg_sentence_length < 10 or avg_sentence_length > 100:
-            return 0.7
-        
-        return 1.0
-    
-    def _calculate_word_diversity(self, text: str) -> float:
-        """단어 다양성 점수를 계산합니다."""
-        words = self.word_pattern.findall(text.lower())
-        
-        if len(words) < 10:
-            return 0.5
-        
-        # 고유 단어 비율 계산
-        unique_words = set(words)
-        diversity = len(unique_words) / len(words)
-        
-        # 불용어 제외 후 다시 계산
-        filtered_words = [word for word in words if word not in self._get_stop_words()]
-        if len(filtered_words) > 0:
-            unique_filtered = set(filtered_words)
-            filtered_diversity = len(unique_filtered) / len(filtered_words)
-            diversity = (diversity + filtered_diversity) / 2
-        
-        return min(1.0, diversity)
-    
-    def _calculate_informativeness(self, text: str) -> float:
-        """정보성 점수를 계산합니다."""
-        # 명사, 동사, 형용사 비율 계산
-        words = self.word_pattern.findall(text.lower())
-        
-        if not words:
-            return 0.0
-        
-        # 간단한 품사 패턴 (간소화된 버전)
-        content_words = 0
-        for word in words:
-            if len(word) > 3 and not word.isdigit():
-                content_words += 1
-        
-        content_ratio = content_words / len(words)
-        return min(1.0, content_ratio)
-    
-    def _calculate_consistency(self, text: str) -> float:
-        """일관성 점수를 계산합니다."""
-        # 반복되는 패턴 검사
-        repeated_chars = self.repeated_char_pattern.findall(text)
-        
-        if repeated_chars:
-            return 0.8  # 반복 문자가 있으면 점수 감소
-        
-        # 일관된 주제 유지 여부 검사 (간단한 버전)
-        sentences = self.sentence_patterns['basic'].split(text)
-        
-        if len(sentences) < 2:
-            return 1.0
-        
-        # 첫 문장과 마지막 문장의 유사도 검사
-        first_sentence = sentences[0].strip()
-        last_sentence = sentences[-1].strip()
-        
-        if first_sentence and last_sentence:
-            first_words = set(first_sentence.lower().split())
-            last_words = set(last_sentence.lower().split())
+        try:
+            if format_type == "sharegpt":
+                conversations = item.get("conversations", [])
+                for conv in conversations:
+                    if isinstance(conv, dict) and "value" in conv:
+                        text_parts.append(conv["value"])
             
-            if first_words and last_words:
-                intersection = len(first_words.intersection(last_words))
-                union = len(first_words.union(last_words))
-                
-                if union > 0:
-                    similarity = intersection / union
-                    return 0.7 + 0.3 * similarity
+            elif format_type == "alpaca":
+                for key in ["instruction", "input", "output"]:
+                    if key in item and item[key]:
+                        text_parts.append(item[key])
+            
+            elif format_type == "openai":
+                messages = item.get("messages", [])
+                for msg in messages:
+                    if isinstance(msg, dict) and "content" in msg:
+                        text_parts.append(msg["content"])
+            
+            return " ".join(text_parts)
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting text content: {e}")
+            return ""
+    
+    def _extract_conversation_pairs(self, item: Dict[str, Any], format_type: str) -> List[Tuple[str, str]]:
+        """대화 쌍을 추출합니다."""
+        pairs = []
         
-        return 0.8
+        try:
+            if format_type == "sharegpt":
+                conversations = item.get("conversations", [])
+                human_msg = ""
+                
+                for conv in conversations:
+                    if conv.get("from") == "human":
+                        human_msg = conv.get("value", "")
+                    elif conv.get("from") == "gpt" and human_msg:
+                        pairs.append((human_msg, conv.get("value", "")))
+                        human_msg = ""
+            
+            elif format_type == "alpaca":
+                instruction = item.get("instruction", "")
+                input_text = item.get("input", "")
+                output = item.get("output", "")
+                
+                if instruction and output:
+                    query = instruction + (" " + input_text if input_text else "")
+                    pairs.append((query, output))
+            
+            elif format_type == "openai":
+                messages = item.get("messages", [])
+                user_msg = ""
+                
+                for msg in messages:
+                    if msg.get("role") == "user":
+                        user_msg = msg.get("content", "")
+                    elif msg.get("role") == "assistant" and user_msg:
+                        pairs.append((user_msg, msg.get("content", "")))
+                        user_msg = ""
+            
+            return pairs
+            
+        except Exception as e:
+            self.logger.error(f"Error extracting conversation pairs: {e}")
+            return []
     
-    def _calculate_turn_length_score(self, turn_length: int) -> float:
-        """대화 턴 길이 점수를 계산합니다."""
-        if turn_length < self.config.min_turn_length:
-            return 0.5
-        elif turn_length > self.config.max_turn_length:
-            return 0.7
-        else:
-            normalized = (turn_length - self.config.min_turn_length) / (self.config.max_turn_length - self.config.min_turn_length)
-            return 0.5 + 0.5 * normalized
+    def _calculate_custom_metrics(self, text: str, conversation_pairs: List[Tuple[str, str]]) -> Dict[str, float]:
+        """커스텀 메트릭을 계산합니다."""
+        metrics = {}
+        
+        # 1. 기술적 정확성 (Technical Accuracy)
+        metrics["technical_accuracy"] = self._calculate_technical_accuracy(text)
+        
+        # 2. 일관성 (Coherence)
+        metrics["coherence"] = self._calculate_coherence(text, conversation_pairs)
+        
+        # 3. 완성도 (Completeness)
+        metrics["completeness"] = self._calculate_completeness(text, conversation_pairs)
+        
+        # 4. 가독성 (Readability)
+        metrics["readability"] = self._calculate_readability(text)
+        
+        # 5. 관련성 (Relevance)
+        metrics["relevance"] = self._calculate_relevance(text)
+        
+        return metrics
     
-    def _calculate_role_sequence_score(self, conversations: List[Dict[str, Any]]) -> float:
-        """역할 순서 점수를 계산합니다."""
-        if not conversations:
+    def _calculate_technical_accuracy(self, text: str) -> float:
+        """기술적 정확성을 계산합니다."""
+        score = 0.5  # 기본 점수
+        
+        # 기술 키워드 밀도
+        total_words = len(text.split())
+        if total_words == 0:
             return 0.0
         
-        # 기대되는 역할 순서
-        expected_roles = ['system', 'human', 'gpt']
+        technical_word_count = 0
+        for category, keywords in self.technical_keywords.items():
+            for keyword in keywords:
+                technical_word_count += text.lower().count(keyword.lower())
         
-        # 실제 역할 순서
-        actual_roles = [conv.get('from', '') for conv in conversations]
+        keyword_density = technical_word_count / total_words
+        score += min(keyword_density * 2, 0.3)  # 최대 0.3 추가
         
-        # 순서 점수 계산
+        # 코드 패턴 존재
+        code_pattern_count = 0
+        for pattern in self.code_patterns:
+            matches = pattern.findall(text)
+            code_pattern_count += len(matches)
+        
+        if code_pattern_count > 0:
+            score += min(code_pattern_count * 0.05, 0.2)  # 최대 0.2 추가
+        
+        return min(score, 1.0)
+    
+    def _calculate_coherence(self, text: str, conversation_pairs: List[Tuple[str, str]]) -> float:
+        """일관성을 계산합니다."""
+        if not conversation_pairs:
+            return 0.7  # 기본 점수
+        
+        coherence_scores = []
+        
+        for query, response in conversation_pairs:
+            # 질문과 답변의 주제 일치도
+            query_words = set(query.lower().split())
+            response_words = set(response.lower().split())
+            
+            # 공통 단어 비율
+            common_words = query_words.intersection(response_words)
+            if len(query_words) > 0:
+                word_overlap = len(common_words) / len(query_words)
+                coherence_scores.append(min(word_overlap * 2, 1.0))
+            
+            # 기술적 용어 일치도
+            tech_terms_in_query = 0
+            tech_terms_in_response = 0
+            
+            for category, keywords in self.technical_keywords.items():
+                for keyword in keywords:
+                    if keyword.lower() in query.lower():
+                        tech_terms_in_query += 1
+                    if keyword.lower() in response.lower():
+                        tech_terms_in_response += 1
+            
+            if tech_terms_in_query > 0:
+                tech_coherence = min(tech_terms_in_response / tech_terms_in_query, 1.0)
+                coherence_scores.append(tech_coherence)
+        
+        return sum(coherence_scores) / len(coherence_scores) if coherence_scores else 0.7
+    
+    def _calculate_completeness(self, text: str, conversation_pairs: List[Tuple[str, str]]) -> float:
+        """완성도를 계산합니다."""
         score = 0.0
-        for i, expected in enumerate(expected_roles):
-            if i < len(actual_roles) and actual_roles[i] == expected:
-                score += 1.0 / len(expected_roles)
         
-        return score
+        # 텍스트 길이 기반 점수
+        text_length = len(text)
+        if text_length < 50:
+            score += 0.2
+        elif text_length < 200:
+            score += 0.5
+        elif text_length < 500:
+            score += 0.8
+        else:
+            score += 1.0
+        
+        # 대화 쌍의 완성도
+        if conversation_pairs:
+            complete_pairs = 0
+            for query, response in conversation_pairs:
+                if len(query.strip()) > 10 and len(response.strip()) > 20:
+                    complete_pairs += 1
+            
+            pair_completeness = complete_pairs / len(conversation_pairs)
+            score = (score + pair_completeness) / 2
+        
+        # 구조적 완성도 (단계별 설명, 예제 등)
+        structure_indicators = ["1.", "2.", "3.", "첫째", "둘째", "셋째", "예제", "샘플", "방법"]
+        structure_count = sum(1 for indicator in structure_indicators if indicator in text)
+        
+        if structure_count > 0:
+            score += min(structure_count * 0.05, 0.2)
+        
+        return min(score, 1.0)
     
-    def _calculate_text_structure_score(self, item: Dict[str, Any]) -> float:
-        """텍스트 구조 점수를 계산합니다."""
-        score = 1.0
+    def _calculate_readability(self, text: str) -> float:
+        """가독성을 계산합니다."""
+        if not text:
+            return 0.0
         
-        # 필드 존재 여부 확인
-        required_fields = ['instruction', 'response']
-        for field in required_fields:
-            if field not in item or not item[field]:
-                score *= 0.5
+        score = 0.5  # 기본 점수
         
-        # 필드 길이 확인
-        for field in required_fields:
-            if field in item:
-                field_length = len(str(item[field]))
-                if field_length < 10:
-                    score *= 0.8
+        # 문장 길이 분석
+        sentences = re.split(r'[.!?]', text)
+        sentences = [s.strip() for s in sentences if s.strip()]
         
-        return score
+        if sentences:
+            avg_sentence_length = sum(len(s.split()) for s in sentences) / len(sentences)
+            
+            # 적절한 문장 길이 (10-25 단어)
+            if 10 <= avg_sentence_length <= 25:
+                score += 0.2
+            elif avg_sentence_length < 10:
+                score += 0.1
+            else:
+                score -= 0.1
+        
+        # 문단 구조
+        paragraphs = text.split('\n\n')
+        if len(paragraphs) > 1:
+            score += 0.1
+        
+        # 특수문자 과다 사용 확인
+        special_char_ratio = len(re.findall(r'[!@#$%^&*()_+={}\[\]|\\:";\'<>?,./]', text)) / len(text)
+        if special_char_ratio < 0.05:
+            score += 0.1
+        elif special_char_ratio > 0.15:
+            score -= 0.2
+        
+        # 대문자 과다 사용 확인
+        upper_ratio = sum(1 for c in text if c.isupper()) / len(text)
+        if upper_ratio < 0.1:
+            score += 0.1
+        elif upper_ratio > 0.3:
+            score -= 0.2
+        
+        return max(0.0, min(score, 1.0))
     
-    def _calculate_grammar_score(self, text: str) -> float:
-        """문법 점수를 계산합니다."""
-        score = 1.0
+    def _calculate_relevance(self, text: str) -> float:
+        """관련성을 계산합니다."""
+        score = 0.5  # 기본 점수
         
-        # 간단한 문법 패턴 검사
-        grammar_issues = 0
+        # Syncfusion WinForms 관련성
+        syncfusion_keywords = ["syncfusion", "winforms", "datagrid", "chart", "gauge"]
+        syncfusion_count = sum(1 for keyword in syncfusion_keywords if keyword.lower() in text.lower())
         
-        # 연속된 구두점 검사
-        if re.search(r'[.!?]{2,}', text):
-            grammar_issues += 1
+        if syncfusion_count > 0:
+            score += min(syncfusion_count * 0.1, 0.3)
         
-        # 불필요한 공백 검사
-        if re.search(r'\s{2,}', text):
-            grammar_issues += 1
+        # 프로그래밍 관련성
+        programming_keywords = ["코드", "프로그램", "개발", "구현", "클래스", "메서드", "속성"]
+        programming_count = sum(1 for keyword in programming_keywords if keyword in text)
         
-        # 대문자 사용 검사
-        sentences = self.sentence_patterns['basic'].split(text)
-        for sentence in sentences:
-            sentence = sentence.strip()
-            if sentence and not sentence[0].isupper():
-                grammar_issues += 0.1
+        if programming_count > 0:
+            score += min(programming_count * 0.05, 0.2)
         
-        # 문법 이슈에 따른 점수 감소
-        if grammar_issues > 0:
-            score = max(0.3, 1.0 - grammar_issues * 0.1)
+        # 품질 지표 키워드
+        positive_count = sum(1 for keyword in self.quality_indicators["positive"] if keyword in text)
+        negative_count = sum(1 for keyword in self.quality_indicators["negative"] if keyword in text)
         
-        return score
+        score += min(positive_count * 0.02, 0.1)
+        score -= min(negative_count * 0.05, 0.2)
+        
+        return max(0.0, min(score, 1.0))
     
-    def _calculate_spelling_score(self, text: str) -> float:
-        """맞춤법 점수를 계산합니다."""
-        # 간단한 맞춤법 검사 (간소화된 버전)
-        words = self.word_pattern.findall(text.lower())
+    def _calculate_rouge_scores(self, conversation_pairs: List[Tuple[str, str]]) -> Dict[str, float]:
+        """ROUGE 점수를 계산합니다."""
+        if not ROUGE_AVAILABLE or not conversation_pairs:
+            return {}
         
-        if not words:
-            return 1.0
+        rouge_scores = {rouge_type: [] for rouge_type in self.config.rouge_types}
         
-        # 명백한 맞춤법 오류 검사
-        spelling_errors = 0
+        try:
+            for query, response in conversation_pairs:
+                # 참조 텍스트로 질문을 사용하고, 가설 텍스트로 답변을 사용
+                scores = self.rouge_scorer.score(query, response)
+                
+                for rouge_type in self.config.rouge_types:
+                    if rouge_type in scores:
+                        rouge_scores[rouge_type].append(scores[rouge_type].fmeasure)
+            
+            # 평균 점수 계산
+            avg_rouge_scores = {}
+            for rouge_type, scores in rouge_scores.items():
+                if scores:
+                    avg_rouge_scores[f"rouge_{rouge_type}"] = sum(scores) / len(scores)
+            
+            return avg_rouge_scores
+            
+        except Exception as e:
+            self.logger.error(f"Error calculating ROUGE scores: {e}")
+            return {}
+    
+    def _calculate_bert_scores(self, conversation_pairs: List[Tuple[str, str]]) -> Dict[str, float]:
+        """BERT Score를 계산합니다."""
+        if not BERT_SCORE_AVAILABLE or not conversation_pairs:
+            return {}
         
-        common_misspellings = {
-            'teh': 'the',
-            'adn': 'and',
-            'thier': 'their',
-            'recieve': 'receive',
-            'seperate': 'separate',
-            'definately': 'definitely',
-            'occured': 'occurred',
-            'untill': 'until',
-            'alot': 'a lot'
+        try:
+            references = [pair[0] for pair in conversation_pairs]
+            candidates = [pair[1] for pair in conversation_pairs]
+            
+            P, R, F1 = bert_score(
+                candidates, references,
+                model_type=self.config.bert_model,
+                lang=self.config.bert_lang,
+                verbose=False
+            )
+            
+            return {
+                "bert_precision": float(P.mean()),
+                "bert_recall": float(R.mean()),
+                "bert_f1": float(F1.mean())
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error calculating BERT scores: {e}")
+            return {}
+    
+    def _calculate_final_score(self, metrics: Dict[str, float]) -> float:
+        """최종 품질 점수를 계산합니다."""
+        if not metrics:
+            return 0.0
+        
+        weighted_score = 0.0
+        total_weight = 0.0
+        
+        # 커스텀 메트릭 가중치 적용
+        custom_metrics = {
+            "technical_accuracy": self.config.technical_accuracy_weight,
+            "coherence": self.config.coherence_weight,
+            "completeness": self.config.completeness_weight,
+            "readability": self.config.readability_weight,
+            "relevance": self.config.relevance_weight
         }
         
-        for word in words:
-            if word in common_misspellings:
-                spelling_errors += 1
+        for metric, weight in custom_metrics.items():
+            if metric in metrics:
+                weighted_score += metrics[metric] * weight
+                total_weight += weight
         
-        # 맞춤법 오류 비율 계산
-        error_rate = spelling_errors / len(words) if words else 0
+        # ROUGE 점수 (사용 가능한 경우)
+        rouge_weight = 0.1
+        rouge_scores = [v for k, v in metrics.items() if k.startswith("rouge_")]
+        if rouge_scores:
+            avg_rouge = sum(rouge_scores) / len(rouge_scores)
+            weighted_score += avg_rouge * rouge_weight
+            total_weight += rouge_weight
         
-        return max(0.5, 1.0 - error_rate * 2)
+        # BERT Score (사용 가능한 경우)
+        bert_weight = 0.1
+        if "bert_f1" in metrics:
+            weighted_score += metrics["bert_f1"] * bert_weight
+            total_weight += bert_weight
+        
+        # 가중 평균 계산
+        if total_weight > 0:
+            final_score = weighted_score / total_weight
+        else:
+            final_score = sum(metrics.values()) / len(metrics)
+        
+        return max(0.0, min(final_score, 1.0))
     
-    def _calculate_fluency_score(self, text: str) -> float:
-        """유창성 점수를 계산합니다."""
-        score = 1.0
-        
-        # 문장 길이 변화 계산
-        sentences = self.sentence_patterns['basic'].split(text)
-        if len(sentences) > 1:
-            sentence_lengths = [len(s.strip()) for s in sentences if s.strip()]
-            
-            if len(sentence_lengths) > 1:
-                # 길이 변화 계산
-                length_variance = np.var(sentence_lengths)
-                
-                # 변화가 너무 크면 유창성 감소
-                if length_variance > 1000:
-                    score *= 0.8
-        
-        # 반복되는 구조 검사
-        repeated_patterns = re.findall(r'(\b\w+\s+\b\w+\s+\b\w+\b).*\1', text)
-        if repeated_patterns:
-            score *= 0.9
-        
-        return score
-    
-    def _calculate_naturalness_score(self, text: str) -> float:
-        """자연스러움 점수를 계산합니다."""
-        score = 1.0
-        
-        # 인공적인 패턴 검사
-        artificial_patterns = [
-            r'이것은.*입니다\.$',
-            r'다음은.*입니다\.$',
-            r'위의.*는.*입니다\.$',
-            r'아래.*는.*입니다\.$'
-        ]
-        
-        for pattern in artificial_patterns:
-            if re.search(pattern, text):
-                score *= 0.9
-        
-        # 지나치게 형식적인 표현 검사
-        formal_patterns = [
-            r'본문에서',
-            r'상기한',
-            r'전술한',
-            r'아래에 기재된'
-        ]
-        
-        formal_count = sum(1 for pattern in formal_patterns if re.search(pattern, text))
-        if formal_count > 0:
-            score *= (1.0 - formal_count * 0.1)
-        
-        return max(0.5, score)
-    
-    def _calculate_code_quality(self, text: str) -> Tuple[float, Dict[str, Any]]:
-        """코드 품질 점수를 계산합니다."""
-        metrics = {}
-        score = 1.0
-        
-        # 코드 블록 검사
-        code_blocks = []
-        for pattern in self.code_block_patterns:
-            matches = re.findall(pattern, text, re.MULTILINE | re.IGNORECASE)
-            code_blocks.extend(matches)
-        
-        metrics['code_blocks'] = len(code_blocks)
-        
-        if code_blocks:
-            # 코드 품질 분석
-            for code_block in code_blocks:
-                # 코드 구조 점수
-                structure_score = self._analyze_code_structure(code_block)
-                score *= structure_score
-                
-                # 코드 정확성 점수
-                accuracy_score = self._analyze_code_accuracy(code_block)
-                score *= accuracy_score
-        
-        return max(0.0, min(1.0, score)), metrics
-    
-    def _analyze_code_structure(self, code: str) -> float:
-        """코드 구조를 분석합니다."""
-        score = 1.0
-        
-        # 코드 블록 크기 검사
-        if len(code) > 5000:
-            score *= 0.8
-        
-        # 코드 구조 요소 검사
-        structure_elements = [
-            (r'class\s+\w+', 'class'),
-            (r'def\s+\w+\s*\(', 'function'),
-            (r'if\s+.*?:', 'conditional'),
-            (r'for\s+.*?in\s+.*?:', 'loop'),
-            (r'while\s+.*?:', 'loop'),
-            (r'try:.*?except:', 'exception')
-        ]
-        
-        found_elements = []
-        for pattern, element_type in structure_elements:
-            if re.search(pattern, code, re.MULTILINE | re.IGNORECASE):
-                found_elements.append(element_type)
-        
-        # 구조적 복잡도 점수
-        if len(found_elements) > 3:
-            score *= 0.9
-        
-        return score
-    
-    def _analyze_code_accuracy(self, code: str) -> float:
-        """코드 정확성을 분석합니다."""
-        score = 1.0
-        
-        # 명백한 오류 검사
-        error_patterns = [
-            r'\bimport\s+[^,\s]+\s*,',  # 잘못된 import 구문
-            r'\bdef\s+\w+\s*\([^)]*\)\s*:',  # 잘못된 함수 정의
-            r'\bclass\s+\w+\s*[^:]*[^:]\s*:',  # 잘못된 클래스 정의
-            r'\bif\s+[^:]*[^:]\s*:',  # 잘못된 if 구문
-        ]
-        
-        for pattern in error_patterns:
-            if re.search(pattern, code, re.MULTILINE | re.IGNORECASE):
-                score *= 0.8
-        
-        return score
-    
-    def _calculate_technical_accuracy(self, text: str, item_type: str) -> float:
-        """기술적 정확성 점수를 계산합니다."""
-        score = 1.0
-        
-        # 기술 용어 사용 검사
-        words = self.word_pattern.findall(text.lower())
-        
-        if words:
-            # Syncfusion 용어 사용 검사
-            syncfusion_terms_used = sum(1 for word in words if word in self.syncfusion_terms)
-            programming_terms_used = sum(1 for word in words if word in self.programming_terms)
-            
-            # 용어 사용 비율 계산
-            total_terms = syncfusion_terms_used + programming_terms_used
-            if total_terms > 0:
-                term_ratio = total_terms / len(words)
-                score = min(1.0, 0.5 + term_ratio * 0.5)
-        
-        # 기술적 정확성 검사
-        accuracy_issues = 0
-        
-        # 모순되는 정보 검사
-        if 'WinForms' in text and 'WPF' in text:
-            if '동시에' in text or '같이' in text:
-                accuracy_issues += 1
-        
-        # 정확성 이슈에 따른 점수 감소
-        if accuracy_issues > 0:
-            score *= (1.0 - accuracy_issues * 0.2)
-        
-        return max(0.3, score)
-    
-    def _calculate_practicality_score(self, text: str) -> float:
-        """실용성 점수를 계산합니다."""
-        score = 1.0
-        
-        # 실용적인 표현 검사
-        practical_keywords = [
-            '예제', '사용법', '방법', '단계', '팁', '주의', '참고',
-            'example', 'usage', 'method', 'step', 'tip', 'note', 'reference'
-        ]
-        
-        practical_count = sum(1 for keyword in practical_keywords if keyword.lower() in text.lower())
-        
-        # 실용성 점수 계산
-        if len(text.split()) > 0:
-            practical_ratio = practical_count / len(text.split())
-            score = min(1.0, 0.6 + practical_ratio * 0.4)
-        
-        # 추상적인 표현 검사
-        abstract_patterns = [
-            r'일반적으로',
-            r'보통',
-            r'대부분',
-            r'일반적으로 말하면',
-            r'generally',
-            r'usually',
-            r'typically'
-        ]
-        
-        abstract_count = sum(1 for pattern in abstract_patterns if re.search(pattern, text, re.IGNORECASE))
-        if abstract_count > 2:
-            score *= 0.8
-        
-        return max(0.3, score)
-    
-    def _calculate_weighted_score(self, scores: Dict[str, float]) -> float:
-        """가중치 적용 점수를 계산합니다."""
-        weighted_score = 0.0
-        
-        if 'content' in scores:
-            weighted_score += scores['content'] * self.config.content_weight
-        
-        if 'structural' in scores:
-            weighted_score += scores['structural'] * self.config.structural_weight
-        
-        if 'language' in scores:
-            weighted_score += scores['language'] * self.config.language_weight
-        
-        if 'technical' in scores:
-            weighted_score += scores['technical'] * self.config.technical_weight
-        
-        return weighted_score
-    
-    def _generate_quality_issues(self, result: QualityScoreResult, scores: Dict[str, float]):
-        """품질 이슈를 생성합니다."""
+    def _analyze_quality_issues(self, text: str, metrics: Dict[str, float]) -> Tuple[List[str], List[str]]:
+        """품질 이슈와 제안사항을 분석합니다."""
         issues = []
-        warnings = []
         suggestions = []
         
-        # 전체 점수 기반 이슈
-        if result.total_score < self.config.min_quality_threshold:
-            issues.append(f"품질 점수가 너무 낮음 ({result.total_score:.2f})")
-        elif result.total_score < self.config.excellent_quality_threshold:
-            warnings.append(f"품질 점수가 개선될 여지가 있음 ({result.total_score:.2f})")
+        # 기술적 정확성 이슈
+        if metrics.get("technical_accuracy", 0) < 0.5:
+            issues.append("Low technical accuracy - insufficient technical content")
+            suggestions.append("Include more Syncfusion WinForms specific terms and code examples")
         
-        # 각 요소별 이슈
-        for score_type, score in scores.items():
-            if score < 0.5:
-                issues.append(f"{score_type} 품질이 매우 낮음 ({score:.2f})")
-            elif score < 0.7:
-                warnings.append(f"{score_type} 품질이 개선될 필요 있음 ({score:.2f})")
+        # 일관성 이슈
+        if metrics.get("coherence", 0) < 0.6:
+            issues.append("Low coherence - question and answer don't align well")
+            suggestions.append("Ensure answers directly address the questions asked")
         
-        # 구체적인 제안 생성
-        if result.content_score < 0.7:
-            suggestions.append("내용을 더 풍부하게 작성해주세요")
+        # 완성도 이슈
+        if metrics.get("completeness", 0) < 0.5:
+            issues.append("Low completeness - content appears incomplete")
+            suggestions.append("Provide more detailed explanations and examples")
         
-        if result.structural_score < 0.7:
-            suggestions.append("구조를 더 명확하게 개선해주세요")
+        # 가독성 이슈
+        if metrics.get("readability", 0) < 0.5:
+            issues.append("Low readability - text is difficult to read")
+            suggestions.append("Use shorter sentences and better paragraph structure")
         
-        if result.language_score < 0.7:
-            suggestions.append("언어 표현을 더 자연스럽게 수정해주세요")
+        # 관련성 이슈
+        if metrics.get("relevance", 0) < 0.5:
+            issues.append("Low relevance - content not sufficiently related to WinForms")
+            suggestions.append("Focus more on WinForms development topics")
         
-        if result.technical_score < 0.7:
-            suggestions.append("기술적 내용을 더 정확하게 작성해주세요")
+        # 텍스트 길이 이슈
+        text_length = len(text)
+        if text_length < 100:
+            issues.append("Content too short")
+            suggestions.append("Provide more detailed explanations")
+        elif text_length > 2000:
+            issues.append("Content too long")
+            suggestions.append("Consider breaking into smaller, focused responses")
         
-        # 결과에 추가
-        result.issues.extend(issues)
-        result.warnings.extend(warnings)
-        result.suggestions.extend(suggestions)
+        return issues, suggestions
     
-    def _get_stop_words(self) -> Set[str]:
-        """불용어 목록을 반환합니다."""
-        return {
-            'the', 'a', 'an', 'and', 'or', 'but', 'in', 'on', 'at', 'to', 'for', 'of', 'with', 'by',
-            'is', 'are', 'was', 'were', 'be', 'been', 'being', 'have', 'has', 'had', 'do', 'does', 'did',
-            'will', 'would', 'could', 'should', 'may', 'might', 'must', 'can', 'this', 'that', 'these', 'those',
-            'i', 'you', 'he', 'she', 'it', 'we', 'they', 'me', 'him', 'her', 'us', 'them', 'my', 'your', 'his',
-            'her', 'its', 'our', 'their', 'mine', 'yours', 'hers', 'ours', 'theirs'
-        }
+    def _calculate_confidence_score(self, metrics: Dict[str, float]) -> float:
+        """신뢰도 점수를 계산합니다."""
+        if not metrics:
+            return 0.0
+        
+        # 메트릭의 일관성 확인
+        metric_values = list(metrics.values())
+        if len(metric_values) < 2:
+            return 0.5
+        
+        # 표준편차 계산 (낮을수록 일관성 높음)
+        mean_value = sum(metric_values) / len(metric_values)
+        variance = sum((x - mean_value) ** 2 for x in metric_values) / len(metric_values)
+        std_dev = math.sqrt(variance)
+        
+        # 신뢰도 점수 (표준편차가 낮을수록 높은 신뢰도)
+        confidence = max(0.0, 1.0 - std_dev * 2)
+        
+        # 메트릭 수가 많을수록 신뢰도 증가
+        metric_count_bonus = min(len(metrics) * 0.1, 0.3)
+        
+        return min(confidence + metric_count_bonus, 1.0)
     
-    def batch_calculate_scores(self, items: List[Dict[str, Any]], item_type: str = "text") -> List[QualityScoreResult]:
+    def batch_calculate_quality(self, items: List[Dict[str, Any]], format_type: str = "sharegpt") -> List[QualityResult]:
         """
-        배치로 품질 점수를 계산합니다.
+        여러 아이템의 품질 점수를 배치로 계산합니다.
         
         Args:
-            items: 품질 평가할 아이템 목록
-            item_type: 아이템 타입
+            items: 품질을 평가할 아이템 목록
+            format_type: 데이터 포맷 타입
             
         Returns:
-            품질 점수 계산 결과 목록
+            품질 점수 결과 목록
         """
         results = []
         
         for i, item in enumerate(items):
             try:
-                result = self.calculate_quality_score(item, item_type)
+                result = self.calculate_quality_score(item, format_type)
                 results.append(result)
                 
-                # 진행률 로깅
                 if (i + 1) % 100 == 0:
-                    self.logger.info(f"Processed {i + 1}/{len(items)} items")
+                    self.logger.info(f"Processed {i + 1}/{len(items)} items for quality scoring")
                     
             except Exception as e:
-                self.logger.error(f"Error calculating quality score for item {i}: {e}")
-                # 오류 발생 시 기본 결과 반환
-                error_result = QualityScoreResult()
-                error_result.total_score = 0.0
-                error_result.issues.append(f"처리 오류: {str(e)}")
-                results.append(error_result)
+                self.logger.error(f"Error calculating quality for item {i}: {e}")
+                results.append(QualityResult(
+                    quality_score=0.0,
+                    is_high_quality=False,
+                    issues=[f"Quality calculation error: {str(e)}"]
+                ))
+        
+        high_quality_count = sum(1 for r in results if r.is_high_quality)
+        self.logger.info(f"Quality scoring completed: {high_quality_count}/{len(results)} items are high quality")
         
         return results
     
-    def get_quality_summary(self, results: List[QualityScoreResult]) -> Dict[str, Any]:
-        """품질 요약 정보를 생성합니다."""
+    def get_quality_statistics(self, results: List[QualityResult]) -> Dict[str, Any]:
+        """품질 점수 통계를 생성합니다."""
         if not results:
-            return {"total": 0, "average_score": 0.0}
+            return {}
         
-        total = len(results)
-        average_score = sum(r.total_score for r in results) / total
+        scores = [r.quality_score for r in results]
+        high_quality_count = sum(1 for r in results if r.is_high_quality)
         
-        # 품질 등급별 통계
-        quality_grades = {
-            "excellent": sum(1 for r in results if r.total_score >= self.config.excellent_quality_threshold),
-            "good": sum(1 for r in results if self.config.min_quality_threshold <= r.total_score < self.config.excellent_quality_threshold),
-            "poor": sum(1 for r in results if r.total_score < self.config.min_quality_threshold)
-        }
+        # 메트릭별 통계
+        metric_stats = {}
+        all_metrics = set()
+        for result in results:
+            all_metrics.update(result.metrics.keys())
         
-        # 각 요소별 평균 점수
-        avg_content_score = sum(r.content_score for r in results) / total
-        avg_structural_score = sum(r.structural_score for r in results) / total
-        avg_language_score = sum(r.language_score for r in results) / total
-        avg_technical_score = sum(r.technical_score for r in results) / total
+        for metric in all_metrics:
+            metric_values = [r.metrics.get(metric, 0.0) for r in results]
+            metric_stats[metric] = {
+                "mean": sum(metric_values) / len(metric_values),
+                "min": min(metric_values),
+                "max": max(metric_values)
+            }
+        
+        # 이슈 통계
+        all_issues = []
+        for result in results:
+            all_issues.extend(result.issues)
+        
+        issue_counts = {}
+        for issue in all_issues:
+            issue_counts[issue] = issue_counts.get(issue, 0) + 1
         
         return {
-            "total": total,
-            "average_score": average_score,
-            "quality_grades": quality_grades,
-            "average_content_score": avg_content_score,
-            "average_structural_score": avg_structural_score,
-            "average_language_score": avg_language_score,
-            "average_technical_score": avg_technical_score,
-            "issues_count": sum(len(r.issues) for r in results),
-            "warnings_count": sum(len(r.warnings) for r in results),
-            "suggestions_count": sum(len(r.suggestions) for r in results),
-            "timestamp": datetime.now().isoformat()
+            "total_items": len(results),
+            "high_quality_items": high_quality_count,
+            "low_quality_items": len(results) - high_quality_count,
+            "quality_rate": high_quality_count / len(results),
+            "average_quality_score": sum(scores) / len(scores),
+            "min_quality_score": min(scores),
+            "max_quality_score": max(scores),
+            "metric_statistics": metric_stats,
+            "common_issues": dict(sorted(issue_counts.items(), key=lambda x: x[1], reverse=True)[:10]),
+            "average_confidence": sum(r.confidence_score for r in results) / len(results)
         }
+    
+    def save_quality_report(self, results: List[QualityResult], output_path: str) -> bool:
+        """품질 점수 리포트를 저장합니다."""
+        try:
+            report = {
+                "report_version": "1.0.0",
+                "generated_at": datetime.now().isoformat(),
+                "configuration": {
+                    "min_quality_score": self.config.min_quality_score,
+                    "enable_rouge_score": self.config.enable_rouge_score,
+                    "enable_bert_score": self.config.enable_bert_score,
+                    "enable_custom_metrics": self.config.enable_custom_metrics,
+                    "technical_accuracy_weight": self.config.technical_accuracy_weight,
+                    "coherence_weight": self.config.coherence_weight,
+                    "completeness_weight": self.config.completeness_weight,
+                    "readability_weight": self.config.readability_weight,
+                    "relevance_weight": self.config.relevance_weight
+                },
+                "statistics": self.get_quality_statistics(results),
+                "detailed_results": [
+                    {
+                        "quality_score": r.quality_score,
+                        "is_high_quality": r.is_high_quality,
+                        "details": r.details,
+                        "metrics": r.metrics,
+                        "issues": r.issues,
+                        "suggestions": r.suggestions,
+                        "confidence_score": r.confidence_score,
+                        "timestamp": r.timestamp
+                    }
+                    for r in results
+                ]
+            }
+            
+            output_file = Path(output_path)
+            output_file.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(output_file, 'w', encoding='utf-8') as f:
+                json.dump(report, f, ensure_ascii=False, indent=2)
+            
+            self.logger.info(f"Quality report saved to {output_path}")
+            return True
+            
+        except Exception as e:
+            self.logger.error(f"Error saving quality report: {e}")
+            return False
+
+
+def create_default_quality_scorer() -> QualityScorer:
+    """기본 설정으로 품질 점수 계산기를 생성합니다."""
+    config = QualityScorerConfig(
+        min_quality_score=0.6,
+        enable_rouge_score=ROUGE_AVAILABLE,
+        enable_bert_score=False,  # 기본적으로 비활성화
+        enable_custom_metrics=True,
+        technical_accuracy_weight=0.3,
+        coherence_weight=0.25,
+        completeness_weight=0.2,
+        readability_weight=0.15,
+        relevance_weight=0.1,
+        language="ko",
+        log_level="INFO"
+    )
+    
+    return QualityScorer(config)
 
 
 if __name__ == "__main__":
+    # 모듈 테스트
+    print(f"Quality Scorer Module v{__version__}")
+    print(f"Author: {__author__}")
+    print(f"ROUGE available: {ROUGE_AVAILABLE}")
+    print(f"BERT Score available: {BERT_SCORE_AVAILABLE}")
+    print(f"NLTK available: {NLTK_AVAILABLE}")
+    
+    # 샘플 테스트
+    quality_scorer = create_default_quality_scorer()
+    
     # 테스트 데이터
     test_items = [
         {
-            "instruction": "Syncfusion WinForms DataGrid 사용법을 설명해주세요.",
-            "response": "DataGrid 컴포넌트 사용법:\n1. 프로젝트에 참조 추가\n2. DataGrid 컨트롤 폼에 배치\n3. 데이터 소스 설정\n4. 컬럼 구성\n5. 스타일 적용",
             "conversations": [
-                {"from": "system", "value": "Syncfusion WinForms 전문가"},
-                {"from": "human", "value": "DataGrid 사용법을 알려주세요."},
-                {"from": "gpt", "value": "DataGrid 사용법은 다음과 같습니다..."}
+                {"from": "human", "value": "Syncfusion DataGrid 사용법을 알려주세요."},
+                {"from": "gpt", "value": "Syncfusion DataGrid 컴포넌트는 다음과 같이 사용합니다:\n\n1. 프로젝트에 Syncfusion.Grid.WinForms 참조를 추가합니다.\n2. Form에 SfDataGrid 컨트롤을 배치합니다.\n3. DataSource 속성에 데이터를 바인딩합니다.\n4. Columns 컬렉션을 통해 컬럼을 구성합니다.\n\n예제 코드:\n```csharp\nSfDataGrid dataGrid = new SfDataGrid();\ndataGrid.DataSource = dataTable;\nthis.Controls.Add(dataGrid);\n```"}
             ]
         },
         {
-            "instruction": "Chart 컴포넌트로 막대 그래프를 만드는 방법",
-            "response": "Chart 컴포넌트 막대 그래프 생성 방법:\n1. Chart 컨트롤 추가\n2. Series 설정\n3. 데이터 바인딩\n4. 축 설정\n5. 범례 추가",
             "conversations": [
-                {"from": "system", "value": "Syncfusion WinForms 전문가"},
-                {"from": "human", "value": "막대 그래프 만드는 방법이 궁금합니다."},
-                {"from": "gpt", "value": "막대 그래프를 만드는 방법은 다음과 같습니다..."}
+                {"from": "human", "value": "안녕하세요"},
+                {"from": "gpt", "value": "안녕하세요"}
             ]
         },
         {
-            "instruction": "간단한 테스트",
-            "response": "간단한 답변",
             "conversations": [
-                {"from": "system", "value": "전문가"},
-                {"from": "human", "value": "테스트"},
-                {"from": "gpt", "value": "답변"}
+                {"from": "human", "value": "Chart 컴포넌트로 막대 그래프를 만드는 방법을 알려주세요."},
+                {"from": "gpt", "value": "Syncfusion Chart 컴포넌트로 막대 그래프를 만드는 방법:\n\n1. SfChart 컨트롤을 Form에 추가\n2. ColumnSeries를 생성하고 차트에 추가\n3. 데이터 바인딩 설정\n4. 축 설정 및 범례 추가\n\n상세한 구현 방법과 속성 설정을 통해 다양한 스타일의 막대 그래프를 생성할 수 있습니다."}
             ]
         }
     ]
     
-    # 품질 점수 계산기 생성
-    quality_scorer = QualityScorer()
+    # 품질 점수 계산
+    results = quality_scorer.batch_calculate_quality(test_items)
     
-    print("=== Quality Scorer Test ===")
+    for i, result in enumerate(results):
+        print(f"\nItem {i+1}:")
+        print(f"  Quality Score: {result.quality_score:.3f}")
+        print(f"  High Quality: {result.is_high_quality}")
+        print(f"  Confidence: {result.confidence_score:.3f}")
+        print(f"  Metrics: {result.metrics}")
+        if result.issues:
+            print(f"  Issues: {result.issues}")
+        if result.suggestions:
+            print(f"  Suggestions: {result.suggestions}")
     
-    # 개별 아이템 품질 평가 테스트
-    for i, item in enumerate(test_items):
-        print(f"\nItem {i + 1}:")
-        result = quality_scorer.calculate_quality_score(item, "conversation")
-        print(f"  Total Score: {result.total_score:.2f}")
-        print(f"  Content Score: {result.content_score:.2f}")
-        print(f"  Structural Score: {result.structural_score:.2f}")
-        print(f"  Language Score: {result.language_score:.2f}")
-        print(f"  Technical Score: {result.technical_score:.2f}")
-        print(f"  Issues: {result.issues}")
-        print(f"  Warnings: {result.warnings}")
-        print(f"  Suggestions: {result.suggestions}")
-    
-    # 배치 품질 평가 테스트
-    print(f"\n=== Batch Quality Scoring Test ===")
-    batch_results = quality_scorer.batch_calculate_scores(test_items, "conversation")
-    summary = quality_scorer.get_quality_summary(batch_results)
-    
-    print(f"Total Items: {summary['total']}")
-    print(f"Average Score: {summary['average_score']:.2f}")
-    print(f"Excellent: {summary['quality_grades']['excellent']}")
-    print(f"Good: {summary['quality_grades']['good']}")
-    print(f"Poor: {summary['quality_grades']['poor']}")
-    print(f"Average Content Score: {summary['average_content_score']:.2f}")
-    print(f"Average Structural Score: {summary['average_structural_score']:.2f}")
-    print(f"Average Language Score: {summary['average_language_score']:.2f}")
-    print(f"Average Technical Score: {summary['average_technical_score']:.2f}")
-    print(f"Issues: {summary['issues_count']}")
-    print(f"Warnings: {summary['warnings_count']}")
-    print(f"Suggestions: {summary['suggestions_count']}")
+    # 통계 출력
+    stats = quality_scorer.get_quality_statistics(results)
+    print(f"\nStatistics:")
+    print(f"  Quality rate: {stats['quality_rate']:.3f}")
+    print(f"  Average score: {stats['average_quality_score']:.3f}")
+    print(f"  Average confidence: {stats['average_confidence']:.3f}")

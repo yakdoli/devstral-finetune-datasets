@@ -74,6 +74,20 @@ grafana-api
 # 로깅
 structlog
 loguru
+# 로깅 시스템 추가 의존성 (8번 작업)
+# psutil - 이미 포함됨 (시스템 리소스 모니터링)
+# json - 표준 라이브러리 (구조화된 로깅)
+# logging - 표준 라이브러리 (기본 로깅)
+# threading - 표준 라이브러리 (백그라운드 수집)
+# datetime - 표준 라이브러리 (타임스탬프)
+# pathlib - 표준 라이브러리 (파일 경로 처리)
+# statistics - 표준 라이브러리 (메트릭 계산)
+# collections - 표준 라이브러리 (deque 등)
+# dataclasses - 표준 라이브러리 (데이터 클래스)
+# contextlib - 표준 라이브러리 (컨텍스트 매니저)
+# functools - 표준 라이브러리 (데코레이터)
+# traceback - 표준 라이브러리 (스택 트레이스)
+# inspect - 표준 라이브러리 (호출자 정보)
 # 데이터베이스
 sqlalchemy
 alembic

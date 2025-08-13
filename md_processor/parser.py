@@ -10,8 +10,6 @@ import logging
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Tuple
 from datetime import datetime
-import markdown
-from bs4 import BeautifulSoup
 import hashlib
 
 logger = logging.getLogger(__name__)
@@ -46,7 +44,7 @@ class ContentPreprocessor:
     """콘텐츠 전처리기 클래스"""
     
     def __init__(self):
-        self.md_converter = markdown.Markdown(extensions=['codehilite', 'fenced_code', 'tables'])
+        pass
         
     def preprocess_content(self, content: str) -> str:
         """
@@ -64,8 +62,11 @@ class ContentPreprocessor:
         # 정규화
         content = self._normalize_content(content)
         
-        # 코드 블록 처리
-        content = self._process_code_blocks(content)
+        # YAML 프론트매터 제거
+        content = self._remove_frontmatter(content)
+        
+        # 코드 블록 처리 (보존)
+        content, code_blocks = self._preserve_code_blocks(content)
         
         # 링크 정리
         content = self._process_links(content)
@@ -76,10 +77,121 @@ class ContentPreprocessor:
         # 헤더 정리
         content = self._process_headers(content)
         
+        # 테이블 정리
+        content = self._process_tables(content)
+        
+        # 리스트 정리
+        content = self._process_lists(content)
+        
         # 특수 문자 정리
         content = self._clean_special_characters(content)
         
+        # 코드 블록 복원
+        content = self._restore_code_blocks(content, code_blocks)
+        
+        # 최종 정리
+        content = self._final_cleanup(content)
+        
         return content.strip()
+    
+    def _remove_frontmatter(self, content: str) -> str:
+        """YAML 프론트매터 제거"""
+        # YAML 프론트매터 패턴: ---로 시작하고 끝남
+        frontmatter_pattern = r'^---\s*\n.*?\n---\s*\n?'
+        content = re.sub(frontmatter_pattern, '', content, flags=re.DOTALL | re.MULTILINE)
+        return content
+    
+    def _preserve_code_blocks(self, content: str) -> Tuple[str, Dict[str, str]]:
+        """코드 블록을 임시로 보존"""
+        code_blocks = {}
+        counter = 0
+        
+        def replace_code_block(match):
+            nonlocal counter
+            placeholder = f"__CODE_BLOCK_{counter}__"
+            code_blocks[placeholder] = match.group(0)
+            counter += 1
+            return placeholder
+        
+        # ``` 코드 블록 보존
+        content = re.sub(r'```.*?```', replace_code_block, content, flags=re.DOTALL)
+        
+        # 인라인 코드 보존
+        def replace_inline_code(match):
+            nonlocal counter
+            placeholder = f"__INLINE_CODE_{counter}__"
+            code_blocks[placeholder] = match.group(0)
+            counter += 1
+            return placeholder
+        
+        content = re.sub(r'`[^`\n]+`', replace_inline_code, content)
+        
+        return content, code_blocks
+    
+    def _restore_code_blocks(self, content: str, code_blocks: Dict[str, str]) -> str:
+        """보존된 코드 블록 복원"""
+        for placeholder, original in code_blocks.items():
+            content = content.replace(placeholder, original)
+        return content
+    
+    def _process_tables(self, content: str) -> str:
+        """테이블 처리"""
+        # 테이블 정렬 정리
+        lines = content.split('\n')
+        processed_lines = []
+        
+        for line in lines:
+            if '|' in line and line.strip().startswith('|') and line.strip().endswith('|'):
+                # 테이블 행 정리
+                cells = [cell.strip() for cell in line.split('|')[1:-1]]
+                processed_line = '| ' + ' | '.join(cells) + ' |'
+                processed_lines.append(processed_line)
+            else:
+                processed_lines.append(line)
+        
+        return '\n'.join(processed_lines)
+    
+    def _process_lists(self, content: str) -> str:
+        """리스트 처리"""
+        lines = content.split('\n')
+        processed_lines = []
+        
+        for line in lines:
+            # 순서 없는 리스트 정리
+            if re.match(r'^\s*[-*+]\s+', line):
+                # 들여쓰기 정규화
+                indent_match = re.match(r'^(\s*)', line)
+                indent = indent_match.group(1) if indent_match else ''
+                content_part = re.sub(r'^\s*[-*+]\s+', '', line)
+                processed_line = f"{indent}- {content_part}"
+                processed_lines.append(processed_line)
+            # 순서 있는 리스트 정리
+            elif re.match(r'^\s*\d+\.\s+', line):
+                indent_match = re.match(r'^(\s*)', line)
+                indent = indent_match.group(1) if indent_match else ''
+                number_match = re.match(r'^\s*(\d+)\.\s+', line)
+                number = number_match.group(1) if number_match else '1'
+                content_part = re.sub(r'^\s*\d+\.\s+', '', line)
+                processed_line = f"{indent}{number}. {content_part}"
+                processed_lines.append(processed_line)
+            else:
+                processed_lines.append(line)
+        
+        return '\n'.join(processed_lines)
+    
+    def _final_cleanup(self, content: str) -> str:
+        """최종 정리"""
+        # 연속된 빈 줄을 최대 2개로 제한
+        content = re.sub(r'\n{3,}', '\n\n', content)
+        
+        # 줄 끝 공백 제거
+        lines = [line.rstrip() for line in content.split('\n')]
+        content = '\n'.join(lines)
+        
+        # 문서 시작과 끝의 불필요한 공백 제거
+        content = content.strip()
+        
+        return content
     
     def _normalize_content(self, content: str) -> str:
         """콘텐츠 정규화"""
@@ -169,8 +281,206 @@ class ContentPreprocessor:
         return content
 
 
+class APISignatureExtractor:
+    """API 시그니처 추출기 클래스"""
+    
+    def __init__(self):
+        # C# API 패턴들
+        self.csharp_patterns = [
+            # 메서드 패턴: public/private/protected ReturnType MethodName(parameters)
+            r'(?:public|private|protected|internal)?\s*(?:static\s+)?(?:virtual\s+)?(?:override\s+)?(\w+(?:<[^>]+>)?)\s+(\w+)\s*\([^)]*\)',
+            # 프로퍼티 패턴: public Type PropertyName { get; set; }
+            r'(?:public|private|protected|internal)?\s*(\w+(?:<[^>]+>)?)\s+(\w+)\s*\{\s*(?:get;?\s*)?(?:set;?\s*)?\}',
+            # 이벤트 패턴: public event EventHandler EventName
+            r'(?:public|private|protected|internal)?\s*event\s+(\w+(?:<[^>]+>)?)\s+(\w+)',
+            # 클래스/인터페이스 패턴: public class/interface ClassName
+            r'(?:public|private|protected|internal)?\s*(?:abstract\s+)?(?:sealed\s+)?(class|interface|struct|enum)\s+(\w+(?:<[^>]+>)?)',
+        ]
+        
+        # JavaScript/TypeScript API 패턴들
+        self.js_patterns = [
+            # 함수 패턴: function functionName(parameters)
+            r'function\s+(\w+)\s*\([^)]*\)',
+            # 메서드 패턴: methodName(parameters) { 또는 methodName: function(parameters)
+            r'(\w+)\s*[:=]\s*function\s*\([^)]*\)|(\w+)\s*\([^)]*\)\s*\{',
+            # 클래스 패턴: class ClassName
+            r'class\s+(\w+)',
+            # 변수/상수 패턴: var/let/const variableName
+            r'(?:var|let|const)\s+(\w+)',
+        ]
+    
+    def extract_api_signatures(self, content: str) -> List[Dict[str, Any]]:
+        """
+        콘텐츠에서 API 시그니처를 추출합니다.
+        
+        Args:
+            content: 분석할 콘텐츠
+            
+        Returns:
+            API 시그니처 목록
+        """
+        signatures = []
+        
+        # 코드 블록에서 API 추출
+        code_blocks = self._extract_code_blocks(content)
+        for code_block in code_blocks:
+            language = code_block.get('language', '').lower()
+            code = code_block.get('code', '')
+            
+            if language in ['csharp', 'c#', 'cs']:
+                signatures.extend(self._extract_csharp_apis(code))
+            elif language in ['javascript', 'js', 'typescript', 'ts']:
+                signatures.extend(self._extract_js_apis(code))
+            else:
+                # 언어가 명시되지 않은 경우 휴리스틱으로 판단
+                signatures.extend(self._extract_generic_apis(code))
+        
+        # 인라인 코드에서도 API 추출
+        inline_codes = self._extract_inline_codes(content)
+        for inline_code in inline_codes:
+            signatures.extend(self._extract_generic_apis(inline_code))
+        
+        # 중복 제거 및 정리
+        unique_signatures = self._deduplicate_signatures(signatures)
+        
+        return unique_signatures
+    
+    def _extract_code_blocks(self, content: str) -> List[Dict[str, str]]:
+        """코드 블록 추출"""
+        code_blocks = []
+        
+        # ``` 코드 블록 패턴
+        pattern = r'```(\w*)\n(.*?)\n```'
+        matches = re.findall(pattern, content, re.DOTALL)
+        
+        for language, code in matches:
+            code_blocks.append({
+                'language': language.strip(),
+                'code': code.strip()
+            })
+        
+        return code_blocks
+    
+    def _extract_inline_codes(self, content: str) -> List[str]:
+        """인라인 코드 추출"""
+        # `code` 패턴
+        pattern = r'`([^`]+)`'
+        matches = re.findall(pattern, content)
+        return [match.strip() for match in matches if len(match.strip()) > 3]
+    
+    def _extract_csharp_apis(self, code: str) -> List[Dict[str, Any]]:
+        """C# API 추출"""
+        apis = []
+        
+        for pattern in self.csharp_patterns:
+            matches = re.finditer(pattern, code, re.MULTILINE | re.IGNORECASE)
+            for match in matches:
+                groups = match.groups()
+                if len(groups) >= 2:
+                    api_type = self._determine_csharp_api_type(match.group(0))
+                    apis.append({
+                        'signature': match.group(0).strip(),
+                        'type': api_type,
+                        'language': 'csharp',
+                        'return_type': groups[0] if groups[0] else None,
+                        'name': groups[1] if len(groups) > 1 and groups[1] else None
+                    })
+        
+        return apis
+    
+    def _extract_js_apis(self, code: str) -> List[Dict[str, Any]]:
+        """JavaScript/TypeScript API 추출"""
+        apis = []
+        
+        for pattern in self.js_patterns:
+            matches = re.finditer(pattern, code, re.MULTILINE | re.IGNORECASE)
+            for match in matches:
+                groups = match.groups()
+                name = next((g for g in groups if g), None)
+                if name:
+                    api_type = self._determine_js_api_type(match.group(0))
+                    apis.append({
+                        'signature': match.group(0).strip(),
+                        'type': api_type,
+                        'language': 'javascript',
+                        'name': name
+                    })
+        
+        return apis
+    
+    def _extract_generic_apis(self, code: str) -> List[Dict[str, Any]]:
+        """일반적인 API 패턴 추출"""
+        apis = []
+        
+        # 함수 호출 패턴: functionName(parameters)
+        function_pattern = r'(\w+)\s*\([^)]*\)'
+        matches = re.finditer(function_pattern, code)
+        
+        for match in matches:
+            function_name = match.group(1)
+            # 일반적인 키워드는 제외
+            if function_name.lower() not in ['if', 'for', 'while', 'switch', 'return', 'new', 'var', 'let', 'const']:
+                apis.append({
+                    'signature': match.group(0).strip(),
+                    'type': 'function_call',
+                    'language': 'generic',
+                    'name': function_name
+                })
+        
+        return apis
+    
+    def _determine_csharp_api_type(self, signature: str) -> str:
+        """C# API 타입 결정"""
+        signature_lower = signature.lower()
+        
+        if 'class ' in signature_lower:
+            return 'class'
+        elif 'interface ' in signature_lower:
+            return 'interface'
+        elif 'struct ' in signature_lower:
+            return 'struct'
+        elif 'enum ' in signature_lower:
+            return 'enum'
+        elif 'event ' in signature_lower:
+            return 'event'
+        elif '{ get' in signature_lower or '{ set' in signature_lower:
+            return 'property'
+        else:
+            return 'method'
+    
+    def _determine_js_api_type(self, signature: str) -> str:
+        """JavaScript API 타입 결정"""
+        signature_lower = signature.lower()
+        
+        if 'class ' in signature_lower:
+            return 'class'
+        elif 'function ' in signature_lower:
+            return 'function'
+        elif 'var ' in signature_lower or 'let ' in signature_lower or 'const ' in signature_lower:
+            return 'variable'
+        else:
+            return 'method'
+    
+    def _deduplicate_signatures(self, signatures: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """시그니처 중복 제거"""
+        seen = set()
+        unique_signatures = []
+        
+        for sig in signatures:
+            # 시그니처와 이름을 기준으로 중복 확인
+            key = (sig.get('signature', ''), sig.get('name', ''))
+            if key not in seen:
+                seen.add(key)
+                unique_signatures.append(sig)
+        
+        return unique_signatures
+
+
 class MetadataExtractor:
     """메타데이터 추출기 클래스"""
+    
+    def __init__(self):
+        self.api_extractor = APISignatureExtractor()
     
     def extract_from_json(self, json_path: Path) -> Optional[DocumentMetadata]:
         """
@@ -245,6 +555,18 @@ class MetadataExtractor:
         }
         
         return DocumentMetadata(component=component, page=page, **metadata_dict)
+    
+    def extract_api_signatures_from_content(self, content: str) -> List[Dict[str, Any]]:
+        """
+        콘텐츠에서 API 시그니처를 추출합니다.
+        
+        Args:
+            content: 분석할 콘텐츠
+            
+        Returns:
+            API 시그니처 목록
+        """
+        return self.api_extractor.extract_api_signatures(content)
 
 
 class MDParser:
@@ -279,11 +601,17 @@ class MDParser:
             else:
                 metadata = self.metadata_extractor.extract_from_path(md_path)
             
+            # API 시그니처 추출
+            api_signatures = self.metadata_extractor.extract_api_signatures_from_content(raw_content)
+            
             # 고유 ID 생성
             doc_id = self._generate_document_id(md_path, metadata)
             
             # 품질 점수 계산
-            quality_score = self._calculate_quality_score(processed_content, metadata)
+            quality_score = self._calculate_quality_score(processed_content, metadata, api_signatures)
+            
+            # 콘텐츠 구조 분석
+            content_structure = self._analyze_content_structure(processed_content)
             
             # 결과 구성
             result = {
@@ -292,6 +620,9 @@ class MDParser:
                 "component": metadata.component,
                 "page": metadata.page,
                 "content": processed_content,
+                "raw_content": raw_content,
+                "api_signatures": api_signatures,
+                "content_structure": content_structure,
                 "metadata": metadata.to_dict(),
                 "quality_score": quality_score
             }
@@ -306,6 +637,9 @@ class MDParser:
                 "component": None,
                 "page": None,
                 "content": "",
+                "raw_content": "",
+                "api_signatures": [],
+                "content_structure": {},
                 "metadata": {"error": str(e)},
                 "quality_score": 0.0
             }
@@ -327,29 +661,32 @@ class MDParser:
         else:
             return "Untitled Document"
     
-    def _calculate_quality_score(self, content: str, metadata: DocumentMetadata) -> float:
+    def _calculate_quality_score(self, content: str, metadata: DocumentMetadata, api_signatures: List[Dict[str, Any]] = None) -> float:
         """품질 점수 계산 (0.0-1.0)"""
         if not content:
             return 0.0
         
         score = 0.0
+        api_signatures = api_signatures or []
         
-        # 길이 점수 (0-0.3)
+        # 길이 점수 (0-0.25)
         content_length = len(content)
-        if content_length > 1000:
-            score += 0.3
-        elif content_length > 500:
+        if content_length > 2000:
+            score += 0.25
+        elif content_length > 1000:
             score += 0.2
+        elif content_length > 500:
+            score += 0.15
         elif content_length > 100:
             score += 0.1
         
-        # 메타데이터 완성도 점수 (0-0.3)
+        # 메타데이터 완성도 점수 (0-0.2)
         if metadata.component:
-            score += 0.15
+            score += 0.1
         if metadata.page:
-            score += 0.15
+            score += 0.1
         
-        # 구조적 품질 점수 (0-0.4)
+        # 구조적 품질 점수 (0-0.35)
         # 헤더가 있는지
         if re.search(r'^#+\s+', content, re.MULTILINE):
             score += 0.1
@@ -360,11 +697,92 @@ class MDParser:
         
         # 링크가 있는지
         if '](' in content:
-            score += 0.1
+            score += 0.05
         
         # 리스트가 있는지
         if re.search(r'^\s*[-*+]\s+', content, re.MULTILINE):
+            score += 0.05
+        
+        # 테이블이 있는지
+        if '|' in content and re.search(r'\|.*\|', content):
+            score += 0.05
+        
+        # API 시그니처 점수 (0-0.2)
+        if api_signatures:
+            api_count = len(api_signatures)
+            if api_count >= 5:
+                score += 0.2
+            elif api_count >= 3:
+                score += 0.15
+            elif api_count >= 1:
+                score += 0.1
+        
+        return min(score, 1.0)
+    
+    def _analyze_content_structure(self, content: str) -> Dict[str, Any]:
+        """콘텐츠 구조 분석"""
+        structure = {
+            "word_count": len(content.split()),
+            "character_count": len(content),
+            "line_count": len(content.split('\n')),
+            "paragraph_count": len([p for p in content.split('\n\n') if p.strip()]),
+            "header_count": len(re.findall(r'^#+\s+', content, re.MULTILINE)),
+            "code_block_count": content.count('```') // 2,
+            "inline_code_count": len(re.findall(r'`[^`]+`', content)),
+            "link_count": len(re.findall(r'\[([^\]]+)\]\(([^)]+)\)', content)),
+            "image_count": len(re.findall(r'!\[([^\]]*)\]\(([^)]+)\)', content)),
+            "list_item_count": len(re.findall(r'^\s*[-*+]\s+', content, re.MULTILINE)) + 
+                              len(re.findall(r'^\s*\d+\.\s+', content, re.MULTILINE)),
+            "table_count": len(re.findall(r'\|.*\|', content)),
+            "headers": self._extract_headers(content),
+            "complexity_score": self._calculate_complexity_score(content)
+        }
+        
+        return structure
+    
+    def _extract_headers(self, content: str) -> List[Dict[str, Any]]:
+        """헤더 추출"""
+        headers = []
+        header_pattern = r'^(#+)\s+(.+)$'
+        
+        for match in re.finditer(header_pattern, content, re.MULTILINE):
+            level = len(match.group(1))
+            text = match.group(2).strip()
+            headers.append({
+                "level": level,
+                "text": text,
+                "anchor": re.sub(r'[^\w\s-]', '', text).strip().replace(' ', '-').lower()
+            })
+        
+        return headers
+    
+    def _calculate_complexity_score(self, content: str) -> float:
+        """콘텐츠 복잡도 점수 계산 (0.0-1.0)"""
+        score = 0.0
+        
+        # 기본 요소들
+        if re.search(r'^#+\s+', content, re.MULTILINE):
+            score += 0.1  # 헤더
+        if '```' in content:
+            score += 0.2  # 코드 블록
+        if re.search(r'\[([^\]]+)\]\(([^)]+)\)', content):
+            score += 0.1  # 링크
+        if re.search(r'!\[([^\]]*)\]\(([^)]+)\)', content):
+            score += 0.1  # 이미지
+        if '|' in content and re.search(r'\|.*\|', content):
+            score += 0.15  # 테이블
+        if re.search(r'^\s*[-*+]\s+', content, re.MULTILINE):
+            score += 0.1  # 리스트
+        
+        # 고급 요소들
+        if re.search(r'```\w+', content):  # 언어 지정된 코드 블록
             score += 0.1
+        if re.search(r'>\s+', content, re.MULTILINE):  # 인용문
+            score += 0.05
+        if re.search(r'\*\*[^*]+\*\*|\__[^_]+\__', content):  # 강조
+            score += 0.05
+        if re.search(r'\*[^*]+\*|\_[^_]+\_', content):  # 기울임
+            score += 0.05
         
         return min(score, 1.0)
 

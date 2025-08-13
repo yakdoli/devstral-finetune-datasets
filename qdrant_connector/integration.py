@@ -249,6 +249,143 @@ class IntegratedDocumentProcessor:
             logger.error(f"문서 병합 실패: {e}")
             return []
     
+    def create_conversation_context(
+        self,
+        query: str,
+        context_type: str = "general",
+        max_documents: int = 5,
+        score_threshold: float = 0.7,
+        metadata_filter: Optional[Dict[str, Any]] = None
+    ) -> Dict[str, Any]:
+        """
+        대화 생성을 위한 컨텍스트를 생성합니다.
+        
+        Args:
+            query: 검색 쿼리
+            context_type: 컨텍스트 유형
+            max_documents: 최대 문서 수
+            score_threshold: 점수 임계값
+            metadata_filter: 메타데이터 필터
+            
+        Returns:
+            컨텍스트 딕셔너리
+        """
+        if not self.qdrant_searcher:
+            logger.error("Qdrant 연결이 필요합니다.")
+            return {"formatted_context": "", "metadata": {}, "source_documents": []}
+        
+        try:
+            # 관련 문서 검색
+            relevant_docs = self.search_qdrant_documents(
+                query=query,
+                limit=max_documents,
+                score_threshold=score_threshold,
+                metadata_filter=metadata_filter,
+                search_type="semantic"
+            )
+            
+            if not relevant_docs:
+                logger.warning(f"쿼리 '{query}'에 대한 관련 문서를 찾을 수 없습니다.")
+                return {"formatted_context": "", "metadata": {}, "source_documents": []}
+            
+            # 컨텍스트 생성
+            context = self.qdrant_transformer.create_conversation_context(
+                documents=relevant_docs,
+                query=query,
+                context_type=context_type
+            )
+            
+            logger.info(f"컨텍스트 생성 완료: {len(relevant_docs)}개 문서, {context['metadata']['context_length']}자")
+            return context
+            
+        except Exception as e:
+            logger.error(f"컨텍스트 생성 실패: {e}")
+            return {"formatted_context": "", "metadata": {}, "source_documents": []}
+    
+    def batch_create_contexts(
+        self,
+        queries: List[str],
+        context_type: str = "general",
+        max_documents: int = 5,
+        score_threshold: float = 0.7
+    ) -> List[Dict[str, Any]]:
+        """
+        여러 쿼리에 대한 컨텍스트를 배치로 생성합니다.
+        
+        Args:
+            queries: 검색 쿼리 목록
+            context_type: 컨텍스트 유형
+            max_documents: 최대 문서 수
+            score_threshold: 점수 임계값
+            
+        Returns:
+            컨텍스트 목록
+        """
+        contexts = []
+        
+        for query in queries:
+            try:
+                context = self.create_conversation_context(
+                    query=query,
+                    context_type=context_type,
+                    max_documents=max_documents,
+                    score_threshold=score_threshold
+                )
+                contexts.append(context)
+                
+            except Exception as e:
+                logger.error(f"쿼리 '{query}' 컨텍스트 생성 실패: {e}")
+                contexts.append({"formatted_context": "", "metadata": {}, "source_documents": []})
+        
+        logger.info(f"배치 컨텍스트 생성 완료: {len(contexts)}개 컨텍스트")
+        return contexts
+    
+    def get_component_specific_context(
+        self,
+        component_name: str,
+        context_type: str = "general",
+        max_documents: int = 10
+    ) -> Dict[str, Any]:
+        """
+        특정 컴포넌트에 대한 컨텍스트를 생성합니다.
+        
+        Args:
+            component_name: 컴포넌트 이름
+            context_type: 컨텍스트 유형
+            max_documents: 최대 문서 수
+            
+        Returns:
+            컴포넌트별 컨텍스트
+        """
+        if not self.qdrant_searcher:
+            logger.error("Qdrant 연결이 필요합니다.")
+            return {"formatted_context": "", "metadata": {}, "source_documents": []}
+        
+        try:
+            # 컴포넌트별 문서 검색
+            component_docs = self.qdrant_searcher.search_by_component(
+                component_name=component_name,
+                limit=max_documents
+            )
+            
+            if not component_docs:
+                logger.warning(f"컴포넌트 '{component_name}'에 대한 문서를 찾을 수 없습니다.")
+                return {"formatted_context": "", "metadata": {}, "source_documents": []}
+            
+            # 컨텍스트 생성
+            context = self.qdrant_transformer.create_conversation_context(
+                documents=component_docs,
+                query=f"{component_name} component documentation",
+                context_type=context_type
+            )
+            
+            logger.info(f"컴포넌트 '{component_name}' 컨텍스트 생성 완료: {len(component_docs)}개 문서")
+            return context
+            
+        except Exception as e:
+            logger.error(f"컴포넌트 '{component_name}' 컨텍스트 생성 실패: {e}")
+            return {"formatted_context": "", "metadata": {}, "source_documents": []}
+    
     def process_and_merge(
         self,
         query: Optional[str] = None,
