@@ -1,0 +1,341 @@
+{
+  "validation_timestamp": "2025-08-12T13:10:02.103161",
+  "validation_results": {
+    "metadata": {
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "generated_at": "2025-08-12T13:09:13.631577",
+        "total_templates": 449,
+        "total_components": 20,
+        "generator_version": "1.0.0"
+      }
+    },
+    "components": {
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "total_components": 20,
+        "component_names": [
+          "calculate",
+          "chart",
+          "common",
+          "diagram",
+          "DICOM",
+          "DocIo",
+          "edit",
+          "Gauge",
+          "grid",
+          "grouping",
+          "HTMLUI",
+          "Olap-Common",
+          "pdf",
+          "PDF-Viewer",
+          "PivotGrid",
+          "ProjIO",
+          "QTP",
+          "schedule",
+          "tools",
+          "XlsIO"
+        ],
+        "categories": {
+          "Calculation": 1,
+          "Data Visualization": 1,
+          "Common": 1,
+          "Diagram": 1,
+          "Medical Imaging": 1,
+          "Document Processing": 1,
+          "Text Editor": 1,
+          "Gauges": 1,
+          "Data Grid": 2,
+          "UI Framework": 1,
+          "Business Intelligence": 2,
+          "PDF Processing": 1,
+          "PDF Viewer": 1,
+          "Project Management": 1,
+          "Testing": 1,
+          "Scheduling": 1,
+          "Development Tools": 1,
+          "Spreadsheet": 1
+        },
+        "api_counts": {
+          "calculate": 5,
+          "chart": 5,
+          "common": 5,
+          "diagram": 5,
+          "DICOM": 5,
+          "DocIo": 5,
+          "edit": 5,
+          "Gauge": 5,
+          "grid": 5,
+          "grouping": 5,
+          "HTMLUI": 5,
+          "Olap-Common": 5,
+          "pdf": 5,
+          "PDF-Viewer": 5,
+          "PivotGrid": 5,
+          "ProjIO": 5,
+          "QTP": 5,
+          "schedule": 5,
+          "tools": 5,
+          "XlsIO": 5
+        },
+        "page_counts": {
+          "calculate": 255,
+          "chart": 649,
+          "common": 145,
+          "diagram": 291,
+          "DICOM": 12,
+          "DocIo": 387,
+          "edit": 303,
+          "Gauge": 31,
+          "grid": 1466,
+          "grouping": 71,
+          "HTMLUI": 182,
+          "Olap-Common": 125,
+          "pdf": 384,
+          "PDF-Viewer": 29,
+          "PivotGrid": 41,
+          "ProjIO": 65,
+          "QTP": 92,
+          "schedule": 73,
+          "tools": 2434,
+          "XlsIO": 454
+        }
+      }
+    },
+    "templates": {
+      "valid": true,
+      "errors": [],
+      "warnings": [],
+      "info": {
+        "total_templates": 449,
+        "complexity_distribution": {
+          "low": 27,
+          "medium": 38,
+          "high": 384
+        },
+        "category_distribution": {
+          "Calculation": 22,
+          "Data Visualization": 26,
+          "Common": 22,
+          "Diagram": 22,
+          "Medical Imaging": 9,
+          "Document Processing": 24,
+          "Text Editor": 22,
+          "Gauges": 21,
+          "Data Grid": 50,
+          "UI Framework": 22,
+          "Business Intelligence": 45,
+          "PDF Processing": 25,
+          "PDF Viewer": 22,
+          "Project Management": 22,
+          "Testing": 22,
+          "Scheduling": 24,
+          "Development Tools": 24,
+          "Spreadsheet": 25
+        },
+        "component_distribution": {
+          "calculate": 22,
+          "chart": 26,
+          "common": 22,
+          "diagram": 22,
+          "DICOM": 9,
+          "DocIo": 24,
+          "edit": 22,
+          "Gauge": 21,
+          "grid": 27,
+          "grouping": 23,
+          "HTMLUI": 22,
+          "Olap-Common": 22,
+          "pdf": 25,
+          "PDF-Viewer": 22,
+          "PivotGrid": 23,
+          "ProjIO": 22,
+          "QTP": 22,
+          "schedule": 24,
+          "tools": 24,
+          "XlsIO": 25
+        },
+        "tag_distribution": {
+          "initialization": 20,
+          "configuration": 40,
+          "properties": 20,
+          "api": 384,
+          "call": 384,
+          "calculate": 20,
+          "data-binding": 4,
+          "datasource": 4,
+          "chart": 23,
+          "series": 1,
+          "add": 8,
+          "title": 1,
+          "set": 1,
+          "legend": 1,
+          "configure": 1,
+          "common": 20,
+          "diagram": 20,
+          "DICOM": 7,
+          "word": 2,
+          "document": 2,
+          "create": 7,
+          "paragraph": 1,
+          "DocIo": 20,
+          "edit": 20,
+          "gauge": 2,
+          "linear": 1,
+          "circular": 1,
+          "Gauge": 17,
+          "grid": 24,
+          "column": 1,
+          "editing": 1,
+          "allow": 1,
+          "sorting": 1,
+          "enable": 2,
+          "filtering": 1,
+          "grouping": 20,
+          "HTMLUI": 20,
+          "Olap-Common": 20,
+          "pdf": 23,
+          "page": 1,
+          "text": 1,
+          "PDF-Viewer": 20,
+          "PivotGrid": 20,
+          "ProjIO": 20,
+          "QTP": 20,
+          "schedule": 22,
+          "control": 1,
+          "appointment": 1,
+          "toolbar": 2,
+          "tools": 21,
+          "button": 1,
+          "excel": 3,
+          "workbook": 1,
+          "worksheet": 1,
+          "cell": 1,
+          "value": 1,
+          "XlsIO": 20
+        }
+      }
+    },
+    "overall_valid": true
+  },
+  "statistics": {
+    "dataset_overview": {
+      "generation_timestamp": "2025-08-12T13:09:13.631577",
+      "total_templates": 449,
+      "total_components": 20,
+      "generator_version": "1.0.0",
+      "file_size_mb": 0.29891490936279297
+    },
+    "component_analysis": {
+      "total_apis_across_components": 100,
+      "total_pages_across_components": 7489,
+      "average_apis_per_component": 5.0,
+      "average_pages_per_component": 374.45,
+      "component_with_most_apis": "calculate",
+      "component_with_most_pages": "tools"
+    },
+    "template_analysis": {
+      "complexity_distribution": {
+        "high": 384,
+        "low": 27,
+        "medium": 38
+      },
+      "category_distribution": {
+        "PDF Processing": 25,
+        "PDF Viewer": 22,
+        "Business Intelligence": 45,
+        "Development Tools": 24,
+        "Data Grid": 50,
+        "Diagram": 22,
+        "Medical Imaging": 9,
+        "Common": 22,
+        "Calculation": 22,
+        "Project Management": 22,
+        "Text Editor": 22,
+        "Testing": 22,
+        "UI Framework": 22,
+        "Scheduling": 24,
+        "Gauges": 21,
+        "Data Visualization": 26,
+        "Document Processing": 24,
+        "Spreadsheet": 25
+      },
+      "component_distribution": {
+        "DICOM": 9,
+        "schedule": 24,
+        "grid": 27,
+        "edit": 22,
+        "QTP": 22,
+        "chart": 26,
+        "PDF-Viewer": 22,
+        "HTMLUI": 22,
+        "XlsIO": 25,
+        "pdf": 25,
+        "calculate": 22,
+        "tools": 24,
+        "Olap-Common": 22,
+        "Gauge": 21,
+        "DocIo": 24,
+        "grouping": 23,
+        "PivotGrid": 23,
+        "common": 22,
+        "ProjIO": 22,
+        "diagram": 22
+      },
+      "average_tags_per_template": 2.9020044543429844,
+      "most_common_tags": [
+        [
+          "call",
+          384
+        ],
+        [
+          "api",
+          384
+        ],
+        [
+          "configuration",
+          40
+        ],
+        [
+          "grid",
+          24
+        ],
+        [
+          "chart",
+          23
+        ],
+        [
+          "pdf",
+          23
+        ],
+        [
+          "schedule",
+          22
+        ],
+        [
+          "tools",
+          21
+        ],
+        [
+          "edit",
+          20
+        ],
+        [
+          "PDF-Viewer",
+          20
+        ]
+      ]
+    },
+    "quality_metrics": {
+      "overall_valid": true,
+      "total_errors": 0,
+      "total_warnings": 0,
+      "completeness_score": 100.0
+    }
+  },
+  "recommendations": []
+}

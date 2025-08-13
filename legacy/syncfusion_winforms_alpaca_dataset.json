@@ -1,0 +1,431 @@
+{
+  "metadata": {
+    "generated_at": "2025-08-12T04:54:31.327Z",
+    "total_templates": 449,
+    "total_components": 20,
+    "generator_version": "1.0.0",
+    "format": "alpaca"
+  },
+  "dataset": [
+    {
+      "instruction": "Syncfusion calculate 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트를 사용하여 계산 엔진을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var calculate = new calculate();\ncalculate.Width = width;\ncalculate.Height = height;"
+    },
+    {
+      "instruction": "calculate 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    calculate[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 Form1 API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 Form1 API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.Form1 = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 EssentialCalculate API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 EssentialCalculate API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.EssentialCalculate = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 WordDocument API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 WordDocument API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.WordDocument = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 for API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 for API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.for = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 숫자 3 API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 숫자 3 API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.3 = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 CalculateEngine API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 CalculateEngine API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.CalculateEngine = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 sum API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 sum API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.sum = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 CalcQuickBase API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 CalcQuickBase API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.CalcQuickBase = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 Main API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 Main API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.Main = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 System API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 System API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.System = parameters;"
+    },
+    {
+      "instruction": "calculate 컴포넌트에서 s API를 호출하려면 어떻게 해야 하나요?",
+      "input": "calculate 컴포넌트의 s API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "calculate.s = parameters;"
+    },
+    {
+      "instruction": "Syncfusion chart 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트를 사용하여 데이터 시각화를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var chart = new chart();\nchart.Width = width;\nchart.Height = height;"
+    },
+    {
+      "instruction": "chart 컴포넌트에 데이터를 바인딩하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트에 데이터 소스를 연결하고 데이터 멤버를 지정해야 합니다.",
+      "output": "chart.DataSource = data_source;\nchart.DataMember = data_member;"
+    },
+    {
+      "instruction": "chart 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    chart[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "chart 컴포넌트에 시리즈를 추가하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트에 새로운 시리즈를 추가하고 시리즈 이름, 타입, 데이터 소스를 지정해야 합니다.",
+      "output": "chartControl1.Series.Add(new Series(\"SeriesName\", SeriesType.Line, data_source));"
+    },
+    {
+      "instruction": "chart 컴포넌트의 제목을 설정하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트에 제목과 부제목을 설정해야 합니다.",
+      "output": "chartControl1.Title.Text = title;\nchartControl1.Subtitle.Text = subtitle;"
+    },
+    {
+      "instruction": "chart 컴포넌트의 범례를 구성하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트의 범례 표시 여부와 위치를 설정해야 합니다.",
+      "output": "chartControl1.Legend.Visible = visible;\nchartControl1.Legend.Position = position;"
+    },
+    {
+      "instruction": "chart 컴포넌트에서 BarChart API를 호출하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트의 BarChart API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "chart.BarChart = parameters;"
+    },
+    {
+      "instruction": "chart 컴포넌트에서 Series API를 호출하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트의 Series API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "chart.Series = parameters;"
+    },
+    {
+      "instruction": "chart 컴포넌트에서 LineChart API를 호출하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트의 LineChart API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "chart.LineChart = parameters;"
+    },
+    {
+      "instruction": "chart 컴포넌트에서 PieChart API를 호출하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트의 PieChart API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "chart.PieChart = parameters;"
+    },
+    {
+      "instruction": "chart 컴포넌트에서 AreaChart API를 호출하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트의 AreaChart API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "chart.AreaChart = parameters;"
+    },
+    {
+      "instruction": "chart 컴포넌트에서 ScatterChart API를 호출하려면 어떻게 해야 하나요?",
+      "input": "chart 컴포넌트의 ScatterChart API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "chart.ScatterChart = parameters;"
+    },
+    {
+      "instruction": "Syncfusion common 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "common 컴포넌트를 사용하여 일반 컨트롤을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var common = new common();\ncommon.Width = width;\ncommon.Height = height;"
+    },
+    {
+      "instruction": "common 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "common 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    common[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion diagram 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "diagram 컴포넌트를 사용하여 다이어그램 컨트롤을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var diagram = new diagram();\ndiagram.Width = width;\ndiagram.Height = height;"
+    },
+    {
+      "instruction": "diagram 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "diagram 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    diagram[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion DICOM 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "DICOM 컴포넌트를 사용하여 의료 이미징을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var dicom = new DICOM();\ndicom.Width = width;\ndicom.Height = height;"
+    },
+    {
+      "instruction": "DICOM 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "DICOM 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    dicom[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion DocIo 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "DocIo 컴포넌트를 사용하여 문서 처리를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var docIo = new DocIo();\ndocIo.Width = width;\ndocIo.Height = height;"
+    },
+    {
+      "instruction": "DocIo 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "DocIo 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    docIo[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "DocIo 컴포넌트에서 파일을 열려면 어떻게 해야 하나요?",
+      "input": "DocIo 컴포넌트를 사용하여 특정 파일 경로의 문서를 열어야 합니다.",
+      "output": "docIo.OpenFile(file_path);"
+    },
+    {
+      "instruction": "DocIo 컴포넌트에서 페이지 크기를 설정하려면 어떻게 해야 하나요?",
+      "input": "DocIo 컴포넌트의 페이지 크기와 방향을 설정해야 합니다.",
+      "output": "docIo.PageSize = page_size;\ndocIo.Orientation = orientation;"
+    },
+    {
+      "instruction": "DocIo 컴포넌트에서 텍스트를 추가하려면 어떻게 해야 하나요?",
+      "input": "DocIo 컴포넌트의 특정 페이지에 텍스트를 추가해야 합니다. 폰트, 크기 등을 설정해야 합니다.",
+      "output": "docIo.AddText(page_index, text, font, font_size);"
+    },
+    {
+      "instruction": "Syncfusion edit 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "edit 컴포넌트를 사용하여 텍스트 편집기를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var edit = new edit();\nedit.Width = width;\nedit.Height = height;"
+    },
+    {
+      "instruction": "edit 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "edit 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    edit[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "edit 컴포넌트에서 파일을 열려면 어떻게 해야 하나요?",
+      "input": "edit 컴포넌트를 사용하여 특정 파일 경로의 텍스트 파일을 열어야 합니다.",
+      "output": "edit.OpenFile(file_path);"
+    },
+    {
+      "instruction": "edit 컴포넌트에서 텍스트를 설정하려면 어떻게 해야 하나요?",
+      "input": "edit 컴포넌트에 텍스트 내용과 스타일을 설정해야 합니다.",
+      "output": "edit.SetText(text, style);"
+    },
+    {
+      "instruction": "edit 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?",
+      "input": "edit 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "edit.APIName = parameters;"
+    },
+    {
+      "instruction": "Syncfusion Gauge 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "Gauge 컴포넌트를 사용하여 게이지 컨트롤을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var gauge = new Gauge();\ngauge.Width = width;\ngauge.Height = height;"
+    },
+    {
+      "instruction": "Gauge 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "Gauge 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    gauge[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion grid 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "grid 컴포넌트를 사용하여 데이터 그리드를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var grid = new grid();\ngrid.Width = width;\ngrid.Height = height;"
+    },
+    {
+      "instruction": "grid 컴포넌트에 데이터를 바인딩하려면 어떻게 해야 하나요?",
+      "input": "grid 컴포넌트에 데이터 소스를 연결하고 데이터 멤버를 지정해야 합니다.",
+      "output": "grid.DataSource = data_source;\ngrid.DataMember = data_member;"
+    },
+    {
+      "instruction": "grid 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "grid 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    grid[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "grid 컴포넌트에 열을 추가하려면 어떻게 해야 하나요?",
+      "input": "grid 컴포넌트에 새로운 열을 추가하고 열 이름, 헤더 텍스트, 데이터 필드를 지정해야 합니다.",
+      "output": "grid.AddColumn(column_name, header_text, data_field);"
+    },
+    {
+      "instruction": "grid 컴포넌트에서 편집을 허용하려면 어떻게 해야 하나요?",
+      "input": "grid 컴포넌트의 셀 편집 기능을 활성화하거나 비활성화해야 합니다.",
+      "output": "grid.AllowEdit = allow_edit;"
+    },
+    {
+      "instruction": "grid 컴포넌트에서 정렬을 허용하려면 어떻게 해야 하나요?",
+      "input": "grid 컴포넌트의 정렬 기능을 활성화하거나 비활성화해야 합니다.",
+      "output": "grid.AllowSorting = allow_sorting;"
+    },
+    {
+      "instruction": "grid 컴포넌트에서 필터링을 허용하려면 어떻게 해야 하나요?",
+      "input": "grid 컴포넌트의 필터링 기능을 활성화하거나 비활성화해야 합니다.",
+      "output": "grid.AllowFiltering = allow_filtering;"
+    },
+    {
+      "instruction": "grid 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?",
+      "input": "grid 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "grid.APIName = parameters;"
+    },
+    {
+      "instruction": "Syncfusion grouping 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "grouping 컴포넌트를 사용하여 고급 그리드 기능을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var grouping = new grouping();\ngrouping.Width = width;\ngrouping.Height = height;"
+    },
+    {
+      "instruction": "grouping 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "grouping 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    grouping[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "grouping 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?",
+      "input": "grouping 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "grouping.APIName = parameters;"
+    },
+    {
+      "instruction": "Syncfusion HTMLUI 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "HTMLUI 컴포넌트를 사용하여 HTML 기반 UI를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var htmlui = new HTMLUI();\nhtmlui.Width = width;\nhtmlui.Height = height;"
+    },
+    {
+      "instruction": "HTMLUI 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "HTMLUI 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    htmlui[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion Olap-Common 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "Olap-Common 컴포넌트를 사용하여 OLAP 데이터를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var olapCommon = new Olap-Common();\nolapCommon.Width = width;\nolapCommon.Height = height;"
+    },
+    {
+      "instruction": "Olap-Common 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "Olap-Common 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    olapCommon[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion pdf 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "pdf 컴포넌트를 사용하여 PDF 생성을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var pdf = new pdf();\npdf.Width = width;\npdf.Height = height;"
+    },
+    {
+      "instruction": "pdf 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "pdf 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    pdf[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "pdf 컴포넌트에서 파일을 생성하려면 어떻게 해야 하나요?",
+      "input": "pdf 컴포넌트를 사용하여 특정 파일 경로에 PDF를 생성해야 합니다.",
+      "output": "pdf.CreateFile(file_path);"
+    },
+    {
+      "instruction": "pdf 컴포넌트에서 페이지 크기를 설정하려면 어떻게 해야 하나요?",
+      "input": "pdf 컴포넌트의 페이지 크기와 방향을 설정해야 합니다.",
+      "output": "pdf.PageSize = page_size;\npdf.Orientation = orientation;"
+    },
+    {
+      "instruction": "pdf 컴포넌트에서 텍스트를 추가하려면 어떻게 해야 하나요?",
+      "input": "pdf 컴포넌트의 특정 페이지에 텍스트를 추가해야 합니다. 폰트, 크기 등을 설정해야 합니다.",
+      "output": "pdf.AddText(page_index, text, font, font_size);"
+    },
+    {
+      "instruction": "Syncfusion PDF-Viewer 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "PDF-Viewer 컴포넌트를 사용하여 PDF 뷰어를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var pdfViewer = new PDF-Viewer();\npdfViewer.Width = width;\npdfViewer.Height = height;"
+    },
+    {
+      "instruction": "PDF-Viewer 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "PDF-Viewer 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    pdfViewer[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "PDF-Viewer 컴포넌트에서 파일을 열려면 어떻게 해야 하나요?",
+      "input": "PDF-Viewer 컴포넌트를 사용하여 특정 파일 경로의 PDF를 열어야 합니다.",
+      "output": "pdfViewer.OpenFile(file_path);"
+    },
+    {
+      "instruction": "Syncfusion PivotGrid 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "PivotGrid 컴포넌트를 사용하여 피벗 테이블을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var pivotGrid = new PivotGrid();\npivotGrid.Width = width;\npivotGrid.Height = height;"
+    },
+    {
+      "instruction": "PivotGrid 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "PivotGrid 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    pivotGrid[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion ProjIO 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "ProjIO 컴포넌트를 사용하여 프로젝트 관리를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var projIo = new ProjIO();\nprojIo.Width = width;\nprojIo.Height = height;"
+    },
+    {
+      "instruction": "ProjIO 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "ProjIO 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    projIo[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion QTP 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "QTP 컴포넌트를 사용하여 테스트 프레임워크를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var qtp = new QTP();\nqtp.Width = width;\nqtp.Height = height;"
+    },
+    {
+      "instruction": "QTP 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "QTP 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    qtp[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "Syncfusion schedule 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "schedule 컴포넌트를 사용하여 스케줄링을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var schedule = new schedule();\nschedule.Width = width;\nschedule.Height = height;"
+    },
+    {
+      "instruction": "schedule 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "schedule 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    schedule[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "schedule 컴포넌트에서 약속을 추가하려면 어떻게 해야 하나요?",
+      "input": "schedule 컴포넌트에 새로운 약속을 추가하고 제목, 시작 시간, 종료 시간, 위치를 지정해야 합니다.",
+      "output": "schedule.AddAppointment(subject, start_time, end_time, location);"
+    },
+    {
+      "instruction": "Syncfusion tools 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "tools 컴포넌트를 사용하여 개발 도구를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var tools = new tools();\ntools.Width = width;\ntools.Height = height;"
+    },
+    {
+      "instruction": "tools 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "tools 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    tools[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "tools 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?",
+      "input": "tools 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "tools.APIName = parameters;"
+    },
+    {
+      "instruction": "Syncfusion XlsIO 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?",
+      "input": "XlsIO 컴포넌트를 사용하여 Excel 처리를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다.",
+      "output": "var xlsio = new XlsIO();\nxlsio.Width = width;\nxlsio.Height = height;"
+    },
+    {
+      "instruction": "XlsIO 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?",
+      "input": "XlsIO 컴포넌트에 여러 속성을 동시에 설정해야 합니다.",
+      "output": "foreach (var prop in properties)\n{\n    xlsio[prop.Key] = prop.Value;\n}"
+    },
+    {
+      "instruction": "XlsIO 컴포넌트에서 파일을 열려면 어떻게 해야 하나요?",
+      "input": "XlsIO 컴포넌트를 사용하여 특정 파일 경로의 Excel 파일을 열어야 합니다.",
+      "output": "xlsio.OpenFile(file_path);"
+    },
+    {
+      "instruction": "XlsIO 컴포넌트에서 시트를 선택하려면 어떻게 해야 하나요?",
+      "input": "XlsIO 컴포넌트에서 특정 시트 이름 또는 인덱스로 시트를 선택해야 합니다.",
+      "output": "xlsio.SelectSheet(sheet_name, sheet_index);"
+    },
+    {
+      "instruction": "XlsIO 컴포넌트에서 셀 값을 설정하려면 어떻게 해야 하나요?",
+      "input": "XlsIO 컴포넌트의 특정 셀 위치에 값을 설정해야 합니다. 시트 이름, 행, 열, 값을 지정해야 합니다.",
+      "output": "xlsio.SetCellValue(sheet_name, row, column, value);"
+    },
+    {
+      "instruction": "XlsIO 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?",
+      "input": "XlsIO 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다.",
+      "output": "xlsio.APIName = parameters;"
+    }
+  ]
+}

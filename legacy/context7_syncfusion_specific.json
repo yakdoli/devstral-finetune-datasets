@@ -1,0 +1,46 @@
+{
+  "library_id": "/yakdoli/syncfusion-v11-winform",
+  "topic": null,
+  "code_snippets": [
+    {
+      "title": "Basic Grid Configuration",
+      "description": "Configure Syncfusion GridControl with basic settings",
+      "code": "// Syncfusion GridControl 기본 설정\nGridControl gridControl = new GridControl();\ngridControl.Dock = DockStyle.Fill;\ngridControl.DataSource = GetData();\ngridControl.TableControl.CellClick += GridControl_CellClick;",
+      "language": "csharp",
+      "tags": [
+        "grid",
+        "basic",
+        "configuration"
+      ],
+      "component": "grid",
+      "category": "DataGrid"
+    },
+    {
+      "title": "Chart Data Binding",
+      "description": "Bind data to Syncfusion ChartControl",
+      "code": "// Syncfusion ChartControl 데이터 바인딩\nChartControl chartControl = new ChartControl();\nchartControl.Dock = DockStyle.Fill;\n\n// 데이터 소스 설정\nchartControl.DataSource = chartData;\nchartControl.Series.Add(\"Series1\", \"Sales\", \"Category\", \"Value\");",
+      "language": "csharp",
+      "tags": [
+        "chart",
+        "databinding",
+        "visualization"
+      ],
+      "component": "chart",
+      "category": "Charting"
+    },
+    {
+      "title": "Excel Export with XlsIO",
+      "description": "Export data to Excel using Syncfusion XlsIO",
+      "code": "// Syncfusion XlsIO를 사용한 Excel 내보내기\nExcelEngine excelEngine = new ExcelEngine();\nIWorkbook workbook = excelEngine.Excel.Workbooks.Create(1);\nIWorksheet worksheet = workbook.Worksheets[0];\n\n// 데이터 쓰기\nworksheet[\"A1\"].Text = \"Product\";\nworksheet[\"B1\"].Text = \"Price\";\nworksheet[\"C1\"].Text = \"Quantity\";",
+      "language": "csharp",
+      "tags": [
+        "xlsio",
+        "excel",
+        "export"
+      ],
+      "component": "xlsio",
+      "category": "Excel"
+    }
+  ],
+  "total_snippets": 3
+}

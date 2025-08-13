@@ -1,0 +1,20 @@
+{
+  "processing_stats": {
+    "total_files": 7509,
+    "processed_files": 7509,
+    "successful_files": 2427,
+    "failed_files": 0,
+    "duplicate_files": 5028,
+    "success_rate": 32.321214542548944,
+    "processing_time": 13.364938974380493,
+    "total_content_length": 6136089
+  },
+  "config": {
+    "batch_size": 50,
+    "min_quality_score": 0.6,
+    "max_content_length": 8000,
+    "remove_duplicates": true,
+    "output_format": "json"
+  },
+  "errors": []
+}

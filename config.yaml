@@ -1,0 +1,49 @@
+# Unsloth 데이터셋 생성 설정 파일
+
+# 프로젝트 설정
+project_name: "Syncfusion WinForms Unsloth Dataset"
+project_version: "1.0.0"
+target_count: 5000
+output_directory: "./output/datasets"
+
+# OpenAI API 설정
+openai_endpoint: "http://123.37.28.120:9997/v1"
+openai_model: "qwen2.5-vl-instruct"
+openai_max_tokens: 128000
+openai_temperature: 0.3
+
+# Qdrant 설정
+qdrant_host: "localhost"
+qdrant_port: 6333
+qdrant_collection: "ws-7491d651ae044c78"
+
+# 데이터 소스 설정
+md_output_path: "./output"
+md_staging_path: "./md_staging"
+
+# Unsloth 설정
+max_seq_length: 4096
+formats: ["sharegpt", "alpaca", "openai"]
+train_test_split: 0.9
+
+# 품질 검증 설정
+min_quality_score: 0.7
+max_similarity_threshold: 0.9
+safety_threshold: 0.8
+enable_auto_correction: true
+
+# 실행 설정
+test_mode: false
+sample_size: 100
+verbose: false
+progress_bar: true
+log_level: "INFO"
+log_file: "dataset_generation.log"
+
+# 단계별 실행 설정
+steps:
+  - "md_processing"
+  # "qdrant_search"  # Qdrant 서버가 실행되지 않아 일시적으로 비활성화
+  - "conversation_generation"
+  - "dataset_generation"
+  - "quality_validation"

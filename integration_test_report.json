@@ -1,0 +1,62 @@
+{
+  "report_version": "1.0.0",
+  "generated_at": "2025-08-12T23:40:35.154345",
+  "validation_stats": {
+    "total_processed": 2,
+    "total_passed": 2,
+    "total_failed": 0,
+    "start_time": "2025-08-12T23:40:35.151166",
+    "end_time": "2025-08-12T23:40:35.152163"
+  },
+  "summary": {
+    "total_items": 2,
+    "passed_items": 2,
+    "failed_items": 0,
+    "overall_validity_rate": 1.0
+  },
+  "format_statistics": {
+    "sharegpt": {
+      "total": 0,
+      "valid": 0,
+      "invalid": 0,
+      "validity_rate": 0.0
+    },
+    "alpaca": {
+      "total": 0,
+      "valid": 0,
+      "invalid": 0,
+      "validity_rate": 0.0
+    },
+    "openai": {
+      "total": 2,
+      "valid": 0,
+      "invalid": 2,
+      "validity_rate": 0.0
+    }
+  },
+  "quality_statistics": {
+    "openai": {
+      "avg_safety_score": 0.0,
+      "avg_quality_score": 0.0,
+      "avg_compatibility_score": 0.0,
+      "min_safety_score": 0.0,
+      "max_safety_score": 0.0,
+      "min_quality_score": 0.0,
+      "max_quality_score": 0.0,
+      "min_compatibility_score": 0.0,
+      "max_compatibility_score": 0.0
+    }
+  },
+  "issue_statistics": {
+    "sharegpt": {},
+    "alpaca": {},
+    "openai": {}
+  },
+  "configuration": {
+    "min_quality_score": 0.7,
+    "max_similarity_threshold": 0.9,
+    "safety_threshold": 0.8,
+    "enable_auto_correction": true,
+    "enable_statistics_analysis": true
+  }
+}

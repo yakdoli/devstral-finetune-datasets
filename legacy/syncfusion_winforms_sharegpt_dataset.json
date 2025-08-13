@@ -1,0 +1,2027 @@
+{
+  "metadata": {
+    "generated_at": "2025-08-12T04:55:39.035Z",
+    "total_templates": 449,
+    "total_components": 20,
+    "generator_version": "1.0.0",
+    "format": "sharegpt"
+  },
+  "dataset": [
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion calculate 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var calculate = new calculate();\ncalculate.Width = width;\ncalculate.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    calculate[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 Form1 API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.Form1 = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 EssentialCalculate API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.EssentialCalculate = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 WordDocument API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.WordDocument = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 for API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.for = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 숫자 3 API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.3 = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 CalculateEngine API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.CalculateEngine = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 sum API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.sum = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 CalcQuickBase API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.CalcQuickBase = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 Main API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.Main = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 System API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.System = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 s API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.s = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion chart 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var chart = new chart();\nchart.Width = width;\nchart.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에 데이터를 바인딩하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chart.DataSource = data_source;\nchart.DataMember = data_member;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    chart[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에 시리즈를 추가하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chartControl1.Series.Add(new Series(\"SeriesName\", SeriesType.Line, data_source));"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트의 제목을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chartControl1.Title.Text = title;\nchartControl1.Subtitle.Text = subtitle;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트의 범례를 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chartControl1.Legend.Visible = visible;\nchartControl1.Legend.Position = position;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 BarChart API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chart.BarChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 Series API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chart.Series = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 LineChart API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chart.LineChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 PieChart API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chart.PieChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 AreaChart API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chart.AreaChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 ScatterChart API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "chart.ScatterChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion common 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var common = new common();\ncommon.Width = width;\ncommon.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "common 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    common[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion diagram 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var diagram = new diagram();\ndiagram.Width = width;\ndiagram.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "diagram 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    diagram[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion DICOM 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var dicom = new DICOM();\ndicom.Width = width;\ndicom.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DICOM 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    dicom[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion DocIo 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var docIo = new DocIo();\ndocIo.Width = width;\ndocIo.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DocIo 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    docIo[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DocIo 컴포넌트에서 파일을 열려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "docIo.OpenFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DocIo 컴포넌트에서 페이지 크기를 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "docIo.PageSize = page_size;\ndocIo.Orientation = orientation;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DocIo 컴포넌트에서 텍스트를 추가하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "docIo.AddText(page_index, text, font, font_size);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion edit 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var edit = new edit();\nedit.Width = width;\nedit.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "edit 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    edit[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "edit 컴포넌트에서 파일을 열려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "edit.OpenFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "edit 컴포넌트에서 텍스트를 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "edit.SetText(text, style);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "edit 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "edit.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion Gauge 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var gauge = new Gauge();\ngauge.Width = width;\ngauge.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Gauge 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    gauge[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion grid 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var grid = new grid();\ngrid.Width = width;\ngrid.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에 데이터를 바인딩하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "grid.DataSource = data_source;\ngrid.DataMember = data_member;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    grid[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에 열을 추가하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "grid.AddColumn(column_name, header_text, data_field);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에서 편집을 허용하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "grid.AllowEdit = allow_edit;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에서 정렬을 허용하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "grid.AllowSorting = allow_sorting;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에서 필터링을 허용하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "grid.AllowFiltering = allow_filtering;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "grid.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion grouping 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var grouping = new grouping();\ngrouping.Width = width;\ngrouping.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grouping 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    grouping[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grouping 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "grouping.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion HTMLUI 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var htmlui = new HTMLUI();\nhtmlui.Width = width;\nhtmlui.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "HTMLUI 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    htmlui[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion Olap-Common 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var olapCommon = new Olap-Common();\nolapCommon.Width = width;\nolapCommon.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Olap-Common 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    olapCommon[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion pdf 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var pdf = new pdf();\npdf.Width = width;\npdf.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "pdf 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    pdf[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "pdf 컴포넌트에서 파일을 생성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "pdf.CreateFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "pdf 컴포넌트에서 페이지 크기를 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "pdf.PageSize = page_size;\npdf.Orientation = orientation;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "pdf 컴포넌트에서 텍스트를 추가하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "pdf.AddText(page_index, text, font, font_size);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion PDF-Viewer 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var pdfViewer = new PDF-Viewer();\npdfViewer.Width = width;\npdfViewer.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "PDF-Viewer 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    pdfViewer[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "PDF-Viewer 컴포넌트에서 파일을 열려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "pdfViewer.OpenFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion PivotGrid 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var pivotGrid = new PivotGrid();\npivotGrid.Width = width;\npivotGrid.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "PivotGrid 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    pivotGrid[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion ProjIO 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var projIo = new ProjIO();\nprojIo.Width = width;\nprojIo.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "ProjIO 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    projIo[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion QTP 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var qtp = new QTP();\nqtp.Width = width;\nqtp.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "QTP 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    qtp[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion schedule 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var schedule = new schedule();\nschedule.Width = width;\nschedule.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "schedule 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    schedule[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "schedule 컴포넌트에서 약속을 추가하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "schedule.AddAppointment(subject, start_time, end_time, location);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion tools 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var tools = new tools();\ntools.Width = width;\ntools.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "tools 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    tools[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "tools 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "tools.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion XlsIO 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "var xlsio = new XlsIO();\nxlsio.Width = width;\nxlsio.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    xlsio[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트에서 파일을 열려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "xlsio.OpenFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트에서 시트를 선택하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "xlsio.SelectSheet(sheet_name, sheet_index);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트에서 셀 값을 설정하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "xlsio.SetCellValue(sheet_name, row, column, value);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요?"
+        },
+        {
+          "from": "gpt",
+          "value": "xlsio.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion calculate 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? calculate 컴포넌트를 사용하여 계산 엔진을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var calculate = new calculate();\ncalculate.Width = width;\ncalculate.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? calculate 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    calculate[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 Form1 API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 Form1 API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.Form1 = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 EssentialCalculate API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 EssentialCalculate API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.EssentialCalculate = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 WordDocument API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 WordDocument API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.WordDocument = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 for API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 for API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.for = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 숫자 3 API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 숫자 3 API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.3 = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 CalculateEngine API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 CalculateEngine API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.CalculateEngine = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 sum API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 sum API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.sum = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 CalcQuickBase API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 CalcQuickBase API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.CalcQuickBase = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 Main API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 Main API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.Main = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 System API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 System API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.System = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "calculate 컴포넌트에서 s API를 호출하려면 어떻게 해야 하나요? calculate 컴포넌트의 s API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "calculate.s = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion chart 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? chart 컴포넌트를 사용하여 데이터 시각화를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var chart = new chart();\nchart.Width = width;\nchart.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에 데이터를 바인딩하려면 어떻게 해야 하나요? chart 컴포넌트에 데이터 소스를 연결하고 데이터 멤버를 지정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chart.DataSource = data_source;\nchart.DataMember = data_member;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? chart 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    chart[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에 시리즈를 추가하려면 어떻게 해야 하나요? chart 컴포넌트에 새로운 시리즈를 추가하고 시리즈 이름, 타입, 데이터 소스를 지정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chartControl1.Series.Add(new Series(\"SeriesName\", SeriesType.Line, data_source));"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트의 제목을 설정하려면 어떻게 해야 하나요? chart 컴포넌트에 제목과 부제목을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chartControl1.Title.Text = title;\nchartControl1.Subtitle.Text = subtitle;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트의 범례를 구성하려면 어떻게 해야 하나요? chart 컴포넌트의 범례 표시 여부와 위치를 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chartControl1.Legend.Visible = visible;\nchartControl1.Legend.Position = position;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 BarChart API를 호출하려면 어떻게 해야 하나요? chart 컴포넌트의 BarChart API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chart.BarChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 Series API를 호출하려면 어떻게 해야 하나요? chart 컴포넌트의 Series API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chart.Series = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 LineChart API를 호출하려면 어떻게 해야 하나요? chart 컴포넌트의 LineChart API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chart.LineChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 PieChart API를 호출하려면 어떻게 해야 하나요? chart 컴포넌트의 PieChart API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chart.PieChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 AreaChart API를 호출하려면 어떻게 해야 하나요? chart 컴포넌트의 AreaChart API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chart.AreaChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "chart 컴포넌트에서 ScatterChart API를 호출하려면 어떻게 해야 하나요? chart 컴포넌트의 ScatterChart API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "chart.ScatterChart = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion common 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? common 컴포넌트를 사용하여 일반 컨트롤을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var common = new common();\ncommon.Width = width;\ncommon.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "common 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? common 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    common[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion diagram 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? diagram 컴포넌트를 사용하여 다이어그램 컨트롤을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var diagram = new diagram();\ndiagram.Width = width;\ndiagram.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "diagram 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? diagram 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    diagram[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion DICOM 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? DICOM 컴포넌트를 사용하여 의료 이미징을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var dicom = new DICOM();\ndicom.Width = width;\ndicom.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DICOM 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? DICOM 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    dicom[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion DocIo 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? DocIo 컴포넌트를 사용하여 문서 처리를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var docIo = new DocIo();\ndocIo.Width = width;\ndocIo.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DocIo 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? DocIo 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    docIo[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DocIo 컴포넌트에서 파일을 열려면 어떻게 해야 하나요? DocIo 컴포넌트를 사용하여 특정 파일 경로의 문서를 열어야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "docIo.OpenFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DocIo 컴포넌트에서 페이지 크기를 설정하려면 어떻게 해야 하나요? DocIo 컴포넌트의 페이지 크기와 방향을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "docIo.PageSize = page_size;\ndocIo.Orientation = orientation;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "DocIo 컴포넌트에서 텍스트를 추가하려면 어떻게 해야 하나요? DocIo 컴포넌트의 특정 페이지에 텍스트를 추가해야 합니다. 폰트, 크기 등을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "docIo.AddText(page_index, text, font, font_size);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion edit 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? edit 컴포넌트를 사용하여 텍스트 편집기를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var edit = new edit();\nedit.Width = width;\nedit.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "edit 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? edit 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    edit[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "edit 컴포넌트에서 파일을 열려면 어떻게 해야 하나요? edit 컴포넌트를 사용하여 특정 파일 경로의 텍스트 파일을 열어야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "edit.OpenFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "edit 컴포넌트에서 텍스트를 설정하려면 어떻게 해야 하나요? edit 컴포넌트에 텍스트 내용과 스타일을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "edit.SetText(text, style);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "edit 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요? edit 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "edit.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion Gauge 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? Gauge 컴포넌트를 사용하여 게이지 컨트롤을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var gauge = new Gauge();\ngauge.Width = width;\ngauge.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Gauge 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? Gauge 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    gauge[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion grid 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? grid 컴포넌트를 사용하여 데이터 그리드를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var grid = new grid();\ngrid.Width = width;\ngrid.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에 데이터를 바인딩하려면 어떻게 해야 하나요? grid 컴포넌트에 데이터 소스를 연결하고 데이터 멤버를 지정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "grid.DataSource = data_source;\ngrid.DataMember = data_member;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? grid 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    grid[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에 열을 추가하려면 어떻게 해야 하나요? grid 컴포넌트에 새로운 열을 추가하고 열 이름, 헤더 텍스트, 데이터 필드를 지정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "grid.AddColumn(column_name, header_text, data_field);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에서 편집을 허용하려면 어떻게 해야 하나요? grid 컴포넌트의 셀 편집 기능을 활성화하거나 비활성화해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "grid.AllowEdit = allow_edit;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에서 정렬을 허용하려면 어떻게 해야 하나요? grid 컴포넌트의 정렬 기능을 활성화하거나 비활성화해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "grid.AllowSorting = allow_sorting;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에서 필터링을 허용하려면 어떻게 해야 하나요? grid 컴포넌트의 필터링 기능을 활성화하거나 비활성화해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "grid.AllowFiltering = allow_filtering;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grid 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요? grid 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "grid.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion grouping 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? grouping 컴포넌트를 사용하여 고급 그리드 기능을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var grouping = new grouping();\ngrouping.Width = width;\ngrouping.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grouping 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? grouping 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    grouping[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "grouping 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요? grouping 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "grouping.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion HTMLUI 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? HTMLUI 컴포넌트를 사용하여 HTML 기반 UI를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var htmlui = new HTMLUI();\nhtmlui.Width = width;\nhtmlui.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "HTMLUI 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? HTMLUI 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    htmlui[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion Olap-Common 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? Olap-Common 컴포넌트를 사용하여 OLAP 데이터를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var olapCommon = new Olap-Common();\nolapCommon.Width = width;\nolapCommon.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Olap-Common 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? Olap-Common 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    olapCommon[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion pdf 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? pdf 컴포넌트를 사용하여 PDF 생성을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var pdf = new pdf();\npdf.Width = width;\npdf.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "pdf 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? pdf 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    pdf[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "pdf 컴포넌트에서 파일을 생성하려면 어떻게 해야 하나요? pdf 컴포넌트를 사용하여 특정 파일 경로에 PDF를 생성해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "pdf.CreateFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "pdf 컴포넌트에서 페이지 크기를 설정하려면 어떻게 해야 하나요? pdf 컴포넌트의 페이지 크기와 방향을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "pdf.PageSize = page_size;\npdf.Orientation = orientation;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "pdf 컴포넌트에서 텍스트를 추가하려면 어떻게 해야 하나요? pdf 컴포넌트의 특정 페이지에 텍스트를 추가해야 합니다. 폰트, 크기 등을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "pdf.AddText(page_index, text, font, font_size);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion PDF-Viewer 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? PDF-Viewer 컴포넌트를 사용하여 PDF 뷰어를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var pdfViewer = new PDF-Viewer();\npdfViewer.Width = width;\npdfViewer.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "PDF-Viewer 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? PDF-Viewer 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    pdfViewer[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "PDF-Viewer 컴포넌트에서 파일을 열려면 어떻게 해야 하나요? PDF-Viewer 컴포넌트를 사용하여 특정 파일 경로의 PDF를 열어야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "pdfViewer.OpenFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion PivotGrid 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? PivotGrid 컴포넌트를 사용하여 피벗 테이블을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var pivotGrid = new PivotGrid();\npivotGrid.Width = width;\npivotGrid.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "PivotGrid 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? PivotGrid 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    pivotGrid[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion ProjIO 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? ProjIO 컴포넌트를 사용하여 프로젝트 관리를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var projIo = new ProjIO();\nprojIo.Width = width;\nprojIo.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "ProjIO 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? ProjIO 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    projIo[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion QTP 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? QTP 컴포넌트를 사용하여 테스트 프레임워크를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var qtp = new QTP();\nqtp.Width = width;\nqtp.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "QTP 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? QTP 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    qtp[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion schedule 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? schedule 컴포넌트를 사용하여 스케줄링을 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var schedule = new schedule();\nschedule.Width = width;\nschedule.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "schedule 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? schedule 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    schedule[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "schedule 컴포넌트에서 약속을 추가하려면 어떻게 해야 하나요? schedule 컴포넌트에 새로운 약속을 추가하고 제목, 시작 시간, 종료 시간, 위치를 지정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "schedule.AddAppointment(subject, start_time, end_time, location);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion tools 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? tools 컴포넌트를 사용하여 개발 도구를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var tools = new tools();\ntools.Width = width;\ntools.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "tools 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? tools 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    tools[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "tools 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요? tools 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "tools.APIName = parameters;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "Syncfusion XlsIO 컴포넌트를 초기화하고 구성하려면 어떻게 해야 하나요? XlsIO 컴포넌트를 사용하여 Excel 처리를 설정하고 싶습니다. 너비와 높이를 지정하고 추가 속성을 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "var xlsio = new XlsIO();\nxlsio.Width = width;\nxlsio.Height = height;"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트의 속성을 설정하려면 어떻게 해야 하나요? XlsIO 컴포넌트에 여러 속성을 동시에 설정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "foreach (var prop in properties)\n{\n    xlsio[prop.Key] = prop.Value;\n}"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트에서 파일을 열려면 어떻게 해야 하나요? XlsIO 컴포넌트를 사용하여 특정 파일 경로의 Excel 파일을 열어야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "xlsio.OpenFile(file_path);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트에서 시트를 선택하려면 어떻게 해야 하나요? XlsIO 컴포넌트에서 특정 시트 이름 또는 인덱스로 시트를 선택해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "xlsio.SelectSheet(sheet_name, sheet_index);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트에서 셀 값을 설정하려면 어떻게 해야 하나요? XlsIO 컴포넌트의 특정 셀 위치에 값을 설정해야 합니다. 시트 이름, 행, 열, 값을 지정해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "xlsio.SetCellValue(sheet_name, row, column, value);"
+        }
+      ]
+    },
+    {
+      "conversations": [
+        {
+          "from": "human",
+          "value": "XlsIO 컴포넌트에서 API를 호출하려면 어떻게 해야 하나요? XlsIO 컴포넌트의 특정 API를 호출하고 파라미터를 전달해야 합니다."
+        },
+        {
+          "from": "gpt",
+          "value": "xlsio.APIName = parameters;"
+        }
+      ]
+    }
+  ]
+}
