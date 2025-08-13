@@ -13,350 +13,177 @@ pandas
 numpy
 scipy
 scikit-learn
-
 # 텍스트 처리
 nltk
 spacy
 regex
 beautifulsoup4
-
 # 벡터 데이터베이스
 qdrant-client
 sentence-transformers
 transformers
 torch
-
 # AI/ML 프레임워크
 openai
 anthropic
 langchain
 langchain-community
 langchain-core
-
 # 데이터셋 처리
 datasets
 huggingface-hub
 tokenizers
-
 # 품질 검증
 rouge-score
-bleurt
+#bleurt
 bert-score
 sacrebleu
-
 # 통계 및 시각화
 matplotlib
 seaborn
 plotly
 jupyter
-
 # 유틸리티
 python-dotenv
 psutil
 memory-profiler
 py-spy
-
 # 테스트
 pytest
 pytest-asyncio
 pytest-cov
 pytest-mock
 pytest-xdist
-
 # 개발 도구
 black
 isort
 flake8
 mypy
 pre-commit
-
 # 문서화
 sphinx
 sphinx-rtd-theme
 mkdocs
-
 # 보안
 cryptography
 pyjwt
 requests-toolbelt
-
 # 성능 모니터링
 prometheus-client
 grafana-api
-
 # 로깅
 structlog
 loguru
-
 # 데이터베이스
 sqlalchemy
 alembic
 psycopg2-binary
 redis
-
 # 웹 서버
 fastapi
 uvicorn
 starlette
-
 # CLI 도구
 typer
 rich-cli
 click-spinner
-
 # 파일 처리
 python-magic
 chardet
 PyPDF2
 python-docx
-
 # 이미지 처리
 Pillow
 opencv-python
-
 # 네트워크
 requests
 httpx
 websockets
-
 # 시간 처리
 python-dateutil
 pytz
-
 # 데이터 직렬화
 msgpack
 orjson
-
 # 메모리 최적화
 pympler
-tracemalloc
-
+#tracemalloc
 # 병렬 처리
-concurrent-futures
+#concurrent-futures
 joblib
 dask
-
 # 설정 관리
-python-dotenv
 pydantic
 pydantic-settings
-
 # 에러 처리
 tenacity
 sentry-sdk
-
 # 로깅 및 모니터링
-structlog
-loguru
-rich
-
 # 테스트 도구
-pytest
-pytest-asyncio
-pytest-cov
-pytest-mock
-pytest-xdist
 tox
-
 # 코드 품질
-black
-isort
-flake8
-mypy
-pre-commit
-
 # 문서 생성
-sphinx
-sphinx-rtd-theme
-mkdocs
 mkdocs-material
-
 # 배포
 build
 twine
 setuptools
 wheel
-
 # 개발 환경
 ipython
 jupyterlab
 notebook
-
 # 프로파일링
-memory-profiler
 line-profiler
-py-spy
-
 # 시스템 모니터링
-psutil
 gpustat
-
-# 보안
 bandit
 safety
-
 # 의존성 관리
 pip-tools
 poetry
-
 # 컨테이너
 docker
-
 # CI/CD
 github-actions
-gitlab-ci
-
+#gitlab-ci
 # 버전 관리
 semver
 bump2version
-
 # 코드 커버리지
 coverage
 codecov
-
 # 정적 분석
 vulture
 radon
-bandit
-
 # 동적 분석
 pytest-benchmark
-memory-profiler
-
 # 문서 테스트
 sphinx-testing
-sphinxcontrib-coverage
-
+#sphinxcontrib-coverage
 # 패키징
-build
-twine
-setuptools
-wheel
-
 # 배포 도구
 pipenv
-poetry
-
 # 가상 환경
 virtualenv
-venv
-conda
-
+#venv
+#conda
 # 패키지 관리
 pip
-pip-tools
-poetry
-
-# 개발 도구
-pre-commit
-black
-isort
-flake8
-mypy
-
-# 테스트 도구
-pytest
-pytest-asyncio
-pytest-cov
-pytest-mock
-pytest-xdist
-
 # 문서 도구
-sphinx
-sphinx-rtd-theme
-mkdocs
-mkdocs-material
-
 # 프로파일링 도구
-memory-profiler
-line-profiler
-py-spy
-
 # 모니터링 도구
-prometheus-client
-grafana-api
-
 # 보안 도구
-bandit
-safety
-
 # 코드 품질 도구
-vulture
-radon
-flake8
-mypy
-
 # 성능 도구
-pytest-benchmark
-memory-profiler
-
-# 문서 테스트 도구
-sphinx-testing
-sphinxcontrib-coverage
-
 # 패키징 도구
-build
-twine
-setuptools
-wheel
-
-# 배포 도구
-pipenv
-poetry
-
-# 가상 환경 도구
-virtualenv
-venv
-conda
-
 # 패키지 관리 도구
-pip
-pip-tools
-poetry
-
 # 개발 환경 도구
-pre-commit
-black
-isort
-flake8
-mypy
-
 # 테스트 환경 도구
-pytest
-pytest-asyncio
-pytest-cov
-pytest-mock
-pytest-xdist
-
 # 문서 환경 도구
-sphinx
-sphinx-rtd-theme
-mkdocs
-mkdocs-material
-
 # 프로파일링 환경 도구
-memory-profiler
-line-profiler
-py-spy
-
 # 모니터링 환경 도구
-prometheus-client
-grafana-api
-
 # 보안 환경 도구
-bandit
-safety
-
 # 코드 품질 환경 도구
-vulture
-radon
-flake8
-mypy
-
 # 성능 환경 도구
-pytest-benchmark
-memory-profiler
-
 # 문서 테스트 환경 도구
-sphinx-testing
-sphinxcontrib-coverage
