@@ -22,7 +22,7 @@ md_output_path: "./output"
 md_staging_path: "./md_staging"
 
 # Unsloth 설정
-max_seq_length: 4096
+max_seq_length: 8192
 formats: ["sharegpt", "alpaca", "openai"]
 train_test_split: 0.9
 
@@ -43,7 +43,7 @@ log_file: "dataset_generation.log"
 # 단계별 실행 설정
 steps:
   - "md_processing"
-  # "qdrant_search"  # Qdrant 서버가 실행되지 않아 일시적으로 비활성화
+  - "qdrant_search"  # Qdrant 서버가 실행되지 않아 일시적으로 비활성화
   - "conversation_generation"
   - "dataset_generation"
   - "quality_validation"

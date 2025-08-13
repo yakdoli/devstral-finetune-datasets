@@ -480,7 +480,7 @@ class ValidationUtils:
         if len(text) < 10:
             issues.append('text_too_short')
             score *= 0.5
-        elif len(text) > 10000:
+        elif len(text) > 20000:
             warnings.append('text_too_long')
             score *= 0.9
         

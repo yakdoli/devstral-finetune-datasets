@@ -48,7 +48,7 @@ class StatisticsAnalyzerConfig:
     
     # 성능 최적화 설정
     batch_size: int = 1000
-    max_workers: int = 4
+    max_workers: int = 8
     use_sampling: bool = False
     sample_size: int = 10000
 

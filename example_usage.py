@@ -53,16 +53,16 @@ def main():
     logger.info("1. 데이터셋 생성기 초기화...")
     generator_config = DatasetConfig(
         target_count=100,
-        max_seq_length=4096,
+        max_seq_length=8192,
         train_test_split=0.9,
         formats=["sharegpt", "alpaca", "openai"],
         min_tokens=50,
-        max_tokens=4096,
+        max_tokens=8192,
         eos_token="</s>",
         remove_duplicates=True,
         quality_threshold=0.7,
         batch_size=10,
-        max_workers=2,
+        max_workers=8,
         seed=42,
         output_dir="output/dataset",
         include_metadata=True,
@@ -76,11 +76,11 @@ def main():
     validator_config = QualityValidatorConfig(
         min_quality_score=0.7,
         max_similarity_threshold=0.9,
-        safety_threshold=0.8,
+        safety_threshold=0,
         enable_auto_correction=True,
         enable_statistics_analysis=True,
         batch_size=10,
-        max_workers=2,
+        max_workers=8,
         output_format="enhanced",
         include_metadata=True,
         generate_report=True

@@ -42,11 +42,11 @@ logger = logging.getLogger(__name__)
 class DatasetConfig:
     """데이터셋 생성 설정"""
     target_count: int = 1000
-    max_seq_length: int = 4096
+    max_seq_length: int = 8192
     train_test_split: float = 0.9
     formats: List[str] = field(default_factory=lambda: ["sharegpt", "alpaca", "openai"])
     min_tokens: int = 50
-    max_tokens: int = 4096
+    max_tokens: int = 8192
     eos_token: str = "</s>"
     remove_duplicates: bool = True
     quality_threshold: float = 0.7
@@ -130,12 +130,12 @@ class UnslothDatasetGenerator:
             "total_samples": len(samples)
         }
         
-        # 중복 제거 (테스트 모드에서는 비활성화)
-        if self.config.remove_duplicates and not self.config.test_mode:
+        # 중복 제거 (테스트 모드에서는 완전히 비활성화)
+        if self.config.test_mode:
+            self.logger.info("Test mode: deduplication disabled to preserve samples")
+        elif self.config.remove_duplicates:
             samples = remove_duplicates(samples)
             self.logger.info(f"After deduplication: {len(samples)} samples")
-        elif self.config.test_mode:
-            self.logger.info("Test mode: deduplication disabled to preserve samples")
         
         # 품질 필터링 (테스트 모드에서는 완화)
         if self.config.test_mode:

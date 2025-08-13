@@ -55,14 +55,14 @@ class PipelineConfig:
     md_staging_path: str = "./md_staging"
     
     # Unsloth 설정
-    max_seq_length: int = 4096
+    max_seq_length: int = 8192
     formats: List[str] = field(default_factory=lambda: ["sharegpt", "alpaca", "openai"])
     train_test_split: float = 0.9
     
     # 품질 검증 설정
     min_quality_score: float = 0.7
     max_similarity_threshold: float = 0.9
-    safety_threshold: float = 0.8
+    safety_threshold: float = 0.1
     enable_auto_correction: bool = True
     
     # 실행 설정

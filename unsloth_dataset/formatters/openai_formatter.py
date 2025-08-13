@@ -24,7 +24,7 @@ class OpenAIConfig:
     eos_token: str = "</s>"
     normalize_whitespace: bool = True
     remove_special_chars: bool = True
-    max_message_length: int = 2048
+    max_message_length: int = 8192
     include_system_message: bool = True
     validate_message_order: bool = True
     quality_threshold: float = 0.5
@@ -289,7 +289,7 @@ class OpenAIFormatter:
         
         # 토큰 수 검증
         total_tokens = self._calculate_total_tokens(messages)
-        if total_tokens > 4096:
+        if total_tokens > 8192:
             self.logger.warning(f"최대 토큰 수 초과: {total_tokens} > 4096")
         
         return True

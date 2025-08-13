@@ -1,9 +1,9 @@
 {
   "dataset_name": "integrated_dataset",
-  "created_at": "2025-08-13T09:00:23.362989",
+  "created_at": "2025-08-13T09:40:41.969930",
   "config": {
     "target_count": 1000,
-    "max_seq_length": 4096,
+    "max_seq_length": 8192,
     "train_test_split": 0.9,
     "formats": [
       "sharegpt",
@@ -22,7 +22,7 @@
     "include_metadata": true,
     "shuffle_data": true,
     "progress_interval": 100,
-    "test_mode": false
+    "test_mode": true
   },
   "total_samples": 10
 }

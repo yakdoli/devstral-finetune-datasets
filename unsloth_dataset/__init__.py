@@ -81,11 +81,11 @@ def create_default_generator() -> UnslothDatasetGenerator:
     """
     config = DatasetConfig(
         target_count=1000,
-        max_seq_length=4096,
+        max_seq_length=8192,
         train_test_split=0.9,
         formats=["sharegpt", "alpaca", "openai"],
         min_tokens=50,
-        max_tokens=4096,
+        max_tokens=8192,
         eos_token="</s>",
         remove_duplicates=True,
         quality_threshold=0.7
@@ -127,11 +127,11 @@ def generate_sample_dataset(
     
     config = DatasetConfig(
         target_count=target_count,
-        max_seq_length=4096,
+        max_seq_length=8192,
         train_test_split=0.9,
         formats=formats,
         min_tokens=50,
-        max_tokens=4096,
+        max_tokens=8192,
         eos_token="</s>",
         remove_duplicates=True,
         quality_threshold=0.7

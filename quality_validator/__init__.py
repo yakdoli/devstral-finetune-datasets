@@ -115,7 +115,7 @@ class QualityValidatorConfig:
     
     # 성능 설정
     batch_size: int = 100
-    max_workers: int = 4
+    max_workers: int = 8
     use_multiprocessing: bool = True
     progress_callback: Optional[callable] = None
     

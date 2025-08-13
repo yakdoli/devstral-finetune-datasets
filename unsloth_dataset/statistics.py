@@ -56,9 +56,9 @@ class StatisticsGenerator:
         self.token_ranges = {
             "very_short": (0, 100),
             "short": (100, 500),
-            "medium": (500, 1000),
-            "long": (1000, 2000),
-            "very_long": (2000, float('inf'))
+            "medium": (500, 1500),
+            "long": (1500, 3000),
+            "very_long": (3000, float('inf'))
         }
     
     def generate_dataset_statistics(

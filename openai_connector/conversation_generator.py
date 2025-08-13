@@ -207,7 +207,7 @@ class ConversationGenerator:
             # API 호출
             response = await self.client.chat_completion(
                 messages=messages,
-                max_tokens=1000,  # 임시 고정값
+                max_tokens=4096,  # 임시 고정값
                 temperature=self.config.temperature
             )
             
@@ -358,9 +358,9 @@ async def test_conversation_generator():
         endpoint="http://123.37.28.120:9997/v1",
         model="qwen2.5-vl-instruct",
         api_key="test-key",
-        max_tokens=1000,
+        max_tokens=4096,
         temperature=0.3,
-        max_concurrent=2
+        max_concurrent=8
     )
     
     prompt_config = PromptConfig(

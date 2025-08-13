@@ -372,6 +372,20 @@ class MDProcessor:
             self.stats.failed_files += 1
             return None
     
+    def process_document(self, md_path: Path, md_metadata, json_metadata=None) -> Optional[Dict[str, Any]]:
+        """
+        단일 문서를 처리합니다.
+        
+        Args:
+            md_path: MD 파일 경로
+            md_metadata: MD 파일 메타데이터
+            json_metadata: JSON 파일 메타데이터 (선택적)
+            
+        Returns:
+            처리된 문서 또는 None (실패 시)
+        """
+        return self._process_single_file(md_path, md_metadata, json_metadata)
+    
     def _save_results(self, documents: List[Dict[str, Any]], output_path: Path):
         """결과를 파일로 저장합니다."""
         try:
@@ -440,8 +454,8 @@ if __name__ == "__main__":
     config = ProcessingConfig(
         batch_size=50,
         min_quality_score=0.1,
-        max_content_length=10000,
-        remove_duplicates=True,
+        max_content_length=20000,
+        remove_duplicates=False
         output_format="json"
     )
     

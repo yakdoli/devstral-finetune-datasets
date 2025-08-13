@@ -122,10 +122,10 @@ async def test_basic_functionality():
             endpoint="http://123.37.28.120:9997/v1",
             model="qwen2.5-vl-instruct",
             api_key="test-key",
-            max_tokens=1000,
+            max_tokens=8192,
             temperature=0.3,
-            max_concurrent=2,
-            batch_size=2
+            max_concurrent=8,
+            batch_size=12
         )
         
         # 연결 테스트
@@ -185,7 +185,7 @@ async def test_component_isolation():
             endpoint="http://123.37.28.120:9997/v1",
             model="qwen2.5-vl-instruct",
             api_key="test-key",
-            max_tokens=1000
+            max_tokens=8192
         )
         
         prompt_config = PromptConfig(
@@ -200,7 +200,7 @@ async def test_component_isolation():
             generation_mode="llm_assisted",
             target_count=2,
             max_turns=3,
-            batch_size=1
+            batch_size=8
         )
         
         # 컴포넌트 생성
@@ -302,10 +302,10 @@ async def test_performance():
             endpoint="http://123.37.28.120:9997/v1",
             model="qwen2.5-vl-instruct",
             api_key="test-key",
-            max_tokens=1000,
+            max_tokens=8192,
             temperature=0.3,
-            max_concurrent=4,
-            batch_size=4
+            max_concurrent=8,
+            batch_size=12
         )
         
         # 대화 생성 성능 측정

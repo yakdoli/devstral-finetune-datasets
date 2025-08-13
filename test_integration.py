@@ -111,11 +111,11 @@ def test_unsloth_dataset_generator():
         # 생성기 생성
         config = DatasetConfig(
             target_count=100,
-            max_seq_length=4096,
+            max_seq_length=8192,
             train_test_split=0.9,
             formats=["sharegpt", "alpaca", "openai"],
             min_tokens=50,
-            max_tokens=4096,
+            max_tokens=8192,
             eos_token="</s>",
             remove_duplicates=True,
             quality_threshold=0.7
@@ -218,11 +218,11 @@ def test_integration():
         # 생성기 생성
         generator_config = DatasetConfig(
             target_count=50,
-            max_seq_length=4096,
+            max_seq_length=8192,
             train_test_split=0.9,
             formats=["sharegpt", "alpaca", "openai"],
             min_tokens=50,
-            max_tokens=4096,
+            max_tokens=8192,
             eos_token="</s>",
             remove_duplicates=True,
             quality_threshold=0.7

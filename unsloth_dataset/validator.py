@@ -60,8 +60,8 @@ class UnslothValidator:
                 },
                 "token_limits": {
                     "min_total_tokens": 50,
-                    "max_total_tokens": 4096,
-                    "max_conversation_length": 4096
+                    "max_total_tokens": 8192,
+                    "max_conversation_length": 8192
                 }
             },
             "alpaca": {
@@ -71,8 +71,8 @@ class UnslothValidator:
                     "min_instruction_tokens": 10,
                     "max_instruction_tokens": 512,
                     "max_input_tokens": 1024,
-                    "max_output_tokens": 2048,
-                    "max_total_tokens": 4096
+                    "max_output_tokens": 8192,
+                    "max_total_tokens": 8192
                 }
             },
             "openai": {
@@ -84,8 +84,8 @@ class UnslothValidator:
                 },
                 "token_limits": {
                     "min_total_tokens": 50,
-                    "max_total_tokens": 4096,
-                    "max_message_length": 2048
+                    "max_total_tokens": 8192,
+                    "max_message_length": 8192
                 }
             }
         }

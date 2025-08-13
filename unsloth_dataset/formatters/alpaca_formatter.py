@@ -25,7 +25,7 @@ class AlpacaConfig:
     remove_special_chars: bool = True
     max_instruction_length: int = 512
     max_input_length: int = 1024
-    max_output_length: int = 2048
+    max_output_length: int = 8192
     include_empty_input: bool = True
     quality_threshold: float = 0.5
 
@@ -259,7 +259,7 @@ class AlpacaFormatter:
         
         # 토큰 수 검증
         total_tokens = self._calculate_total_tokens(data)
-        if total_tokens > 4096:  # Alpaca 최대 토큰 수
+        if total_tokens > 8192:  # Alpaca 최대 토큰 수
             self.logger.warning(f"최대 토큰 수 초과: {total_tokens} > 4096")
         
         return True

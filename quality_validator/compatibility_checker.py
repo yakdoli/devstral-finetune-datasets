@@ -34,7 +34,7 @@ class CompatibilityCheckerConfig:
     
     # 메모리 효율성 검증 설정
     memory_efficiency_check: bool = True
-    max_memory_usage_mb: int = 8192
+    max_memory_usage_mb: int = 10240
     optimization_level: str = "4bit"  # 4bit, 8bit, 16bit
     
     # 포맷 호환성 검증 설정

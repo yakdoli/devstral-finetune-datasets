@@ -26,8 +26,8 @@ class TokenConfig:
     """토큰 관리 설정"""
     max_context_length: int = 128000
     max_request_tokens: int = 32000
-    rate_limit_rpm: int = 60  # requests per minute
-    rate_limit_tpm: int = 100000  # tokens per minute
+    rate_limit_rpm: int = 600  # requests per minute
+    rate_limit_tpm: int = 1000000  # tokens per minute
     token_buffer: float = 0.9  # 90% 사용 시 경고
     enable_optimization: bool = True
     track_usage_history: bool = True

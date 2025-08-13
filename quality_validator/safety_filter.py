@@ -33,7 +33,7 @@ class SafetyFilterConfig:
     
     # 콘텐츠 길이 제한
     min_content_length: int = 10
-    max_content_length: int = 10000
+    max_content_length: int = 50000
     
     # 필터링 모드
     strict_mode: bool = True

@@ -24,7 +24,7 @@ class ShareGPTConfig:
     eos_token: str = "</s>"
     normalize_whitespace: bool = True
     remove_special_chars: bool = True
-    max_conversation_length: int = 4096
+    max_conversation_length: int = 8192
 
 
 class ShareGPTFormatter:

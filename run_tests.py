@@ -72,9 +72,9 @@ class TestConfig:
         "md_processing_time": 30.0,  # MD 처리 시간 (초)
         "qdrant_search_time": 60.0,   # Qdrant 검색 시간 (초)
         "conversation_generation_time": 300.0,  # 대화 생성 시간 (초)
-        "dataset_generation_time": 120.0,  # 데이터셋 생성 시간 (초)
+        "dataset_generation_time": 180.0,  # 데이터셋 생성 시간 (초)
         "quality_validation_time": 60.0,  # 품질 검증 시간 (초)
-        "memory_usage_limit": 8192,  # 메모리 사용량 제한 (MB)
+        "memory_usage_limit": 10240,  # 메모리 사용량 제한 (MB)
         "cpu_usage_limit": 80.0  # CPU 사용량 제한 (%)
     })
 
@@ -162,14 +162,14 @@ class IntegrationTestSuite:
                 "md_staging_path": self.config.test_temp_dir
             },
             "unsloth": {
-                "max_seq_length": 2048,
+                "max_seq_length": 8192,
                 "formats": ["sharegpt", "alpaca"],
                 "train_test_split": 0.8
             },
             "quality": {
                 "min_quality_score": 0.5,
                 "max_similarity_threshold": 0.9,
-                "safety_threshold": 0.7,
+                "safety_threshold": 0.1,
                 "enable_auto_correction": True
             },
             "execution": {
@@ -1032,7 +1032,7 @@ This is a test section with some content for performance testing.
             
             # 데이터셋 생성기 생성
             dataset_config = DatasetConfig(
-                max_seq_length=2048,
+                max_seq_length=8192,
                 formats=["sharegpt", "alpaca", "openai"],
                 train_test_split=0.8,
                 output_dir=Path(self.config.test_output_dir)

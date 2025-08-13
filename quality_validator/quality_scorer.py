@@ -22,7 +22,7 @@ class QualityScorerConfig:
     # 내용 품질 설정
     content_quality_enabled: bool = True
     min_content_length: int = 10
-    max_content_length: int = 10000
+    max_content_length: int = 50000
     min_sentence_count: int = 1
     min_word_count: int = 5
     
