@@ -14,7 +14,7 @@ import logging
 class PromptConfig:
     """프롬프트 설정"""
     # 시스템 프롬프트 템플릿
-    system_prompt_template: str = "당신은 Syncfusion WinForms 전문가입니다. 사용자의 질문에 정확하고 도움이 되는 답변을 제공해주세요."
+    system_prompt_template: str = "You are a Syncfusion WinForms expert. Please provide accurate and helpful answers to user questions."
     
     # 생성 모드
     generation_mode: str = "balanced"  # "detailed", "concise", "balanced"
@@ -39,7 +39,7 @@ class PromptConfig:
 class PromptEngineConfig:
     """프롬프트 엔진 설정"""
     # 시스템 프롬프트 템플릿
-    system_prompt_template: str = "당신은 Syncfusion WinForms 전문가입니다. 사용자의 질문에 정확하고 도움이 되는 답변을 제공해주세요."
+    system_prompt_template: str = "You are a Syncfusion WinForms expert. Please provide accurate and helpful answers to user questions."
     
     # 생성 모드
     generation_mode: str = "balanced"  # "detailed", "concise", "balanced"
@@ -70,68 +70,68 @@ class PromptEngine:
         # Syncfusion WinForms 전용 프롬프트 템플릿
         self.templates = {
             "system": self.config.system_prompt_template,
-            "system_detailed": """당신은 Syncfusion WinForms 전문가입니다. 다음 지침을 따라 답변해주세요:
-1. 정확하고 실용적인 정보를 제공하세요
-2. 코드 예시는 C# WinForms 기반으로 작성하세요
-3. 단계별 설명을 포함하세요
-4. 일반적인 문제와 해결책을 언급하세요
-5. 최신 버전의 Syncfusion 기능을 반영하세요""",
+            "system_detailed": """You are a Syncfusion WinForms expert. Please follow these guidelines when answering:
+1. Provide accurate and practical information
+2. Write code examples based on C# WinForms
+3. Include step-by-step explanations
+4. Mention common problems and solutions
+5. Reflect the latest Syncfusion features""",
             
-            "question_generation": """다음 Syncfusion WinForms 문서를 기반으로 실제 개발자가 궁금해할 만한 자연스러운 질문을 생성해주세요:
+            "question_generation": """Based on the following Syncfusion WinForms documentation, please generate natural questions that actual developers would be curious about:
 
-문서 내용: {content}
-컴포넌트: {component}
+Document content: {content}
+Component: {component}
 
-질문은 다음 유형 중 하나여야 합니다:
-- 기본 사용법 문의
-- 고급 기능 활용법
-- 문제 해결 방법
-- 성능 최적화
-- 커스터마이징 방법""",
+The question should be one of the following types:
+- Basic usage inquiry
+- Advanced feature utilization
+- Problem solving methods
+- Performance optimization
+- Customization methods""",
             
-            "answer_generation": """다음 Syncfusion WinForms 문서 내용을 바탕으로 전문적이고 실용적인 답변을 생성해주세요:
+            "answer_generation": """Based on the following Syncfusion WinForms documentation content, please generate professional and practical answers:
 
-문서 내용: {content}
-컴포넌트: {component}
-질문 유형: {question_type}
+Document content: {content}
+Component: {component}
+Question type: {question_type}
 
-답변에 포함할 요소:
-1. 명확한 설명
-2. C# 코드 예시 (가능한 경우)
-3. 주의사항 또는 팁
-4. 관련 속성이나 메서드 언급""",
+Elements to include in the answer:
+1. Clear explanation
+2. C# code examples (when possible)
+3. Precautions or tips
+4. Mention related properties or methods""",
             
-            "code_example": """다음 요구사항에 맞는 Syncfusion WinForms C# 코드 예시를 생성해주세요:
+            "code_example": """Please generate a Syncfusion WinForms C# code example that meets the following requirements:
 
-요구사항: {requirement}
-컴포넌트: {component}
+Requirements: {requirement}
+Component: {component}
 
-코드는 다음을 포함해야 합니다:
-1. 필요한 using 문
-2. 컴포넌트 초기화
-3. 주요 속성 설정
-4. 이벤트 핸들러 (필요한 경우)
-5. 주석으로 설명""",
+The code should include:
+1. Required using statements
+2. Component initialization
+3. Key property settings
+4. Event handlers (if needed)
+5. Explanatory comments""",
             
-            "conversation_starter": """다음 Syncfusion WinForms 컴포넌트에 대한 대화를 시작하는 자연스러운 질문을 생성해주세요:
+            "conversation_starter": """Please generate a natural question to start a conversation about the following Syncfusion WinForms component:
 
-컴포넌트: {component}
-문서 내용: {content}
-난이도: {difficulty}
+Component: {component}
+Document content: {content}
+Difficulty: {difficulty}
 
-질문은 실제 개발 상황에서 나올 법한 것이어야 합니다.""",
+The question should be something that would come up in actual development situations.""",
             
-            "follow_up": """이전 대화를 바탕으로 자연스러운 후속 질문을 생성해주세요:
+            "follow_up": """Based on the previous conversation, please generate a natural follow-up question:
 
-이전 질문: {previous_question}
-이전 답변: {previous_answer}
-컴포넌트: {component}
+Previous question: {previous_question}
+Previous answer: {previous_answer}
+Component: {component}
 
-후속 질문은 다음 중 하나여야 합니다:
-- 더 구체적인 사용법 문의
-- 관련 기능에 대한 질문
-- 실제 구현 시 발생할 수 있는 문제
-- 성능이나 최적화 관련 질문"""
+The follow-up question should be one of the following:
+- More specific usage inquiry
+- Questions about related features
+- Problems that may occur during actual implementation
+- Performance or optimization related questions"""
         }
     
     def generate_system_prompt(self) -> str:
@@ -183,7 +183,7 @@ class PromptEngine:
         # 첫 번째 질문 생성을 위한 프롬프트
         prompts.append({
             "role": "user",
-            "content": f"{component} 컴포넌트를 처음 사용하는데, 기본적인 설정 방법과 주요 속성들에 대해 알고 싶습니다."
+            "content": f"I'm using the {component} component for the first time. I'd like to know about basic setup methods and key properties."
         })
         
         return prompts
@@ -194,11 +194,11 @@ class PromptEngine:
         content = document.get('content', '')
         
         question_templates = {
-            "basic": f"{component}의 기본 사용법과 초기 설정 방법을 알려주세요.",
-            "advanced": f"{component}의 고급 기능과 커스터마이징 옵션에 대해 설명해주세요.",
-            "troubleshooting": f"{component} 사용 중 자주 발생하는 문제와 해결 방법을 알려주세요.",
-            "performance": f"{component}의 성능을 최적화하는 방법과 모범 사례를 알려주세요.",
-            "integration": f"{component}를 다른 컴포넌트와 함께 사용할 때 주의사항이 있나요?"
+            "basic": f"Please tell me about the basic usage and initial setup methods for {component}.",
+            "advanced": f"Please explain the advanced features and customization options of {component}.",
+            "troubleshooting": f"Please tell me about common problems and solutions when using {component}.",
+            "performance": f"Please tell me about methods and best practices for optimizing {component} performance.",
+            "integration": f"Are there any precautions when using {component} with other components?"
         }
         
         return question_templates.get(question_type, question_templates["basic"])
@@ -209,7 +209,7 @@ class PromptEngine:
         content = document.get('content', '')
         
         return self.templates["answer_generation"].format(
-            content=content[:1000] if content else f"{component} 관련 정보",
+            content=content[:1000] if content else f"{component} related information",
             component=component,
             question_type=question_type
         )
@@ -232,11 +232,11 @@ class PromptEngine:
         examples.append([
             {
                 "role": "user",
-                "content": f"{document.get('component', 'GridControl')} 컴포넌트의 기본 사용법을 알려주세요."
+                "content": f"Please tell me about the basic usage of the {document.get('component', 'GridControl')} component."
             },
             {
                 "role": "assistant",
-                "content": f"{document.get('component', 'GridControl')}를 사용하려면 먼저 필요한 네임스페이스를 추가하고, 컴포넌트를 폼에 배치한 후 DataSource 속성을 설정해야 합니다. 기본적인 설정 코드는 다음과 같습니다: 네임스페이스 추가, 컴포넌트 생성, DataSource 설정, 컬럼 설정을 순서대로 진행합니다."
+                "content": f"To use {document.get('component', 'GridControl')}, you first need to add the necessary namespaces, place the component on the form, and then set the DataSource property. The basic setup code follows this order: add namespaces, create component, set DataSource, and configure columns."
             }
         ])
         
@@ -244,11 +244,11 @@ class PromptEngine:
         examples.append([
             {
                 "role": "user",
-                "content": f"{document.get('component', 'GridControl')}에서 데이터가 표시되지 않는 문제가 발생합니다. 해결 방법을 알려주세요."
+                "content": f"I'm having an issue where data is not displaying in {document.get('component', 'GridControl')}. Please tell me how to solve this."
             },
             {
                 "role": "assistant", 
-                "content": "데이터가 표시되지 않는 문제는 여러 가지 원인으로 발생할 수 있습니다: DataSource 설정 확인, MappingName 설정, AutoGenerateColumns 설정, 데이터 소스 유효성 확인 등을 점검해야 합니다."
+                "content": "The issue of data not displaying can occur due to several reasons: you need to check DataSource settings, MappingName settings, AutoGenerateColumns settings, and data source validity."
             }
         ])
         
@@ -265,9 +265,9 @@ class PromptEngine:
         
         # 품질 향상을 위한 프롬프트 확장
         if self.config.generation_mode == "detailed":
-            prompt += "\\n\\n답변은 구체적이고 상세하게 제공해주세요. 코드 예시를 포함하는 것이 좋습니다."
+            prompt += "\\n\\nPlease provide specific and detailed answers. It's good to include code examples."
         elif self.config.generation_mode == "concise":
-            prompt += "\\n\\n답변은 간결하고 핵심적인 내용만 포함해주세요."
+            prompt += "\\n\\nPlease provide concise answers with only essential content."
         
         return prompt
     
@@ -306,7 +306,7 @@ class PromptEngine:
             answer_prompt = self.generate_contextual_answer(document, question, question_type)
             conversation.append({
                 "role": "assistant",
-                "content": f"{component}에 대한 {question_type} 질문에 대한 전문적인 답변을 제공하겠습니다."
+                "content": f"I will provide a professional answer to the {question_type} question about {component}."
             })
         
         return conversation
@@ -360,8 +360,8 @@ class PromptEngine:
             "length": len(prompt),
             "has_component": any(comp in prompt for comp in ["GridControl", "ChartControl", "TreeViewAdv"]),
             "has_code_context": "C#" in prompt or "코드" in prompt,
-            "has_specific_terms": any(term in prompt for term in ["속성", "메서드", "이벤트", "설정"]),
-            "is_question_format": "?" in prompt or "알려주세요" in prompt or "설명해주세요" in prompt
+            "has_specific_terms": any(term in prompt for term in ["property", "method", "event", "setting", "속성", "메서드", "이벤트", "설정"]),
+            "is_question_format": "?" in prompt or "please" in prompt.lower() or "how" in prompt.lower() or "알려주세요" in prompt or "설명해주세요" in prompt
         }
         
         # 품질 점수 계산 (0-100)

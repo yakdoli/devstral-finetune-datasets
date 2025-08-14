@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-08-13T18:20:17.841836",
+  "test_type": "simple_integration",
+  "summary": {
+    "total_tests": 23,
+    "passed": 23,
+    "failed": 0,
+    "success_rate": 1.0
+  },
+  "detailed_results": {
+    "module_imports": {
+      "md_processor": "success",
+      "openai_connector": "success",
+      "qdrant_connector": "success",
+      "unsloth_dataset": "success",
+      "quality_validator": "success",
+      "async_pipeline": "success",
+      "logging_system": "success",
+      "config": "success"
+    },
+    "file_structure": {
+      "file_config.yaml": "exists",
+      "file_requirements.txt": "exists",
+      "file_main.py": "exists",
+      "dir_md_processor": "exists",
+      "dir_openai_connector": "exists",
+      "dir_qdrant_connector": "exists",
+      "dir_unsloth_dataset": "exists",
+      "dir_quality_validator": "exists",
+      "dir_md_staging": "exists",
+      "dir_output": "exists"
+    },
+    "basic_functionality": {
+      "md_processor_creation": "success",
+      "openai_connector_creation": "success",
+      "unsloth_generator_creation": "success"
+    },
+    "data_processing": {
+      "sharegpt_formatting": "success",
+      "alpaca_formatting": "success"
+    }
+  }
+}

@@ -12,8 +12,22 @@ from .generator import (
 from .formatters.sharegpt_formatter import ShareGPTFormatter
 from .formatters.alpaca_formatter import AlpacaFormatter
 from .formatters.openai_formatter import OpenAIFormatter
+from .chat_templates import (
+    UnslothChatTemplateManager,
+    ChatTemplateType,
+    ChatTemplateConfig,
+    create_chat_template_manager,
+    get_chat_template,
+    format_conversations_for_training
+)
 from .validator import UnslothValidator, ValidationResult
 from .statistics import DatasetStatistics, StatisticsGenerator
+from .component_organizer import (
+    ComponentOrganizer,
+    OrganizationConfig,
+    ComponentDataset,
+    ComponentHierarchy
+)
 from .utils import (
     setup_logging,
     normalize_text,
@@ -36,13 +50,23 @@ __all__ = [
     # Main Generator
     'UnslothDatasetGenerator',
     'DatasetConfig',
+    'UnslothDatasetConfig',
     'DatasetGenerationResult',
     'create_dataset_generator',
+    'create_unsloth_generator',
     
     # Formatters
     'ShareGPTFormatter',
     'AlpacaFormatter', 
     'OpenAIFormatter',
+    
+    # Chat Templates
+    'UnslothChatTemplateManager',
+    'ChatTemplateType',
+    'ChatTemplateConfig',
+    'create_chat_template_manager',
+    'get_chat_template',
+    'format_conversations_for_training',
     
     # Validator
     'UnslothValidator',
@@ -51,6 +75,12 @@ __all__ = [
     # Statistics
     'DatasetStatistics',
     'StatisticsGenerator',
+    
+    # Component Organization
+    'ComponentOrganizer',
+    'OrganizationConfig',
+    'ComponentDataset',
+    'ComponentHierarchy',
     
     # Utils
     'setup_logging',
@@ -91,6 +121,70 @@ def create_default_generator() -> UnslothDatasetGenerator:
         quality_threshold=0.7
     )
     return create_dataset_generator(config)
+
+
+# UnslothDatasetConfig 클래스 정의
+class UnslothDatasetConfig:
+    """Unsloth 데이터셋 설정 클래스"""
+    
+    def __init__(self, formats=None, output_dir="output", train_split=0.8, 
+                 enable_validation=True, target_count=1000, max_seq_length=8192,
+                 min_tokens=50, max_tokens=8192, eos_token="</s>", 
+                 remove_duplicates=True, quality_threshold=0.7):
+        self.formats = formats or ["sharegpt", "alpaca", "openai"]
+        self.output_dir = output_dir
+        self.train_split = train_split
+        self.enable_validation = enable_validation
+        self.target_count = target_count
+        self.max_seq_length = max_seq_length
+        self.min_tokens = min_tokens
+        self.max_tokens = max_tokens
+        self.eos_token = eos_token
+        self.remove_duplicates = remove_duplicates
+        self.quality_threshold = quality_threshold
+
+
+def create_unsloth_generator(config=None) -> UnslothDatasetGenerator:
+    """
+    Unsloth 데이터셋 생성기를 생성합니다.
+    
+    Args:
+        config: UnslothDatasetConfig 또는 DatasetConfig 인스턴스
+        
+    Returns:
+        생성된 UnslothDatasetGenerator 인스턴스
+    """
+    if config is None:
+        # 기본 설정 사용
+        dataset_config = DatasetConfig(
+            target_count=1000,
+            max_seq_length=8192,
+            train_test_split=0.9,
+            formats=["sharegpt", "alpaca", "openai"],
+            min_tokens=50,
+            max_tokens=8192,
+            eos_token="</s>",
+            remove_duplicates=True,
+            quality_threshold=0.7
+        )
+    elif hasattr(config, 'formats'):
+        # UnslothDatasetConfig 타입인 경우
+        dataset_config = DatasetConfig(
+            target_count=getattr(config, 'target_count', 1000),
+            max_seq_length=getattr(config, 'max_seq_length', 8192),
+            train_test_split=getattr(config, 'train_split', 0.9),
+            formats=getattr(config, 'formats', ["sharegpt", "alpaca", "openai"]),
+            min_tokens=getattr(config, 'min_tokens', 50),
+            max_tokens=getattr(config, 'max_tokens', 8192),
+            eos_token=getattr(config, 'eos_token', "</s>"),
+            remove_duplicates=getattr(config, 'remove_duplicates', True),
+            quality_threshold=getattr(config, 'quality_threshold', 0.7)
+        )
+    else:
+        # DatasetConfig 타입인 경우
+        dataset_config = config
+    
+    return create_dataset_generator(dataset_config)
 
 
 def create_dataset_generator(config: DatasetConfig) -> UnslothDatasetGenerator:

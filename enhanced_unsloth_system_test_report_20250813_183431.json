@@ -1,0 +1,40 @@
+{
+  "timestamp": "2025-08-13T18:34:31.842676",
+  "test_type": "enhanced_unsloth_system_test",
+  "results": {
+    "chat_template_manager": "✓ 성공",
+    "enhanced_dataset_generator": "✓ 성공",
+    "unsloth_compatibility": "3/3 포맷 호환",
+    "template_applications": 2,
+    "total_generated_items": 3,
+    "success_rate": "600.0%"
+  },
+  "compatibility_details": {
+    "sharegpt": {
+      "compatible": true,
+      "issues": []
+    },
+    "alpaca": {
+      "compatible": true,
+      "issues": []
+    },
+    "openai": {
+      "compatible": true,
+      "issues": []
+    }
+  },
+  "files_generated": {
+    "sharegpt": {
+      "train": "enhanced_unsloth_output/enhanced_dataset_sharegpt_train_20250813_183431.jsonl",
+      "validation": "enhanced_unsloth_output/enhanced_dataset_sharegpt_val_20250813_183431.jsonl",
+      "all": "enhanced_unsloth_output/enhanced_dataset_sharegpt_all_20250813_183431.jsonl"
+    },
+    "alpaca": {},
+    "openai": {}
+  },
+  "recommendations": [
+    "모든 포맷이 Unsloth와 호환됩니다 - 즉시 파인튜닝 가능",
+    "채팅 템플릿이 성공적으로 적용됨 - 다양한 모델 아키텍처 지원",
+    "Context7 MCP 기반 고품질 데이터로 우수한 훈련 결과 예상"
+  ]
+}

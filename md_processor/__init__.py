@@ -46,6 +46,8 @@ __all__ = [
     # Processor
     'MDProcessor',
     'create_processor',
+    'create_md_processor',
+    'MDProcessorConfig',
     'ProcessingConfig',
     'ProcessingStats',
     
@@ -72,6 +74,68 @@ __all__ = [
     '__email__',
     '__description__'
 ]
+
+
+def create_md_processor(config=None) -> MDProcessor:
+    """
+    MD 프로세서를 생성합니다.
+    
+    Args:
+        config: MDProcessorConfig 또는 ProcessingConfig 인스턴스
+        
+    Returns:
+        생성된 MDProcessor 인스턴스
+    """
+    if config is None:
+        # 기본 설정 사용
+        processing_config = ProcessingConfig(
+            batch_size=100,
+            min_quality_score=0.1,
+            max_content_length=50000,
+            remove_duplicates=True,
+            output_format="json",
+            include_metadata=True,
+            progress_interval=10
+        )
+    elif hasattr(config, 'base_paths'):
+        # MDProcessorConfig 타입인 경우
+        processing_config = ProcessingConfig(
+            batch_size=getattr(config, 'batch_size', 100),
+            min_quality_score=getattr(config, 'min_quality_score', 0.1),
+            max_content_length=getattr(config, 'max_content_length', 50000),
+            remove_duplicates=getattr(config, 'remove_duplicates', True),
+            output_format=getattr(config, 'output_format', "json"),
+            include_metadata=getattr(config, 'include_metadata', True),
+            progress_interval=getattr(config, 'progress_interval', 10)
+        )
+    else:
+        # ProcessingConfig 타입인 경우
+        processing_config = config
+    
+    return create_processor(processing_config)
+
+
+# MDProcessorConfig 클래스 정의
+class MDProcessorConfig:
+    """MD 프로세서 설정 클래스"""
+    
+    def __init__(self, base_paths=None, output_path="output", max_files=None, 
+                 enable_api_extraction=True, enable_code_extraction=True,
+                 batch_size=100, min_quality_score=0.1, max_content_length=50000,
+                 remove_duplicates=True, output_format="json", include_metadata=True,
+                 progress_interval=10):
+        self.base_paths = base_paths or ["md_staging"]
+        self.output_path = output_path
+        self.max_files = max_files
+        self.enable_api_extraction = enable_api_extraction
+        self.enable_code_extraction = enable_code_extraction
+        self.batch_size = batch_size
+        self.min_quality_score = min_quality_score
+        self.max_content_length = max_content_length
+        self.remove_duplicates = remove_duplicates
+        self.output_format = output_format
+        self.include_metadata = include_metadata
+        self.progress_interval = progress_interval
 
 
 def create_default_processor() -> MDProcessor:

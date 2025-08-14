@@ -1,0 +1,38 @@
+[
+  {
+    "title": "GridControl 셀 병합 설정",
+    "description": "GridControl에서 기본 병합 동작을 특정 그리드 스타일에 적용하는 방법",
+    "source": "https://github.com/syncfusion/winforms-demos/blob/master/gridcontrol/Dynamic Formatting/Virtual Merge Cell Demo/CS/Readme.txt",
+    "language": "C#",
+    "code": "GridStyleInfo standardStyle = BaseStylesMap[\"Standard\"].StyleInfo;\nstandardStyle.MergeCell = GridMergeCellDirection.RowsInColumn;\n\nGridStyleInfo rowHeaderStyle = BaseStylesMap[\"Row Header\"].StyleInfo;\nrowHeaderStyle.MergeCell = GridMergeCellDirection.RowsInColumn;",
+    "category": "GridControl",
+    "complexity": "Intermediate"
+  },
+  {
+    "title": "온디맨드 셀 병합 활성화",
+    "description": "그리드의 옵션을 설정하여 셀 병합 기능을 활성화하는 방법",
+    "source": "https://github.com/syncfusion/winforms-demos/blob/master/gridcontrol/Dynamic Formatting/Virtual Merge Cell Demo/CS/Readme.txt",
+    "language": "C#",
+    "code": "Options.MergeCellsMode = GridMergeCellsMode.OnDemandCalculation|GridMergeCellsMode.MergeRowsInColumn;",
+    "category": "GridControl",
+    "complexity": "Intermediate"
+  },
+  {
+    "title": "HTMLUI 컨트롤 이벤트",
+    "description": "HTMLUI 컨트롤에서 발생하는 이벤트들의 목록",
+    "source": "https://github.com/syncfusion/winforms-demos/blob/master/htmlui/Events/Control Events/CS/display.htm",
+    "language": "APIDOC",
+    "code": "HTMLUI Control Events:\n  TitleChanged\n  ShowTitleChanged\n  LoadFinished\n  LoadStarted\n  LoadError\n  PreRenderDocument",
+    "category": "HTMLUI",
+    "complexity": "Beginner"
+  },
+  {
+    "title": "HTMLUI C# 스크립팅",
+    "description": "HTMLUI 애플리케이션에서 C# 스크립트를 사용하여 HTML 요소를 조작하는 방법",
+    "source": "https://github.com/syncfusion/winforms-demos/blob/master/htmlui/HTML Renderer/Scripting/CS/scripting.htm",
+    "language": "C#",
+    "code": "using System;\nusing Syncfusion.Windows.Forms.HTMLUI;\n\npublic class Script\n{\n    IHTMLElement txtText = null;\n    IHTMLElement btnRun = null;\n    IHTMLElement elmCustom = null;\n    \n    public static Script OnScriptStart()\n    {\n        return new Script();\n    }\n    \n    public Script()\n    {\n        txtText = Global.Document.GetElementByUserId(\"btn\");\n        btnRun = Global.Document.GetElementByUserId(\"txt\");\n        elmCustom = Global.Document.GetElementByUserId(\"custom\");\n        btnRun.Click += new EventHandler(CScustom_Run);\n    }\n    \n    public void CScustom_Run(object sender, EventArgs args)\n    {\n        if(elmCustom == null) return;\n        INPUTElementImpl txtElm = txtText as INPUTElementImpl;\n        elmCustom.InnerHTML = txtElm.UserControl.CustomControl.Text.Replace(\":-)\", \"<img src='smile.bmp'>\");\n    }\n}",
+    "category": "HTMLUI",
+    "complexity": "Advanced"
+  }
+]

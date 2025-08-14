@@ -1,0 +1,84 @@
+{
+  "test_info": {
+    "timestamp": "2025-08-13T18:09:57.795655",
+    "total_duration_seconds": 0.004426,
+    "test_type": "final_integration_comprehensive",
+    "test_modules": [
+      "test_complete_pipeline_integration",
+      "test_performance_validation",
+      "test_unsloth_compatibility"
+    ]
+  },
+  "summary": {
+    "total_tests": 3,
+    "passed": 0,
+    "failed": 3,
+    "skipped": 0,
+    "total_duration": 0.004426
+  },
+  "system_readiness": {
+    "overall_score": 0.0,
+    "readiness_grade": "Not Ready",
+    "individual_checks": {
+      "tests_passing": false,
+      "performance_acceptable": false,
+      "compatibility_verified": false,
+      "pipeline_functional": false,
+      "environment_configured": false
+    },
+    "critical_issues": true,
+    "performance_issues": true,
+    "compatibility_issues": true
+  },
+  "performance_metrics": {
+    "overall_score": 0,
+    "performance_grade": "N/A",
+    "max_throughput": 0,
+    "memory_efficiency": 0,
+    "scalability_stability": 0
+  },
+  "compatibility_metrics": {
+    "overall_score": 0,
+    "compatibility_grade": "N/A",
+    "ready_for_training": false,
+    "data_structure_valid": false,
+    "format_compliant": false
+  },
+  "pipeline_metrics": {
+    "status": "unknown",
+    "modules_tested": 0,
+    "environment_ready": false
+  },
+  "detailed_test_results": {
+    "pipeline_integration": {
+      "status": "failed",
+      "start_time": "2025-08-13T18:09:57.795679",
+      "duration": 0,
+      "report_file": null,
+      "error": "unindent does not match any outer indentation level (test_complete_pipeline_integration.py, line 28)"
+    },
+    "performance_validation": {
+      "status": "failed",
+      "start_time": "2025-08-13T18:09:57.796698",
+      "duration": 0,
+      "report_file": null,
+      "error": "unindent does not match any outer indentation level (test_performance_validation.py, line 150)"
+    },
+    "unsloth_compatibility": {
+      "status": "failed",
+      "start_time": "2025-08-13T18:09:57.798074",
+      "duration": 0,
+      "report_file": null,
+      "error": "unindent does not match any outer indentation level (test_unsloth_compatibility.py, line 331)"
+    }
+  },
+  "recommendations": [
+    "실패한 테스트 3개 해결 필요 - 상세 로그 확인",
+    "성능 개선 필요 (현재: 0.0/100) - 처리량 및 메모리 최적화",
+    "Unsloth 호환성 이슈 해결 필요 - 데이터 포맷 및 구조 검토",
+    "파이프라인 통합 이슈 해결 필요 - 모듈 간 연동 확인",
+    "환경 설정 완료 필요 - 필수 모듈 및 설정 파일 확인",
+    "이슈 해결 후 재테스트 실행 권장"
+  ],
+  "report_files": {}
+}

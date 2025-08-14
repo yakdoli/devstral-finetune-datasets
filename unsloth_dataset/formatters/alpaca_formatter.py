@@ -113,6 +113,19 @@ class AlpacaFormatter:
         
         return alpaca_sample
     
+    def format(self, samples: List[Dict[str, Any]], include_metadata: bool = True) -> List[Dict[str, Any]]:
+        """
+        샘플 데이터를 Alpaca 포맷으로 변환합니다.
+        
+        Args:
+            samples: 변환할 샘플 데이터 목록
+            include_metadata: 메타데이터 포함 여부
+            
+        Returns:
+            Alpaca 포맷으로 변환된 데이터 목록
+        """
+        return self.format_batch(samples, include_metadata)
+    
     def format_batch(
         self, 
         samples: List[Dict[str, Any]], 

@@ -1,0 +1,58 @@
+{
+  "timestamp": "2025-08-13T18:21:43.837450",
+  "test_type": "final_verification",
+  "duration_seconds": 0.148749,
+  "summary": {
+    "total_tests": 19,
+    "passed_tests": 10,
+    "failed_tests": 9,
+    "success_rate": 52.63157894736842
+  },
+  "detailed_results": {
+    "core_functionality": {
+      "module_loading": {
+        "md_processor": "success",
+        "openai_connector": "success",
+        "unsloth_dataset": "success"
+      },
+      "basic_operations": {
+        "md_processor_creation": "success",
+        "openai_client_creation": "success",
+        "unsloth_generator_creation": "success"
+      },
+      "data_processing": {
+        "sharegpt_formatting": "success",
+        "alpaca_formatting": "success"
+      },
+      "format_conversion": {
+        "sharegpt_validation": "success",
+        "alpaca_validation": "success"
+      }
+    },
+    "performance": {
+      "sharegpt_throughput": {
+        "items_processed": 10,
+        "processing_time": 6.198883056640625e-05,
+        "throughput_items_per_sec": 161319.38461538462
+      }
+    },
+    "compatibility": {
+      "sharegpt_compatibility": {
+        "has_required_fields": true,
+        "valid_structure": true,
+        "compatible": true
+      },
+      "alpaca_compatibility": {
+        "has_required_fields": true,
+        "valid_types": true,
+        "compatible": true
+      }
+    }
+  },
+  "system_status": {
+    "core_modules_working": true,
+    "basic_operations_working": true,
+    "data_processing_working": true,
+    "unsloth_compatible": true
+  }
+}

@@ -34,6 +34,7 @@ from .utils import (
     calculate_diversity_score,
     validate_token_range
 )
+from .component_organizer import ComponentOrganizer, OrganizationConfig, ComponentDataset
 
 logger = logging.getLogger(__name__)
 
@@ -58,6 +59,12 @@ class DatasetConfig:
     shuffle_data: bool = True
     progress_interval: int = 100
     test_mode: bool = False
+    
+    # 컴포넌트 조직화 설정
+    enable_component_organization: bool = True
+    component_organization: OrganizationConfig = field(default_factory=OrganizationConfig)
+    create_component_specific_datasets: bool = True
+    create_category_specific_datasets: bool = True
 
 
 @dataclass
@@ -69,6 +76,14 @@ class DatasetGenerationResult:
     metadata: Dict[str, Any] = field(default_factory=dict)
     validation_results: Dict[str, Any] = field(default_factory=dict)
     output_paths: Dict[str, str] = field(default_factory=dict)
+    
+    # 컴포넌트 조직화 결과
+    component_datasets: Dict[str, ComponentDataset] = field(default_factory=dict)
+    category_datasets: Dict[str, List[ComponentDataset]] = field(default_factory=dict)
+    component_train_data: Dict[str, Dict[str, List[Dict[str, Any]]]] = field(default_factory=dict)
+    component_validation_data: Dict[str, Dict[str, List[Dict[str, Any]]]] = field(default_factory=dict)
+    category_specific_data: Dict[str, Dict[str, List[Dict[str, Any]]]] = field(default_factory=dict)
+    organization_report: Dict[str, Any] = field(default_factory=dict)
 
 
 class UnslothDatasetGenerator:
@@ -99,6 +114,12 @@ class UnslothDatasetGenerator:
         
         # 통계 생성기 생성
         self.stats_generator = StatisticsGenerator()
+        
+        # 컴포넌트 조직화기 생성
+        if config.enable_component_organization:
+            self.component_organizer = ComponentOrganizer(config.component_organization)
+        else:
+            self.component_organizer = None
         
         # 로깅 설정
         self.logger = setup_logging("INFO")
@@ -218,6 +239,11 @@ class UnslothDatasetGenerator:
             result.validation_data[format_type] = val_data
             
             self.logger.info(f"{format_type}: {len(train_data)} train, {len(val_data)} validation")
+        
+        # 컴포넌트 조직화 수행
+        if self.component_organizer and self.config.enable_component_organization:
+            self.logger.info("Performing component organization...")
+            result = self._organize_by_components(result, samples)
         
         # 통계 생성
         datasets = {}
@@ -397,6 +423,16 @@ class UnslothDatasetGenerator:
         except Exception as e:
             self.logger.warning(f"Failed to save validation results: {e}")
         
+        # 컴포넌트별 데이터셋 저장
+        if self.config.enable_component_organization and result.component_train_data:
+            component_paths = self._save_component_datasets(result, base_name)
+            saved_paths.update(component_paths)
+        
+        # 카테고리별 데이터셋 저장
+        if self.config.create_category_specific_datasets and result.category_specific_data:
+            category_paths = self._save_category_datasets(result, base_name)
+            saved_paths.update(category_paths)
+        
         return saved_paths
     
     def get_train_count(self, format_type: str) -> int:
@@ -464,3 +500,375 @@ class UnslothDatasetGenerator:
             all_samples = random.sample(all_samples, self.config.target_count)
         
         return self.generate_from_samples(all_samples, "integrated_dataset")
+    
+    def _save_component_datasets(
+        self, 
+        result: DatasetGenerationResult, 
+        base_name: str
+    ) -> Dict[str, str]:
+        """
+        컴포넌트별 데이터셋을 저장합니다.
+        
+        Args:
+            result: 데이터셋 생성 결과
+            base_name: 기본 파일 이름
+            
+        Returns:
+            저장된 파일 경로 목록
+        """
+        saved_paths = {}
+        
+        for format_type in self.config.formats:
+            # 컴포넌트별 훈련 데이터 저장
+            train_data = result.component_train_data.get(format_type, {})
+            for component_name, samples in train_data.items():
+                if samples:
+                    component_dir = self.output_dir / "components" / component_name / format_type
+                    component_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    train_file = component_dir / "train.jsonl"
+                    save_jsonl(samples, train_file)
+                    saved_paths[f"component_{component_name}_{format_type}_train"] = str(train_file)
+            
+            # 컴포넌트별 검증 데이터 저장
+            val_data = result.component_validation_data.get(format_type, {})
+            for component_name, samples in val_data.items():
+                if samples:
+                    component_dir = self.output_dir / "components" / component_name / format_type
+                    component_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    val_file = component_dir / "validation.jsonl"
+                    save_jsonl(samples, val_file)
+                    saved_paths[f"component_{component_name}_{format_type}_validation"] = str(val_file)
+        
+        # 컴포넌트별 메타데이터 저장
+        for component_name, dataset in result.component_datasets.items():
+            component_dir = self.output_dir / "components" / component_name
+            component_dir.mkdir(parents=True, exist_ok=True)
+            
+            metadata_file = component_dir / "metadata.json"
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "component_name": component_name,
+                    "category": dataset.category,
+                    "metadata": dataset.metadata,
+                    "sample_count": len(dataset.samples)
+                }, f, indent=2, ensure_ascii=False)
+            
+            saved_paths[f"component_{component_name}_metadata"] = str(metadata_file)
+        
+        self.logger.info(f"Component datasets saved for {len(result.component_datasets)} components")
+        return saved_paths
+    
+    def _save_category_datasets(
+        self, 
+        result: DatasetGenerationResult, 
+        base_name: str
+    ) -> Dict[str, str]:
+        """
+        카테고리별 데이터셋을 저장합니다.
+        
+        Args:
+            result: 데이터셋 생성 결과
+            base_name: 기본 파일 이름
+            
+        Returns:
+            저장된 파일 경로 목록
+        """
+        saved_paths = {}
+        
+        for format_type in self.config.formats:
+            category_data = result.category_specific_data.get(format_type, {})
+            
+            for category, samples in category_data.items():
+                if samples:
+                    # 훈련/검증 분할
+                    split_point = int(len(samples) * self.config.train_test_split)
+                    train_samples = samples[:split_point]
+                    val_samples = samples[split_point:]
+                    
+                    # 카테고리 디렉토리 생성
+                    category_dir = self.output_dir / "categories" / category / format_type
+                    category_dir.mkdir(parents=True, exist_ok=True)
+                    
+                    # 훈련 데이터 저장
+                    if train_samples:
+                        train_file = category_dir / "train.jsonl"
+                        save_jsonl(train_samples, train_file)
+                        saved_paths[f"category_{category}_{format_type}_train"] = str(train_file)
+                    
+                    # 검증 데이터 저장
+                    if val_samples:
+                        val_file = category_dir / "validation.jsonl"
+                        save_jsonl(val_samples, val_file)
+                        saved_paths[f"category_{category}_{format_type}_validation"] = str(val_file)
+        
+        # 카테고리별 메타데이터 저장
+        for category, datasets in result.category_datasets.items():
+            category_dir = self.output_dir / "categories" / category
+            category_dir.mkdir(parents=True, exist_ok=True)
+            
+            metadata_file = category_dir / "metadata.json"
+            with open(metadata_file, 'w', encoding='utf-8') as f:
+                json.dump({
+                    "category": category,
+                    "component_count": len(datasets),
+                    "components": [ds.component_name for ds in datasets],
+                    "total_samples": sum(len(ds.samples) for ds in datasets),
+                    "avg_quality_score": sum(ds.metadata.get("avg_quality_score", 0) for ds in datasets) / len(datasets)
+                }, f, indent=2, ensure_ascii=False)
+            
+            saved_paths[f"category_{category}_metadata"] = str(metadata_file)
+        
+        # 조직화 리포트 저장
+        if result.organization_report:
+            report_file = self.output_dir / f"{base_name}_organization_report.json"
+            with open(report_file, 'w', encoding='utf-8') as f:
+                json.dump(result.organization_report, f, indent=2, ensure_ascii=False)
+            saved_paths["organization_report"] = str(report_file)
+        
+        self.logger.info(f"Category datasets saved for {len(result.category_datasets)} categories")
+        return saved_paths
+    
+    def _organize_by_components(
+        self, 
+        result: DatasetGenerationResult, 
+        original_samples: List[Dict[str, Any]]
+    ) -> DatasetGenerationResult:
+        """
+        컴포넌트별로 데이터셋을 조직화합니다.
+        
+        Args:
+            result: 기본 데이터셋 생성 결과
+            original_samples: 원본 샘플 데이터
+            
+        Returns:
+            컴포넌트 조직화가 추가된 결과
+        """
+        self.logger.info("Organizing datasets by components...")
+        
+        # 컴포넌트별 조직화
+        component_datasets = self.component_organizer.organize_by_components(original_samples)
+        result.component_datasets = component_datasets
+        
+        # 카테고리별 조직화
+        category_datasets = self.component_organizer.organize_by_categories(component_datasets)
+        result.category_datasets = category_datasets
+        
+        # 컴포넌트별 훈련/검증 분할
+        if self.config.create_component_specific_datasets:
+            result = self._create_component_specific_datasets(result, component_datasets)
+        
+        # 카테고리별 특화 데이터셋 생성
+        if self.config.create_category_specific_datasets:
+            result = self._create_category_specific_datasets(result, category_datasets)
+        
+        # 조직화 리포트 생성
+        result.organization_report = self.component_organizer.generate_organization_report(
+            component_datasets, category_datasets
+        )
+        
+        self.logger.info(f"Component organization completed: "
+                        f"{len(component_datasets)} components, "
+                        f"{len(category_datasets)} categories")
+        
+        return result
+    
+    def _create_component_specific_datasets(
+        self, 
+        result: DatasetGenerationResult,
+        component_datasets: Dict[str, ComponentDataset]
+    ) -> DatasetGenerationResult:
+        """
+        컴포넌트별 특화 데이터셋을 생성합니다.
+        
+        Args:
+            result: 기본 결과 객체
+            component_datasets: 컴포넌트별 데이터셋
+            
+        Returns:
+            컴포넌트별 데이터셋이 추가된 결과
+        """
+        self.logger.info("Creating component-specific datasets...")
+        
+        # 컴포넌트별 훈련/검증 분할
+        train_datasets, val_datasets = self.component_organizer.create_balanced_splits(
+            component_datasets, self.config.train_test_split
+        )
+        
+        # 각 포맷별로 컴포넌트 데이터셋 생성
+        for format_type in self.config.formats:
+            formatter = self.formatters[format_type]
+            
+            # 훈련 데이터
+            component_train_data = {}
+            for component_name, dataset in train_datasets.items():
+                formatted_samples = []
+                
+                for sample in dataset.samples:
+                    try:
+                        if format_type == "sharegpt":
+                            formatted = formatter.format_batch([{
+                                "instruction": sample["instruction"],
+                                "response": sample["response"],
+                                "context": sample.get("context", ""),
+                                "source": f"{component_name}_{sample.get('source', 'unknown')}",
+                                "quality_score": sample.get("quality_score", 0.8)
+                            }])[0]
+                        elif format_type == "alpaca":
+                            formatted = formatter.format_batch([{
+                                "instruction": sample["instruction"],
+                                "output": sample["response"],
+                                "input": sample.get("context", ""),
+                                "source": f"{component_name}_{sample.get('source', 'unknown')}",
+                                "quality_score": sample.get("quality_score", 0.8)
+                            }])[0]
+                        elif format_type == "openai":
+                            formatted = formatter.format_messages(
+                                user_message=sample["instruction"],
+                                assistant_message=sample["response"],
+                                system_prompt=f"Syncfusion {component_name} 컴포넌트 전문가"
+                            )
+                        
+                        # 컴포넌트 메타데이터 추가
+                        formatted["metadata"] = {
+                            **formatted.get("metadata", {}),
+                            "component": component_name,
+                            "category": dataset.category
+                        }
+                        
+                        formatted_samples.append(formatted)
+                        
+                    except Exception as e:
+                        self.logger.warning(f"Failed to format component sample for {component_name}: {e}")
+                        continue
+                
+                component_train_data[component_name] = formatted_samples
+            
+            result.component_train_data[format_type] = component_train_data
+            
+            # 검증 데이터
+            component_val_data = {}
+            for component_name, dataset in val_datasets.items():
+                formatted_samples = []
+                
+                for sample in dataset.samples:
+                    try:
+                        if format_type == "sharegpt":
+                            formatted = formatter.format_batch([{
+                                "instruction": sample["instruction"],
+                                "response": sample["response"],
+                                "context": sample.get("context", ""),
+                                "source": f"{component_name}_{sample.get('source', 'unknown')}",
+                                "quality_score": sample.get("quality_score", 0.8)
+                            }])[0]
+                        elif format_type == "alpaca":
+                            formatted = formatter.format_batch([{
+                                "instruction": sample["instruction"],
+                                "output": sample["response"],
+                                "input": sample.get("context", ""),
+                                "source": f"{component_name}_{sample.get('source', 'unknown')}",
+                                "quality_score": sample.get("quality_score", 0.8)
+                            }])[0]
+                        elif format_type == "openai":
+                            formatted = formatter.format_messages(
+                                user_message=sample["instruction"],
+                                assistant_message=sample["response"],
+                                system_prompt=f"Syncfusion {component_name} 컴포넌트 전문가"
+                            )
+                        
+                        # 컴포넌트 메타데이터 추가
+                        formatted["metadata"] = {
+                            **formatted.get("metadata", {}),
+                            "component": component_name,
+                            "category": dataset.category
+                        }
+                        
+                        formatted_samples.append(formatted)
+                        
+                    except Exception as e:
+                        self.logger.warning(f"Failed to format component validation sample for {component_name}: {e}")
+                        continue
+                
+                component_val_data[component_name] = formatted_samples
+            
+            result.component_validation_data[format_type] = component_val_data
+        
+        self.logger.info(f"Component-specific datasets created for {len(train_datasets)} components")
+        return result
+    
+    def _create_category_specific_datasets(
+        self, 
+        result: DatasetGenerationResult,
+        category_datasets: Dict[str, List[ComponentDataset]]
+    ) -> DatasetGenerationResult:
+        """
+        카테고리별 특화 데이터셋을 생성합니다.
+        
+        Args:
+            result: 기본 결과 객체
+            category_datasets: 카테고리별 데이터셋 목록
+            
+        Returns:
+            카테고리별 데이터셋이 추가된 결과
+        """
+        self.logger.info("Creating category-specific datasets...")
+        
+        # 카테고리별 통합 샘플 생성
+        category_samples = self.component_organizer.create_category_specific_datasets(
+            category_datasets, 
+            target_samples_per_category=self.config.target_count // len(category_datasets)
+        )
+        
+        # 각 포맷별로 카테고리 데이터셋 생성
+        for format_type in self.config.formats:
+            formatter = self.formatters[format_type]
+            category_formatted_data = {}
+            
+            for category, samples in category_samples.items():
+                formatted_samples = []
+                
+                for sample in samples:
+                    try:
+                        if format_type == "sharegpt":
+                            formatted = formatter.format_batch([{
+                                "instruction": sample["instruction"],
+                                "response": sample["response"],
+                                "context": sample.get("context", ""),
+                                "source": f"{category}_{sample.get('source', 'unknown')}",
+                                "quality_score": sample.get("quality_score", 0.8)
+                            }])[0]
+                        elif format_type == "alpaca":
+                            formatted = formatter.format_batch([{
+                                "instruction": sample["instruction"],
+                                "output": sample["response"],
+                                "input": sample.get("context", ""),
+                                "source": f"{category}_{sample.get('source', 'unknown')}",
+                                "quality_score": sample.get("quality_score", 0.8)
+                            }])[0]
+                        elif format_type == "openai":
+                            formatted = formatter.format_messages(
+                                user_message=sample["instruction"],
+                                assistant_message=sample["response"],
+                                system_prompt=f"Syncfusion {category} 카테고리 전문가"
+                            )
+                        
+                        # 카테고리 메타데이터 추가
+                        formatted["metadata"] = {
+                            **formatted.get("metadata", {}),
+                            "category": category,
+                            "component": sample.get("component", "unknown")
+                        }
+                        
+                        formatted_samples.append(formatted)
+                        
+                    except Exception as e:
+                        self.logger.warning(f"Failed to format category sample for {category}: {e}")
+                        continue
+                
+                category_formatted_data[category] = formatted_samples
+            
+            result.category_specific_data[format_type] = category_formatted_data
+        
+        self.logger.info(f"Category-specific datasets created for {len(category_samples)} categories")
+        return result

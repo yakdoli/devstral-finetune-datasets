@@ -1,0 +1,239 @@
+{
+  "datasets": {
+    "sharegpt": {
+      "train": [
+        {
+          "conversations": [
+            {
+              "from": "system",
+              "value": "Syncfusion WinForms 기술 전문가입니다."
+            },
+            {
+              "from": "human",
+              "value": "Syncfusion WinForms GridControl에서 셀 병합을 어떻게 설정하나요?</s>"
+            },
+            {
+              "from": "gpt",
+              "value": "Syncfusion WinForms GridControl에서 셀 병합을 설정하는 방법: **1. 기본 병합 동작 설정:** ```csharp GridStyleInfo standardStyle = BaseStylesMap[\"Standard\"].StyleInfo; standardStyle.MergeCell = GridMergeCellDirection.RowsInColumn; GridStyleInfo rowHeaderStyle = BaseStylesMap[\"Row Header\"].StyleInfo; rowHeaderStyle.MergeCell = GridMergeCellDirection.RowsInColumn; ``` **2. 온디맨드 셀 병합 활성화:** ```csharp Options.MergeCellsMode = GridMergeCellsMode.OnDemandCalculationGridMergeCellsMode.MergeRowsInColumn; ``` 이 설정을 통해 그리드는 내용에 따라 자동으로 행을 병합합니다.</s>"
+            }
+          ],
+          "metadata": {
+            "format": "sharegpt",
+            "created_at": "2025-08-13T18:34:31.838657",
+            "turns": 3,
+            "system_prompt": "Syncfusion WinForms 기술 전문가입니다.",
+            "sample_index": 0,
+            "source": "unknown",
+            "quality_score": 1.0,
+            "token_count": 59,
+            "validated_at": "2025-08-13T18:34:31.838795",
+            "quality_passed": true
+          }
+        },
+        {
+          "conversations": [
+            {
+              "from": "system",
+              "value": "Syncfusion WinForms 기술 전문가입니다."
+            },
+            {
+              "from": "human",
+              "value": "Syncfusion WinForms HTMLUI 컨트롤의 이벤트 처리 방법을 설명해주세요.</s>"
+            },
+            {
+              "from": "gpt",
+              "value": "Syncfusion WinForms HTMLUI 컨트롤의 이벤트 처리: **주요 이벤트들:** - `TitleChanged`: 문서 제목 변경 시 - `ShowTitleChanged`: 제목 표시 상태 변경 시 - `LoadFinished`: 문서 로딩 완료 시 - `LoadStarted`: 문서 로딩 시작 시 - `LoadError`: 문서 로딩 오류 시 - `PreRenderDocument`: 문서 렌더링 전 **이벤트 처리 예제:** ```csharp htmluiControl.LoadFinished += (sender, e) = { Console.WriteLine(\"문서 로딩 완료\"); // 추가 처리 로직 }; htmluiControl.LoadError += (sender, e) = { Console.WriteLine($\"로딩 오류: {e.ErrorMessage}\"); // 오류 처리 로직 }; ```</s>"
+            }
+          ],
+          "metadata": {
+            "format": "sharegpt",
+            "created_at": "2025-08-13T18:34:31.838693",
+            "turns": 3,
+            "system_prompt": "Syncfusion WinForms 기술 전문가입니다.",
+            "sample_index": 1,
+            "source": "unknown",
+            "quality_score": 1.0,
+            "token_count": 89,
+            "validated_at": "2025-08-13T18:34:31.838802",
+            "quality_passed": true
+          }
+        }
+      ],
+      "validation": [
+        {
+          "conversations": [
+            {
+              "from": "system",
+              "value": "Syncfusion WinForms 기술 전문가입니다."
+            },
+            {
+              "from": "human",
+              "value": "Syncfusion WinForms에서 C# 스크립팅을 통해 HTML 요소를 조작하는 방법을 보여주세요.</s>"
+            },
+            {
+              "from": "gpt",
+              "value": "Syncfusion WinForms HTMLUI에서 C# 스크립팅을 통한 HTML 요소 조작: **스크립트 클래스 구현:** ```csharp using System; using System.Windows.Forms; using Syncfusion.Windows.Forms.HTMLUI; public class Script { IHTMLElement txtText = null; IHTMLElement btnRun = null; IHTMLElement elmCustom = null; private const string DEF_IMG_TAG = \"img src='smile.bmp'\"; private const string DEF_SMILE = \":-)\"; public static Script OnScriptStart() { return new Script(); } public Script() { if(Global.Document == null) { MessageBox.Show(\"Document is NULL\"); return; } // HTML 요소 참조 가져오기 txtText = Global.Document.GetElementByUserId(\"btn\"); btnRun = Global.Document.GetElementByUserId(\"txt\"); elmCustom = Global.Document.GetElementByUserId(\"custom\"); // 이벤트 핸들러 연결 btnRun.Click += new EventHandler(CScustom_Run); } public void CScustom_Run(object sender, EventArgs args) { if(elmCustom == null) return; INPUTElementImpl txtElm = txtText as INPUTElementImpl; // HTML 내용 동적 변경 elmCustom.InnerHTML = txtElm.UserControl.CustomControl.Text.Replace(DEF_SMILE, DEF_IMG_TAG); } } ``` 이 방식으로 C# 코드에서 HTML 요소를 직접 조작하고 사용자 상호작용을 처리할 수 있습니다.</s>"
+            }
+          ],
+          "metadata": {
+            "format": "sharegpt",
+            "created_at": "2025-08-13T18:34:31.838735",
+            "turns": 3,
+            "system_prompt": "Syncfusion WinForms 기술 전문가입니다.",
+            "sample_index": 2,
+            "source": "unknown",
+            "quality_score": 1.0,
+            "token_count": 148,
+            "validated_at": "2025-08-13T18:34:31.838810",
+            "quality_passed": true
+          }
+        }
+      ],
+      "total": 3
+    },
+    "alpaca": {
+      "train": [],
+      "validation": [],
+      "total": 0
+    },
+    "openai": {
+      "train": [],
+      "validation": [],
+      "total": 0
+    }
+  },
+  "template_formatted": {
+    "sharegpt": [
+      {
+        "text": "User: Syncfusion WinForms GridControl에서 셀 병합을 어떻게 설정하나요?</s>\nAssistant: Syncfusion WinForms GridControl에서 셀 병합을 설정하는 방법: **1. 기본 병합 동작 설정:** ```csharp GridStyleInfo standardStyle = BaseStylesMap[\"Standard\"].StyleInfo; standardStyle.MergeCell = GridMergeCellDirection.RowsInColumn; GridStyleInfo rowHeaderStyle = BaseStylesMap[\"Row Header\"].StyleInfo; rowHeaderStyle.MergeCell = GridMergeCellDirection.RowsInColumn; ``` **2. 온디맨드 셀 병합 활성화:** ```csharp Options.MergeCellsMode = GridMergeCellsMode.OnDemandCalculationGridMergeCellsMode.MergeRowsInColumn; ``` 이 설정을 통해 그리드는 내용에 따라 자동으로 행을 병합합니다.</s>",
+        "template_type": "chatml",
+        "original_format": "sharegpt",
+        "format": "sharegpt",
+        "created_at": "2025-08-13T18:34:31.838657",
+        "turns": 3,
+        "system_prompt": "Syncfusion WinForms 기술 전문가입니다.",
+        "sample_index": 0,
+        "source": "unknown",
+        "quality_score": 1.0,
+        "token_count": 57
+      },
+      {
+        "text": "User: Syncfusion WinForms HTMLUI 컨트롤의 이벤트 처리 방법을 설명해주세요.</s>\nAssistant: Syncfusion WinForms HTMLUI 컨트롤의 이벤트 처리: **주요 이벤트들:** - `TitleChanged`: 문서 제목 변경 시 - `ShowTitleChanged`: 제목 표시 상태 변경 시 - `LoadFinished`: 문서 로딩 완료 시 - `LoadStarted`: 문서 로딩 시작 시 - `LoadError`: 문서 로딩 오류 시 - `PreRenderDocument`: 문서 렌더링 전 **이벤트 처리 예제:** ```csharp htmluiControl.LoadFinished += (sender, e) = { Console.WriteLine(\"문서 로딩 완료\"); // 추가 처리 로직 }; htmluiControl.LoadError += (sender, e) = { Console.WriteLine($\"로딩 오류: {e.ErrorMessage}\"); // 오류 처리 로직 }; ```</s>",
+        "template_type": "chatml",
+        "original_format": "sharegpt",
+        "format": "sharegpt",
+        "created_at": "2025-08-13T18:34:31.838693",
+        "turns": 3,
+        "system_prompt": "Syncfusion WinForms 기술 전문가입니다.",
+        "sample_index": 1,
+        "source": "unknown",
+        "quality_score": 1.0,
+        "token_count": 87
+      },
+      {
+        "text": "User: Syncfusion WinForms에서 C# 스크립팅을 통해 HTML 요소를 조작하는 방법을 보여주세요.</s>\nAssistant: Syncfusion WinForms HTMLUI에서 C# 스크립팅을 통한 HTML 요소 조작: **스크립트 클래스 구현:** ```csharp using System; using System.Windows.Forms; using Syncfusion.Windows.Forms.HTMLUI; public class Script { IHTMLElement txtText = null; IHTMLElement btnRun = null; IHTMLElement elmCustom = null; private const string DEF_IMG_TAG = \"img src='smile.bmp'\"; private const string DEF_SMILE = \":-)\"; public static Script OnScriptStart() { return new Script(); } public Script() { if(Global.Document == null) { MessageBox.Show(\"Document is NULL\"); return; } // HTML 요소 참조 가져오기 txtText = Global.Document.GetElementByUserId(\"btn\"); btnRun = Global.Document.GetElementByUserId(\"txt\"); elmCustom = Global.Document.GetElementByUserId(\"custom\"); // 이벤트 핸들러 연결 btnRun.Click += new EventHandler(CScustom_Run); } public void CScustom_Run(object sender, EventArgs args) { if(elmCustom == null) return; INPUTElementImpl txtElm = txtText as INPUTElementImpl; // HTML 내용 동적 변경 elmCustom.InnerHTML = txtElm.UserControl.CustomControl.Text.Replace(DEF_SMILE, DEF_IMG_TAG); } } ``` 이 방식으로 C# 코드에서 HTML 요소를 직접 조작하고 사용자 상호작용을 처리할 수 있습니다.</s>",
+        "template_type": "chatml",
+        "original_format": "sharegpt",
+        "format": "sharegpt",
+        "created_at": "2025-08-13T18:34:31.838735",
+        "turns": 3,
+        "system_prompt": "Syncfusion WinForms 기술 전문가입니다.",
+        "sample_index": 2,
+        "source": "unknown",
+        "quality_score": 1.0,
+        "token_count": 146
+      }
+    ],
+    "alpaca": [
+      {
+        "text": "User: Syncfusion WinForms GridControl에서 셀 병합을 어떻게 설정하나요?</s>\nAssistant: Syncfusion WinForms GridControl에서 셀 병합을 설정하는 방법: **1. 기본 병합 동작 설정:** ```csharp GridStyleInfo standardStyle = BaseStylesMap[\"Standard\"].StyleInfo; standardStyle.MergeCell = GridMergeCellDirection.RowsInColumn; GridStyleInfo rowHeaderStyle = BaseStylesMap[\"Row Header\"].StyleInfo; rowHeaderStyle.MergeCell = GridMergeCellDirection.RowsInColumn; ``` **2. 온디맨드 셀 병합 활성화:** ```csharp Options.MergeCellsMode = GridMergeCellsMode.OnDemandCalculationGridMergeCellsMode.MergeRowsInColumn; ``` 이 설정을 통해 그리드는 내용에 따라 자동으로 행을 병합합니다.</s>",
+        "template_type": "alpaca",
+        "original_format": "alpaca",
+        "source": "unknown",
+        "component": "GridControl",
+        "difficulty": "Intermediate",
+        "category": "DataBinding",
+        "quality_score": 0.95,
+        "sample_index": 0,
+        "original_quality_score": 1.0,
+        "has_context": false,
+        "has_turns": false,
+        "token_count": 57
+      },
+      {
+        "text": "User: Syncfusion WinForms HTMLUI 컨트롤의 이벤트 처리 방법을 설명해주세요.</s>\nAssistant: Syncfusion WinForms HTMLUI 컨트롤의 이벤트 처리: **주요 이벤트들:** - `TitleChanged`: 문서 제목 변경 시 - `ShowTitleChanged`: 제목 표시 상태 변경 시 - `LoadFinished`: 문서 로딩 완료 시 - `LoadStarted`: 문서 로딩 시작 시 - `LoadError`: 문서 로딩 오류 시 - `PreRenderDocument`: 문서 렌더링 전 **이벤트 처리 예제:** ```csharp htmluiControl.LoadFinished += (sender, e) = { Console.WriteLine(\"문서 로딩 완료\"); // 추가 처리 로직 }; htmluiControl.LoadError += (sender, e) = { Console.WriteLine($\"로딩 오류: {e.ErrorMessage}\"); // 오류 처리 로직 }; ```</s>",
+        "template_type": "alpaca",
+        "original_format": "alpaca",
+        "source": "unknown",
+        "component": "HTMLUI",
+        "difficulty": "Beginner",
+        "category": "Events",
+        "quality_score": 0.92,
+        "sample_index": 1,
+        "original_quality_score": 1.0,
+        "has_context": false,
+        "has_turns": false,
+        "token_count": 87
+      },
+      {
+        "text": "User: Syncfusion WinForms에서 C# 스크립팅을 통해 HTML 요소를 조작하는 방법을 보여주세요.</s>\nAssistant: Syncfusion WinForms HTMLUI에서 C# 스크립팅을 통한 HTML 요소 조작: **스크립트 클래스 구현:** ```csharp using System; using System.Windows.Forms; using Syncfusion.Windows.Forms.HTMLUI; public class Script { IHTMLElement txtText = null; IHTMLElement btnRun = null; IHTMLElement elmCustom = null; private const string DEF_IMG_TAG = \"img src='smile.bmp'\"; private const string DEF_SMILE = \":-)\"; public static Script OnScriptStart() { return new Script(); } public Script() { if(Global.Document == null) { MessageBox.Show(\"Document is NULL\"); return; } // HTML 요소 참조 가져오기 txtText = Global.Document.GetElementByUserId(\"btn\"); btnRun = Global.Document.GetElementByUserId(\"txt\"); elmCustom = Global.Document.GetElementByUserId(\"custom\"); // 이벤트 핸들러 연결 btnRun.Click += new EventHandler(CScustom_Run); } public void CScustom_Run(object sender, EventArgs args) { if(elmCustom == null) return; INPUTElementImpl txtElm = txtText as INPUTElementImpl; // HTML 내용 동적 변경 elmCustom.InnerHTML = txtElm.UserControl.CustomControl.Text.Replace(DEF_SMILE, DEF_IMG_TAG); } } ``` 이 방식으로 C# 코드에서 HTML 요소를 직접 조작하고 사용자 상호작용을 처리할 수 있습니다.</s>",
+        "template_type": "alpaca",
+        "original_format": "alpaca",
+        "source": "unknown",
+        "component": "HTMLUI",
+        "difficulty": "Advanced",
+        "category": "Scripting",
+        "quality_score": 0.98,
+        "sample_index": 2,
+        "original_quality_score": 1.0,
+        "has_context": false,
+        "has_turns": false,
+        "token_count": 146
+      }
+    ],
+    "openai": []
+  },
+  "statistics": {
+    "generation_summary": {
+      "total_input_conversations": 0,
+      "total_generated_items": 3,
+      "successful_conversions": 6,
+      "failed_conversions": 3,
+      "success_rate": 6.0
+    },
+    "format_breakdown": {
+      "sharegpt": 3,
+      "alpaca": 0,
+      "openai": 0
+    },
+    "template_applications": {
+      "chatml": 3,
+      "alpaca": 3
+    },
+    "quality_metrics": {
+      "min_tokens": 50,
+      "max_tokens": 8192,
+      "quality_threshold": 0.8,
+      "train_split": 0.8
+    },
+    "configuration": {
+      "formats": [
+        "sharegpt",
+        "alpaca",
+        "openai"
+      ],
+      "enable_template_mapping": true,
+      "include_metadata": true,
+      "remove_duplicates": true
+    }
+  },
+  "files": {
+    "sharegpt": {
+      "train": "enhanced_unsloth_output/enhanced_dataset_sharegpt_train_20250813_183431.jsonl",
+      "validation": "enhanced_unsloth_output/enhanced_dataset_sharegpt_val_20250813_183431.jsonl",
+      "all": "enhanced_unsloth_output/enhanced_dataset_sharegpt_all_20250813_183431.jsonl"
+    },
+    "alpaca": {},
+    "openai": {}
+  }
+}

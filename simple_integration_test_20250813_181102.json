@@ -1,0 +1,43 @@
+{
+  "timestamp": "2025-08-13T18:11:02.776530",
+  "test_type": "simple_integration",
+  "summary": {
+    "total_tests": 23,
+    "passed": 19,
+    "failed": 4,
+    "success_rate": 0.8260869565217391
+  },
+  "detailed_results": {
+    "module_imports": {
+      "md_processor": "success",
+      "openai_connector": "success",
+      "qdrant_connector": "success",
+      "unsloth_dataset": "success",
+      "quality_validator": "success",
+      "async_pipeline": "success",
+      "logging_system": "success",
+      "config": "success"
+    },
+    "file_structure": {
+      "file_config.yaml": "exists",
+      "file_requirements.txt": "exists",
+      "file_main.py": "exists",
+      "dir_md_processor": "exists",
+      "dir_openai_connector": "exists",
+      "dir_qdrant_connector": "exists",
+      "dir_unsloth_dataset": "exists",
+      "dir_quality_validator": "exists",
+      "dir_md_staging": "exists",
+      "dir_output": "exists"
+    },
+    "basic_functionality": {
+      "md_processor_creation": "failed: cannot import name 'create_md_processor' from 'md_processor' (/shared/yakdoli/devstral-finetune-datasets/md_processor/__init__.py)",
+      "openai_connector_creation": "success",
+      "unsloth_generator_creation": "failed: cannot import name 'create_unsloth_generator' from 'unsloth_dataset' (/shared/yakdoli/devstral-finetune-datasets/unsloth_dataset/__init__.py)"
+    },
+    "data_processing": {
+      "sharegpt_formatting": "failed: 'ShareGPTFormatter' object has no attribute 'format'",
+      "alpaca_formatting": "failed: 'AlpacaFormatter' object has no attribute 'format'"
+    }
+  }
+}
