@@ -22,7 +22,7 @@ from tqdm.asyncio import tqdm
 from md_processor import create_processor, create_scanner
 from md_processor.processor import ProcessingConfig
 from qdrant_connector import create_integrated_processor
-from openai_connector import create_openai_connector
+from local_llm_connector import create_local_llm_connector
 from unsloth_dataset import create_dataset_generator, DatasetConfig
 from quality_validator import create_default_validator
 from config.config import PipelineConfig

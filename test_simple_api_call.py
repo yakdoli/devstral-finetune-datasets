@@ -4,12 +4,12 @@
 """
 
 import asyncio
-from openai_connector import create_openai_client, OpenAIAPIClientConfig
+from local_llm_connector import create_local_llm_client, LocalLLMClientConfig
 
 
 async def test_simple_api_call():
     """간단한 API 호출 테스트"""
-    config = OpenAIAPIClientConfig(
+    config = LocalLLMClientConfig(
         endpoint="http://localhost:9997/v1",
         model="qwen2.5-vl-instruct",
         api_key="test-key",
@@ -18,7 +18,7 @@ async def test_simple_api_call():
         timeout=30
     )
     
-    async with create_openai_client(config) as client:
+    async with create_local_llm_client(config) as client:
         try:
             # 연결 테스트
             health = await client.test_connection()

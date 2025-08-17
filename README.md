@@ -107,12 +107,12 @@ project:
 
 openai_api:
   endpoint: "http://123.37.28.120:9997/v1"
-  model: "qwen2.5-vl-instruct"
+  model: "gpt-oss"
   max_tokens: 128000
-  temperature: 0.3
+  temperature: 0.6
 
 qdrant:
-  host: "localhost"
+  host: "100.88.88.88"
   port: 6333
   collection: "ws-7491d651ae044c78"
 
@@ -121,14 +121,14 @@ data_sources:
   md_staging_path: "./md_staging"
 
 unsloth:
-  max_seq_length: 4096
+  max_seq_length: 8192
   formats: ["sharegpt", "alpaca", "openai"]
   train_test_split: 0.9
 
 quality:
   min_quality_score: 0.7
   max_similarity_threshold: 0.9
-  safety_threshold: 0.8
+  safety_threshold: 0.2
   enable_auto_correction: true
 ```
 
@@ -259,7 +259,7 @@ output/datasets/
 ```bash
 # API 키 설정
 export OPENAI_API_KEY="your-api-key-here"
-export QDRANT_HOST="localhost"
+export QDRANT_HOST="100.88.88.88"
 export QDRANT_PORT="6333"
 
 # 로그 레벨 설정
@@ -275,9 +275,9 @@ project:
   target_count: 1000
 
 openai_api:
-  model: "gpt-4"
+  model: "gpt-oss"
   temperature: 0.7
-  max_tokens: 8000
+  max_tokens: 8192
 
 quality:
   min_quality_score: 0.8
@@ -339,8 +339,8 @@ grep "PERFORMANCE" output/logs/dataset_generation.log
 ```yaml
 # config.yaml
 advanced:
-  memory_limit: 4096  # MB
-  max_workers: 2       # CPU 코어 수 절반
+  memory_limit: 10240  # MB
+  max_workers: 8       # CPU 코어 수 절반
   enable_async: true   # 비동기 처리 활성화
   enable_caching: true # 캐싱 활성화
 ```

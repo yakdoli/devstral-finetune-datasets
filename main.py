@@ -25,7 +25,7 @@ from tqdm import tqdm
 from md_processor import create_processor, create_scanner
 from md_processor.processor import ProcessingConfig
 from qdrant_connector import create_integrated_processor
-from openai_connector import create_openai_connector
+from local_llm_connector import create_local_llm_connector
 from unsloth_dataset import create_dataset_generator, DatasetConfig
 from quality_validator import create_default_validator, QualityValidatorConfig
 
@@ -39,11 +39,11 @@ class PipelineConfig:
     target_count: int = 5000
     output_directory: str = "./output/datasets"
     
-    # OpenAI API 설정
-    openai_endpoint: str = "http://123.37.28.120:9997/v1"
-    openai_model: str = "qwen2.5-vl-instruct"
-    openai_max_tokens: int = 128000
-    openai_temperature: float = 0.3
+    # 로컬 LLM 설정
+    local_llm_endpoint: str = "http://123.37.28.120:9997/v1"
+    local_llm_model: str = "qwen2.5-vl-instruct"
+    local_llm_max_tokens: int = 128000
+    local_llm_temperature: float = 0.3
     
     # Qdrant 설정
     qdrant_host: str = "localhost"
@@ -235,18 +235,23 @@ class DatasetGenerationPipeline:
         self.logger.info("대화 생성 중...")
         
         try:
-            # OpenAI 커넥터 생성
-            openai_connector = create_openai_connector()
+            # 로컬 LLM 커넥터 생성
+            local_llm_connector = create_local_llm_connector(
+                endpoint=self.config.local_llm_endpoint,
+                model=self.config.local_llm_model,
+                max_tokens=self.config.local_llm_max_tokens,
+                temperature=self.config.local_llm_temperature
+            )
             
             # 대화 생성기 생성
-            conversation_generator = openai_connector
+            conversation_generator = local_llm_connector
             
             # 대화 생성
             conversations = []
             sample_size = min(len(documents), self.config.sample_size) if self.config.test_mode else len(documents)
             
-            # async with 컨텍스트로 OpenAI 클라이언트 세션 초기화
-            async with openai_connector.client:
+            # async with 컨텍스트로 로컬 LLM 클라이언트 세션 초기화
+            async with local_llm_connector.client:
                 for i, document in enumerate(tqdm(documents[:sample_size], desc="대화 생성")):
                     try:
                         # 단일 대화 생성을 위해 generate_conversations 메서드 수정

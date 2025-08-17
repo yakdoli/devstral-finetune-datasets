@@ -234,16 +234,16 @@ sync def _test_md_processing(self):
         }
         
         try:
-            from openai_connector import create_openai_client, OpenAIAPIClientConfig
+            from local_llm_connector import create_local_llm_client, LocalLLMClientConfig
             
-            config = OpenAIAPIClientConfig(
+            config = LocalLLMClientConfig(
                 endpoint="http://123.37.28.120:9997/v1",
                 model="qwen2.5-vl-instruct",
                 api_key="test-key",
                 timeout=30
             )
             
-            client = create_openai_client(config)
+            client = create_local_llm_client(config)
             
             # 연결 테스트
             async with client as api_client:

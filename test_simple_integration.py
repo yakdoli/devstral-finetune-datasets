@@ -25,7 +25,7 @@ async def test_module_imports():
     # 필수 모듈들
     modules_to_test = [
         "md_processor",
-        "openai_connector", 
+        "local_llm_connector",
         "qdrant_connector",
         "unsloth_dataset",
         "quality_validator",
@@ -65,7 +65,7 @@ async def test_file_structure():
     # 필수 디렉토리들
     required_dirs = [
         "md_processor",
-        "openai_connector",
+        "local_llm_connector",
         "qdrant_connector", 
         "unsloth_dataset",
         "quality_validator",
@@ -112,17 +112,17 @@ async def test_basic_functionality():
         
         # OpenAI 커넥터 기본 테스트
         try:
-            from openai_connector import create_openai_client, OpenAIAPIClientConfig
-            config = OpenAIAPIClientConfig(
+            from local_llm_connector import create_local_llm_client, LocalLLMClientConfig
+            config = LocalLLMClientConfig(
                 endpoint="http://123.37.28.120:9997/v1",
                 model="qwen2.5-vl-instruct"
             )
-            client = create_openai_client(config)
-            test_results["openai_connector_creation"] = "success"
-            logger.info("  ✓ OpenAI 커넥터 생성 성공")
+            client = create_local_llm_client(config)
+            test_results["local_llm_connector_creation"] = "success"
+            logger.info("  ✓ 로컬 LLM 커넥터 생성 성공")
         except Exception as e:
-            test_results["openai_connector_creation"] = f"failed: {e}"
-            logger.warning(f"  ⚠ OpenAI 커넥터 생성 실패: {e}")
+            test_results["local_llm_connector_creation"] = f"failed: {e}"
+            logger.warning(f"  ⚠ 로컬 LLM 커넥터 생성 실패: {e}")
         
         # Unsloth 데이터셋 생성기 기본 테스트
         try:

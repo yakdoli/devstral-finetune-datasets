@@ -30,7 +30,7 @@ from tqdm import tqdm
 from md_processor import create_processor, create_scanner
 from md_processor.processor import ProcessingConfig
 from qdrant_connector import create_integrated_processor
-from openai_connector import create_openai_connector
+from local_llm_connector import create_local_llm_connector
 from unsloth_dataset import create_dataset_generator, DatasetConfig
 from quality_validator import create_default_validator, QualityValidatorConfig
 
@@ -146,7 +146,7 @@ class IntegrationTestSuite:
                 "target_count": 100,
                 "output_directory": self.config.test_output_dir
             },
-            "openai_api": {
+            "local_llm": {
                 "endpoint": "http://123.37.28.120:9997/v1",
                 "model": "qwen2.5-vl-instruct",
                 "max_tokens": 128000,
@@ -379,7 +379,7 @@ This is a test section with some content.
                 "temperature": 0.3
             }
             
-            openai_connector = create_openai_connector(openai_config)
+            openai_connector = create_local_llm_connector(openai_config)
             
             # 연결 테스트
             connection_result = await openai_connector.test_connection()
@@ -658,7 +658,7 @@ This is an integration test document.
             "temperature": 0.3
         }
         
-        openai_connector = create_openai_connector(openai_config)
+        openai_connector = create_local_llm_connector(openai_config)
         
         # 대화 생성 (소량으로 테스트)
         conversations = await openai_connector.generate_conversations(
@@ -851,7 +851,7 @@ This is a test section with some content for performance testing.
                 "temperature": 0.3
             }
             
-            openai_connector = create_openai_connector(openai_config)
+            openai_connector = create_local_llm_connector(openai_config)
             
             # 대화 생성
             conversations = await openai_connector.generate_conversations(test_documents)

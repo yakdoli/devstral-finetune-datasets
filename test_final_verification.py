@@ -39,9 +39,9 @@ async def test_core_functionality():
         logger.error(f"  ✗ MD 프로세서 모듈 로딩 실패: {e}")
     
     try:
-        from openai_connector import create_openai_client, OpenAIAPIClientConfig
-        test_results["module_loading"]["openai_connector"] = "success"
-        logger.info("  ✓ OpenAI 커넥터 모듈 로딩 성공")
+        from local_llm_connector import create_local_llm_client, LocalLLMClientConfig
+        test_results["module_loading"]["local_llm_connector"] = "success"
+        logger.info("  ✓ 로컬 LLM 커넥터 모듈 로딩 성공")
     except Exception as e:
         test_results["module_loading"]["openai_connector"] = f"failed: {e}"
         logger.error(f"  ✗ OpenAI 커넥터 모듈 로딩 실패: {e}")
@@ -69,13 +69,13 @@ async def test_core_functionality():
     
     try:
         # OpenAI 클라이언트 생성 테스트
-        config = OpenAIAPIClientConfig(
+        config = LocalLLMClientConfig(
             endpoint="http://123.37.28.120:9997/v1",
             model="qwen2.5-vl-instruct"
         )
-        client = create_openai_client(config)
-        test_results["basic_operations"]["openai_client_creation"] = "success"
-        logger.info("  ✓ OpenAI 클라이언트 생성 성공")
+        client = create_local_llm_client(config)
+        test_results["basic_operations"]["local_llm_client_creation"] = "success"
+        logger.info("  ✓ 로컬 LLM 클라이언트 생성 성공")
     except Exception as e:
         test_results["basic_operations"]["openai_client_creation"] = f"failed: {e}"
         logger.error(f"  ✗ OpenAI 클라이언트 생성 실패: {e}")

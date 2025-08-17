@@ -45,13 +45,13 @@ class MDProcessorConfig:
 
 
 @dataclass
-class OpenAIConnectorConfig:
-    """OpenAI API 연동 설정"""
-    api_base_url: str = "http://123.37.28.120:9997/v1"
-    model_name: str = "qwen2.5-vl-instruct"
+class LocalLLMConfig:
+    """로컬 LLM API 연동 설정"""
+    endpoint: str = "http://123.37.28.120:9997/v1"
+    model: str = "qwen2.5-vl-instruct"
     api_key: Optional[str] = None
-    max_tokens: int = 8192
-    temperature: float = 0.7
+    max_tokens: int = 128000
+    temperature: float = 0.3
     top_p: float = 0.9
     frequency_penalty: float = 0.0
     presence_penalty: float = 0.0
@@ -60,6 +60,8 @@ class OpenAIConnectorConfig:
     request_timeout: int = 60
     retry_attempts: int = 3
     retry_delay: float = 1.0
+    rate_limit_rpm: int = 600  # requests per minute
+    rate_limit_tpm: int = 1000000  # tokens per minute
     
     def __post_init__(self):
         """초기화 후 검증"""
@@ -73,6 +75,10 @@ class OpenAIConnectorConfig:
             raise ValueError("batch_size는 양의 정수여야 합니다")
         if self.max_concurrent_requests <= 0:
             raise ValueError("max_concurrent_requests는 양의 정수여야 합니다")
+        if self.rate_limit_rpm <= 0:
+            raise ValueError("rate_limit_rpm는 양의 정수여야 합니다")
+        if self.rate_limit_tpm <= 0:
+            raise ValueError("rate_limit_tpm는 양의 정수여야 합니다")
 
 
 @dataclass
@@ -157,6 +163,38 @@ class QualityValidatorConfig:
 
 
 @dataclass
+class Context7Config:
+    """Context7 MCP 설정"""
+    enable: bool = True
+    library_id: str = "/yakdoli/syncfusion-v11-winform"
+    endpoint: Optional[str] = None
+    timeout: int = 30
+    max_results: int = 10
+    use_in_prompt: bool = True
+    
+    # 하이브리드 검색 가중치
+    weights: Dict[str, float] = field(default_factory=lambda: {
+        'context7': 0.3,
+        'local': 0.3,
+        'qdrant': 0.4
+    })
+    
+    def __post_init__(self):
+        """초기화 후 검증"""
+        if not (0.0 <= self.timeout <= 300):
+            raise ValueError("timeout은 0과 300 사이여야 합니다")
+        if self.max_results <= 0:
+            raise ValueError("max_results는 양의 정수여야 합니다")
+        if not all(0.0 <= weight <= 1.0 for weight in self.weights.values()):
+            raise ValueError("모든 가중치는 0.0과 1.0 사이여야 합니다")
+        
+        # 가중치 합이 1이 되도록 정규화
+        total_weight = sum(self.weights.values())
+        if total_weight > 0:
+            self.weights = {k: v / total_weight for k, v in self.weights.items()}
+
+
+@dataclass
 class LoggingConfig:
     """로깅 설정"""
     level: LogLevel = LogLevel.INFO
@@ -182,8 +220,9 @@ class PipelineConfig:
     """전체 파이프라인 설정"""
     # 모듈별 설정
     md_processor: MDProcessorConfig = field(default_factory=MDProcessorConfig)
-    openai_connector: OpenAIConnectorConfig = field(default_factory=OpenAIConnectorConfig)
+    local_llm: LocalLLMConfig = field(default_factory=LocalLLMConfig)
     qdrant_connector: QdrantConnectorConfig = field(default_factory=QdrantConnectorConfig)
+    context7: Context7Config = field(default_factory=Context7Config)
     unsloth_dataset: UnslothDatasetConfig = field(default_factory=UnslothDatasetConfig)
     quality_validator: QualityValidatorConfig = field(default_factory=QualityValidatorConfig)
     logging: LoggingConfig = field(default_factory=LoggingConfig)
@@ -203,8 +242,8 @@ class PipelineConfig:
             raise ValueError("max_memory_usage_gb는 양의 수여야 합니다")
         
         # 환경 변수에서 API 키 로드
-        if not self.openai_connector.api_key:
-            self.openai_connector.api_key = os.getenv("OPENAI_API_KEY")
+        if not self.local_llm.api_key:
+            self.local_llm.api_key = os.getenv("LOCAL_LLM_API_KEY")
         
         if not self.qdrant_connector.api_key:
             self.qdrant_connector.api_key = os.getenv("QDRANT_API_KEY")
@@ -257,8 +296,9 @@ def _convert_yaml_to_config_dict(yaml_data: Dict[str, Any]) -> Dict[str, Any]:
     # 각 모듈 설정 변환
     module_configs = {
         'md_processor': MDProcessorConfig,
-        'openai_connector': OpenAIConnectorConfig,
+        'local_llm': LocalLLMConfig,
         'qdrant_connector': QdrantConnectorConfig,
+        'context7': Context7Config,
         'unsloth_dataset': UnslothDatasetConfig,
         'quality_validator': QualityValidatorConfig,
         'logging': LoggingConfig
@@ -325,9 +365,9 @@ def validate_config_file(config_path: Union[str, Path]) -> Dict[str, Any]:
                 )
         
         # API 키 확인
-        if not config.openai_connector.api_key:
+        if not config.local_llm.api_key:
             validation_results["warnings"].append(
-                "OpenAI API 키가 설정되지 않았습니다"
+                "로컬 LLM API 키가 설정되지 않았습니다"
             )
         
         # 메모리 사용량 경고
@@ -381,8 +421,9 @@ def _config_to_dict(config: PipelineConfig) -> Dict[str, Any]:
     # 모듈별 설정 변환
     module_configs = {
         'md_processor': config.md_processor,
-        'openai_connector': config.openai_connector,
+        'local_llm': config.local_llm,
         'qdrant_connector': config.qdrant_connector,
+        'context7': config.context7,
         'unsloth_dataset': config.unsloth_dataset,
         'quality_validator': config.quality_validator,
         'logging': config.logging

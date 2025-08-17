@@ -6,16 +6,40 @@ project_version: "1.0.0"
 target_count: 5000
 output_directory: "./output/datasets"
 
-# OpenAI API 설정
-openai_endpoint: "http://123.37.28.120:9997/v1"
-openai_model: "qwen2.5-vl-instruct"
-openai_max_tokens: 128000
-openai_temperature: 0.3
+# 로컬 LLM API 설정
+local_llm:
+  endpoint: "http://123.37.28.120:9997/v1"
+  model: "qwen2.5-vl-instruct"
+  max_tokens: 128000
+  temperature: 0.3
+  top_p: 0.9
+  frequency_penalty: 0.0
+  presence_penalty: 0.0
+  batch_size: 16
+  max_concurrent_requests: 8
+  request_timeout: 60
+  retry_attempts: 3
+  retry_delay: 1.0
 
 # Qdrant 설정
 qdrant_host: "100.100.88.88"
 qdrant_port: 6333
 qdrant_collection: "ws-7491d651ae044c78"
+
+# Context7 설정
+context7:
+  enable: true
+  library_id: "/yakdoli/syncfusion-v11-winform"
+  endpoint: null
+  timeout: 30
+  max_results: 10
+  use_in_prompt: true
+  
+  # 하이브리드 검색 가중치
+  weights:
+    context7: 0.3
+    local: 0.3
+    qdrant: 0.4
 
 # 데이터 소스 설정
 md_output_path: "./output"

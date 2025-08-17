@@ -4,7 +4,8 @@
       "Bash(dir /b C:workspace250811md_staging)",
       "Bash(pip install aiohttp aiofiles)",
       "Bash(python test:*)",
-      "Bash(python:*)"
+      "Bash(python:*)",
+      "Bash(git describe:*)"
     ],
     "deny": []
   }

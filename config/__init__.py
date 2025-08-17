@@ -18,7 +18,7 @@
 from .config import (
     PipelineConfig,
     MDProcessorConfig,
-    OpenAIConnectorConfig,
+    LocalLLMConfig,
     QdrantConnectorConfig,
     UnslothDatasetConfig,
     QualityValidatorConfig,
@@ -33,7 +33,7 @@ from .config import (
 __all__ = [
     'PipelineConfig',
     'MDProcessorConfig', 
-    'OpenAIConnectorConfig',
+    'LocalLLMConfig',
     'QdrantConnectorConfig',
     'UnslothDatasetConfig',
     'QualityValidatorConfig',
